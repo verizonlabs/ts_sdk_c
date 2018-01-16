@@ -60,8 +60,9 @@ static TsStatus_t ts_create( TsControllerRef_t * controller ) {
 	sock->_controller._profile = NULL;
 	sock->_controller._spec_budget = 60 * TS_TIME_SEC_TO_USEC;
 	sock->_controller._spec_mcu = 2048;
-	// TODO - should provide mac address here (but works without it)
-	snprintf( (char *)(sock->_controller._spec_id), TS_CONTROLLER_MAX_ID_SIZE, "%s", "hardware-id" );
+	// TODO - should provide mac address here
+	// TODO - currently using my own mac-id - need to change this asap.
+	snprintf( (char *)(sock->_controller._spec_id), TS_CONTROLLER_MAX_ID_SIZE, "%s", "B827EBA15910" );
 	sock->_fd = -1;
 
 	*controller = (TsControllerRef_t) sock;

@@ -10,6 +10,7 @@ TsStatus_t ts_service_create( TsServiceRef_t * service ) {
 	ts_platform_assert( ts_transport != NULL );
 	ts_platform_assert( service != NULL );
 
+	// first, allocate and initialize transport memory
 	TsTransportRef_t transport;
 	TsStatus_t status = ts_transport_create( &transport );
 	if( status != TsStatusOk ) {
@@ -17,11 +18,12 @@ TsStatus_t ts_service_create( TsServiceRef_t * service ) {
 		return status;
 	}
 
-	// first, allocate and clear connection memory
+	// next, allocate service memory
 	*service = (TsServiceRef_t) ( ts_platform_malloc( sizeof( TsService_t )));
+	memset( *service, 0x00, sizeof( TsService_t ) );
 	(*service)->_transport = transport;
 
-	// last, complete via service-specific create
+	// last, complete service initialization via protocol-specific create
 	status = ts_service->create( service );
 	if( status != TsStatusOk ) {
 		ts_transport_destroy( transport );
@@ -157,7 +159,7 @@ TsStatus_t ts_service_enqueue( TsServiceRef_t service, TsMessageRef_t message ) 
 	ts_platform_assert( service != NULL );
 	ts_platform_assert( service->_transport != NULL );
 
-	return TsStatusErrorNotImplemented;
+	return ts_service->enqueue( service, message );
 }
 
 TsStatus_t ts_service_dequeue( TsServiceRef_t service, TsServiceAction_t action, TsServiceHandler_t handler ) {
@@ -167,5 +169,13 @@ TsStatus_t ts_service_dequeue( TsServiceRef_t service, TsServiceAction_t action,
 	ts_platform_assert( service != NULL );
 	ts_platform_assert( service->_transport != NULL );
 
-	return TsStatusErrorNotImplemented;
+	// initialize or overwrite service handler by index
+	for( int index = 0; index < TS_SERVICE_MAX_HANDLERS; index++ ) {
+		if( 0x0001 & ( action >> index ) ) {
+			service->_handlers[index] = handler;
+		}
+	}
+
+	// allow protocol specific implementation
+	return ts_service->dequeue( service, action, handler );
 }

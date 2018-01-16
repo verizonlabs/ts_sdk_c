@@ -4,6 +4,8 @@
 
 #include "ts_connection.h"
 
+#define TS_TRANSPORT_MQTT_MAX_HANDLERS 4
+
 typedef struct Timer {
 	uint64_t end_time;
 } Timer;

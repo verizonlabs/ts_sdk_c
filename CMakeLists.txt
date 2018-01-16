@@ -21,7 +21,7 @@ project( ts_sdk_c C CXX ASM )
 # component and platform selection
 add_definitions( -DTS_SERVICE_TS_JSON )     # TS_JSON, TS_CBOR, NONE or CUSTOM
 add_definitions( -DTS_TRANSPORT_MQTT )      # MQTT or CUSTOM only
-add_definitions( -DTS_SECURITY_NONE )       # MBED, MOCANA, NONE or CUSTOM
+add_definitions( -DTS_SECURITY_MBED )       # MBED, MOCANA, NONE or CUSTOM
 add_definitions( -DTS_CONTROLLER_SOCKET )   # MONARCH, SOCKET or CUSTOM
 add_definitions( -DTS_PLATFORM_UNIX )       # UNIX, THREADX, NONE or CUSTOM
 

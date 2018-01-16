@@ -12,7 +12,7 @@
 // opt TS_PLATFORM_UNIX
 #if defined(TS_TRANSPORT_MQTT) && defined(TS_SECURITY_NONE)
 
-static TsStatus_t handler( TsTransportRef_t transport, TsPath_t path, const uint8_t * buffer, size_t buffer_size );
+static TsStatus_t handler( TsTransportRef_t, void *, TsPath_t, const uint8_t *, size_t );
 
 int main() {
 
@@ -32,7 +32,7 @@ int main() {
 	}
 
 	TsPath_t subscription = (TsPath_t)"/thingspace/icsiii/subscription";
-	status = ts_transport_listen( transport, NULL, subscription, handler);
+	status = ts_transport_listen( transport, NULL, subscription, handler, NULL );
 	if( status != TsStatusOk ) {
 		ts_status_debug("failed to listen, %s\n", ts_status_string(status));
 		return 0;
@@ -62,7 +62,7 @@ int main() {
 	return 0;
 }
 
-static TsStatus_t handler( TsTransportRef_t transport, TsPath_t path, const uint8_t * buffer, size_t buffer_size ) {
+static TsStatus_t handler( TsTransportRef_t transport, void * data, TsPath_t path, const uint8_t * buffer, size_t buffer_size ) {
 	ts_status_debug("handler called\n");
 	return TsStatusOk;
 }

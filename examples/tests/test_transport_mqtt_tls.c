@@ -16,7 +16,7 @@
 // opt TS_PLATFORM_UNIX
 #if defined(TS_TRANSPORT_MQTT) && ( defined(TS_SECURITY_MBED) || defined(TS_SECURITY_MOCANA) )
 
-static TsStatus_t handler( TsTransportRef_t transport, TsPath_t path, const uint8_t * buffer, size_t buffer_size );
+static TsStatus_t handler( TsTransportRef_t transport, void *, TsPath_t path, const uint8_t * buffer, size_t buffer_size );
 
 int main() {
 
@@ -47,7 +47,7 @@ int main() {
 
 	// subscribe
 	TsPath_t subscription = (TsPath_t)"ThingspaceSDK/B827EBA15910/subscription";
-	status = ts_transport_listen( transport, NULL, subscription, handler);
+	status = ts_transport_listen( transport, NULL, subscription, handler, NULL);
 	if( status != TsStatusOk ) {
 		ts_status_debug("failed to listen, %s\n", ts_status_string(status));
 		return 0;
@@ -78,7 +78,7 @@ int main() {
 	return 0;
 }
 
-TsStatus_t handler( TsTransportRef_t transport, TsPath_t path, const uint8_t * buffer, size_t buffer_size ) {
+TsStatus_t handler( TsTransportRef_t transport, void * data, TsPath_t path, const uint8_t * buffer, size_t buffer_size ) {
 	ts_status_debug("handler called\n");
 	return TsStatusOk;
 }
@@ -86,7 +86,9 @@ TsStatus_t handler( TsTransportRef_t transport, TsPath_t path, const uint8_t * b
 #else
 
 int main() {
+
 	ts_status_alarm("missing one or many components, please check compile directives and build again\n");
+
 }
 
 #endif

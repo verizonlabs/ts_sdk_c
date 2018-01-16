@@ -10,10 +10,10 @@ extern "C" {
 
 extern TsPlatformVtable_t ts_platform_unix;
 //extern TsPlatformVtable_t ts_platform_windows;
-//extern TsPlatformVtable_t ts_platform_raspberry_pi3;
-//extern TsPlatformVtable_t ts_platform_stmicro_neucleo;
-//extern TsPlatformVtable_t ts_platform_renasas_s5;
-//extern TsPlatformVtable_t ts_platform_nxp;
+//extern TsPlatformVtable_t ts_platform_unix_raspberry_pi3;
+//extern TsPlatformVtable_t ts_platform_none_freedom;
+//extern TsPlatformVtable_t ts_platform_none_nucleo;
+//extern TsPlatformVtable_t ts_platform_threadX_renasas_s5;
 
 #ifdef __cplusplus
 }

@@ -9,6 +9,8 @@
 #include "include/client-crt.h"
 #include "include/client-key.h"
 
+#if defined(TS_TRANSPORT_MQTT) && ( defined(TS_SECURITY_MBED) || defined(TS_SECURITY_MOCANA) )
+
 // application sensor cache
 static TsMessageRef_t sensors;
 
@@ -28,6 +30,7 @@ int main() {
 
 	// initialize status reporting level (see ts_status.h)
 	ts_status_set_level( TsStatusDebug );
+	ts_status_debug( "simple: initializing,...\n");
 
 	// initialize sensor cache (usually set from hardware)
 	ts_message_create( &sensors );
@@ -37,14 +40,15 @@ int main() {
 	TsServiceRef_t service;
 	TsStatus_t status = initialize( &service );
 	if( status != TsStatusOk ) {
-		ts_status_debug( "failed to initialize service, %s\n", ts_status_string(status) );
+		ts_status_debug( "simple: failed to initialize service, %s\n", ts_status_string(status) );
 		ts_message_destroy( sensors );
 		return 0;
 	}
 
 	// enter run loop,...
+	ts_status_debug( "simple: entering run-loop,...\n");
 	uint64_t timestamp = ts_platform_time();
-	uint32_t interval = 1 * TS_TIME_SEC_TO_USEC;
+	uint32_t interval = 5 * TS_TIME_SEC_TO_USEC;
 	bool running = true;
 	do {
 
@@ -54,7 +58,7 @@ int main() {
 			timestamp = ts_platform_time();
 			status = ts_service_enqueue( service, sensors );
 			if( status != TsStatusOk ) {
-				ts_status_debug( "ignoring failure to enqueue sensor data, %s\n", ts_status_string(status) );
+				ts_status_debug( "simple: ignoring failure to enqueue sensor data, %s\n", ts_status_string(status) );
 				// do nothing
 			}
 		}
@@ -64,11 +68,12 @@ int main() {
 		//        other options include limiting the interval, and sleeping after
 		status = ts_service_tick( service, interval );
 		if( status != TsStatusOk ) {
-			ts_status_debug( "failed to perform tick, %s, shutting down,...\n", ts_status_string(status) );
+			ts_status_debug( "simple: failed to perform tick, %s, shutting down,...\n", ts_status_string(status) );
 			running = false;
 		}
 
 	} while( running );
+	ts_status_debug( "simple: exited run-loop, cleaning up and exiting...\n");
 
 	// disconnect from thingspace server
 	ts_service_hangup( service );
@@ -130,27 +135,42 @@ static TsStatus_t handler( TsServiceRef_t service, TsServiceAction_t action, TsM
 
 static TsStatus_t initialize( TsServiceRef_t * service ) {
 
+	ts_status_debug( "simple: initializing service,...\n");
 	ts_service_create( service );
 
 	// security initialization
+	ts_status_debug( "simple: initializing certificates,...\n");
 	ts_service_set_server_cert_hostname( *service, "simpm.thingspace.verizon.com" );
 	ts_service_set_server_cert( *service, cacert_buf, 891 );
 	ts_service_set_client_cert( *service, client_cert, 941 );
 	ts_service_set_client_key( *service, client_key, 605 );
 
 	// connect to thingspace server
+	ts_status_debug( "simple: initializing connection,...\n");
 	TsStatus_t status = ts_service_dial( *service, "simpm.thingspace.verizon.com:8883" );
 	if( status != TsStatusOk ) {
-		ts_status_debug("failed to dial, %s\n", ts_status_string(status));
+		ts_status_debug("simple: failed to dial, %s\n", ts_status_string(status));
 		return status;
 	}
 
 	//  subscribe to field gets and sets
+	ts_status_debug( "simple: initializing callback,...\n");
 	status = ts_service_dequeue( *service, TsServiceActionMaskAll, handler );
 	if( status != TsStatusOk ) {
-		ts_status_debug("failed to dial, %s\n", ts_status_string(status));
+		ts_status_debug("simple: failed to dial, %s\n", ts_status_string(status));
 		return status;
 	}
 
+	ts_status_debug( "simple: initializing done.\n");
 	return TsStatusOk;
 }
+
+#else
+
+int main() {
+
+	ts_status_alarm("missing one or many components, please check compile directives and build again\n");
+
+}
+
+#endif

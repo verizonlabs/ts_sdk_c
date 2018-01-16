@@ -21,10 +21,11 @@ static TsStatus_t ts_get_connection( TsTransportRef_t, TsConnectionRef_t* );
 
 static TsStatus_t ts_dial(TsTransportRef_t, TsAddress_t);
 static TsStatus_t ts_hangup(TsTransportRef_t);
-static TsStatus_t ts_listen(TsTransportRef_t, TsAddress_t, TsPath_t, TsTransportHandler_t);
+static TsStatus_t ts_listen(TsTransportRef_t, TsAddress_t, TsPath_t, TsTransportHandler_t, void*);
 static TsStatus_t ts_speak(TsTransportRef_t, TsPath_t, const uint8_t*, size_t);
 
 TsTransportVtable_t ts_transport_mqtt = {
+
 	.create = ts_create,
 	.destroy = ts_destroy,
 	.tick = ts_tick,
@@ -35,6 +36,7 @@ TsTransportVtable_t ts_transport_mqtt = {
 	.hangup = ts_hangup,
 	.listen = ts_listen,
 	.speak = ts_speak,
+
 };
 
 static int paho_mqtt_read(Network*, unsigned char*, int, int);
@@ -43,6 +45,15 @@ static void paho_mqtt_disconnect( Network * );
 static void paho_mqtt_callback( MessageData * );
 
 static MQTTPacket_connectData default_connection = MQTTPacket_connectData_initializer;
+
+typedef struct TsTransportMqttHandler {
+	TsTransportHandler_t handler;
+	TsTransportRef_t transport;
+	void * data;
+} TsTransportMqttHandler_t;
+
+// TODO - there is only one handler - which forces only one listener and one transport of this type
+static TsTransportMqttHandler_t _default_handler = { NULL, NULL, NULL };
 
 typedef struct TsTransportMqtt * TsTransportMqttRef_t;
 typedef struct TsTransportMqtt {
@@ -82,6 +93,10 @@ static TsStatus_t ts_create(TsTransportRef_t *transport) {
 	// create and initialize this transport state
 	TsTransportMqttRef_t mqtt = (TsTransportMqttRef_t)(ts_platform_malloc(sizeof(TsTransportMqtt_t)));
 	*transport = (TsTransportRef_t)mqtt;
+
+	// NOTE - the transport attribute, "handler" isn't used due to
+	// (poort) paho design, we have to use a local static variable,
+	// i.e., '_default_handler'.
 
 	mqtt->_transport._connection = connection;
 	mqtt->_network._connection = connection;
@@ -198,9 +213,9 @@ static TsStatus_t ts_dial(TsTransportRef_t transport, TsAddress_t address) {
 		return TsStatusErrorPreconditionFailed;
 	}
 
-	// state centric parameter, "handler" must be reset
-	// see "listen" for more information
-	mqtt->_transport._handler = NULL;
+	// NOTE - the transport attribute, "handler" isn't used due to
+	// (poort) paho design, we have to use a local static variable,
+	// i.e., '_default_handler'.
 
 	TsStatus_t status = ts_connection_connect( mqtt->_transport._connection, address );
 	if( status != TsStatusOk ) {
@@ -240,20 +255,26 @@ static TsStatus_t ts_hangup(TsTransportRef_t transport) {
  * @param handler
  * @return
  */
-static TsStatus_t ts_listen(TsTransportRef_t transport, TsAddress_t address, TsPath_t path, TsTransportHandler_t handler) {
+static TsStatus_t ts_listen(TsTransportRef_t transport, TsAddress_t address, TsPath_t path, TsTransportHandler_t handler, void * handler_data) {
 
 	ts_status_trace("ts_transport_listen\n");
 	ts_platform_assert(transport != NULL);
 
 	TsTransportMqttRef_t mqtt = (TsTransportMqttRef_t)transport;
-	ts_platform_assert( mqtt->_transport._handler == NULL );
 
 	if( !(mqtt->_client.isconnected) ) {
 		ts_status_debug("ts_transport_listen: failed, mqtt not connected\n");
 		return TsStatusErrorPreconditionFailed;
 	}
 
-	mqtt->_transport._handler = handler;
+	// NOTE - the transport attribute, "handler" isn't used due to
+	// (poort) paho design, we have to use a local static variable,
+	// i.e., '_default_handler'.
+	_default_handler.transport = transport;
+	_default_handler.handler = handler;
+	_default_handler.data = handler_data;
+
+	// subscribe
 	int code = MQTTSubscribe( &(mqtt->_client), (char*)path, mqtt->_spec_qos, paho_mqtt_callback );
 	if( code != 0 ) {
 		ts_status_debug("ts_transport_listen: failed due to mqtt error, %d\n", code);
@@ -414,10 +435,14 @@ static void paho_mqtt_callback( MessageData * data ) {
 
 	ts_status_trace("paho_mqtt_callback\n");
 	ts_platform_assert(data != NULL);
+	ts_platform_assert( _default_handler.handler != NULL );
 
 	MQTTMessage* message = data->message;
-
-	// TODO - perform the mqtt callback,...
 	ts_status_debug("%.*s\t", data->topicName->lenstring.len, data->topicName->lenstring.data);
 	ts_status_debug("%.*s\n", (int)message->payloadlen, (char*)message->payload);
+
+	// NOTE - the transport attribute, "handler" isn't used due to
+	// (poort) paho design, we have to use a local static variable,
+	// i.e., '_default_handler'.
+	_default_handler.handler( _default_handler.transport, _default_handler.data, (TsPath_t)(data->topicName), message->payload, message->payloadlen );
 }
