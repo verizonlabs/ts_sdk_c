@@ -2,8 +2,8 @@
 #ifndef TS_SERVICE_H
 #define TS_SERVICE_H
 
-#include "ts_protocol.h"
 #include "ts_message.h"
+#include "ts_transport.h"
 
 typedef enum {
 
@@ -21,14 +21,31 @@ typedef enum {
 } TsServiceAction_t;
 
 typedef struct TsService * TsServiceRef_t;
+
 typedef TsStatus_t (* TsServiceHandler_t)( TsServiceRef_t, TsServiceAction_t, TsMessageRef_t );
+
+// TODO - should we switch all specializations to use a void* for state?
 typedef struct TsService {
-	TsProtocolRef_t _protocol;
+	void *              _state;
+	TsTransportRef_t    _transport;
 } TsService_t;
+
+typedef struct TsServiceVtable {
+
+	TsStatus_t (*create)( TsServiceRef_t * );
+	TsStatus_t (*destroy)( TsServiceRef_t );
+	TsStatus_t (*tick)( TsServiceRef_t, uint32_t );
+
+	TsStatus_t (*enqueue)( TsServiceRef_t, TsMessageRef_t );
+	TsStatus_t (*dequeue)( TsServiceRef_t, TsServiceAction_t, TsServiceHandler_t );
+
+} TsServiceVtable_t;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+extern const TsServiceVtable_t * ts_service;
 
 TsStatus_t ts_service_create( TsServiceRef_t * );
 TsStatus_t ts_service_destroy( TsServiceRef_t );

@@ -6,12 +6,7 @@
 #include "cJSON.h"
 
 #include "ts_status.h"
-#include "ts_platform.h"
 #include "ts_message.h"
-
-/* client debug */
-// TODO - switch to platform debug,...
-#define dbg_printf printf
 
 /* static memory model, e.g., for debug (warning - affects bss directly) */
 /* TS_MESSAGE_STATIC_MEMORY define. */
@@ -34,10 +29,10 @@ static TsStatus_t _ts_message_encode_cbor(TsMessageRef_t, CborEncoder *, uint8_t
 TsStatus_t ts_message_report()
 {
 #ifdef TS_MESSAGE_STATIC_MEMORY
-	dbg_printf("report: counter, %d\n", _ts_message_counter);
+	ts_status_debug("report: counter, %d\n", _ts_message_counter);
 	for (int i = 0; i < TS_MESSAGE_MAX_NODES; i++) {
 		if (_ts_message_nodes[i].references > 0) {
-			dbg_printf("report: referenced node %d: %s has %d references\n",
+			ts_status_debug("report: referenced node %d: %s has %d references\n",
 					   i,
 					   _ts_message_nodes[i].name,
 					   _ts_message_nodes[i].references);
@@ -84,7 +79,7 @@ TsStatus_t ts_message_create(TsMessageRef_t *message)
 	*message = NULL;
 
 	/* and return an out-of-memory error */
-	dbg_printf("ts_message_create: out of memory");
+	ts_status_debug("ts_message_create: out of memory");
 	return TsStatusErrorOutOfMemory;
 
 #else
@@ -233,7 +228,7 @@ TsStatus_t ts_message_destroy(TsMessageRef_t message)
 		message->references = 0;
 		_ts_message_counter--;
 		if (_ts_message_counter <= 0) {
-			dbg_printf("ts_message_destroy: all messages that had been created are now destroyed\n");
+			ts_status_debug("ts_message_destroy: all messages that had been created are now destroyed\n");
 		}
 #else
 		free(message);
@@ -645,7 +640,7 @@ TsStatus_t ts_message_decode_cbor(TsMessageRef_t message, CborValue *value)
 static TsStatus_t _ts_message_initialize()
 {
 	/* report some basic statistics */
-	dbg_printf("initializing messaging, message_t size (%lu) preallocated message nodes (%d)\n", sizeof(TsMessage_t),
+	ts_status_debug("initializing messaging, message_t size (%lu) preallocated message nodes (%d)\n", sizeof(TsMessage_t),
 			   TS_MESSAGE_MAX_NODES);
 
 	/* initialize message management system */
@@ -717,7 +712,7 @@ static TsStatus_t _ts_message_set(TsMessageRef_t message, TsPathNode_t field, Ts
 					/* (re)create a new messsage */
 					TsStatus_t status = ts_message_create(&branch);
 					if (status != TsStatusOk) {
-						dbg_printf("_ts_message_set: failed to create new primitive(%d)\n", status);
+						ts_status_debug("_ts_message_set: failed to create new primitive(%d)\n", status);
 						return status;
 					}
 					break;
@@ -728,14 +723,14 @@ static TsStatus_t _ts_message_set(TsMessageRef_t message, TsPathNode_t field, Ts
 					/* copy given messsage */
 					TsStatus_t status = ts_message_create_copy((TsMessageRef_t) value, &branch);
 					if (status != TsStatusOk) {
-						dbg_printf("_ts_message_set: failed to copy message or array(%d)\n", status);
+						ts_status_debug("_ts_message_set: failed to copy message or array(%d)\n", status);
 						return status;
 					}
 					break;
 				}
 				default:
 
-					dbg_printf("_ts_message_set: unknown type\n");
+					ts_status_debug("_ts_message_set: unknown type\n");
 					return TsStatusErrorBadRequest;
 				}
 			} else {
@@ -772,7 +767,7 @@ static TsStatus_t _ts_message_set(TsMessageRef_t message, TsPathNode_t field, Ts
 
 			snprintf(branch->value._xstring, TS_MESSAGE_MAX_STRING_SIZE, "%s", (char *) value);
 			if (strlen(branch->value._xstring) < strlen((char *) value)) {
-				dbg_printf("issue detected during set (%s), string truncated; the given string is too large\n",
+				ts_status_debug("issue detected during set (%s), string truncated; the given string is too large\n",
 						   field);
 			}
 			break;
@@ -789,7 +784,7 @@ static TsStatus_t _ts_message_set(TsMessageRef_t message, TsPathNode_t field, Ts
 	}
 
 	/* there isn't a branch available */
-	dbg_printf("failed to set (%s), there are no additional nodes available\n", field);
+	ts_status_debug("failed to set (%s), there are no additional nodes available\n", field);
 	return TsStatusErrorPayloadTooLarge;
 }
 
@@ -871,55 +866,55 @@ static TsStatus_t _ts_message_encode_debug(TsMessageRef_t message, int depth)
 {
 	/* pretty print (indent) */
 	for (int i = 0; i < depth; i++) {
-		dbg_printf("  ");
+		ts_status_debug("  ");
 	}
 	if (strlen(message->name) > 0) {
-		dbg_printf("%s", message->name);
+		ts_status_debug("%s", message->name);
 	}
 
 	/* display type and value */
 	switch (message->type) {
 	case TsTypeNull:
-		dbg_printf(":NULL\n");
+		ts_status_debug(":NULL\n");
 		break;
 
 	case TsTypeInteger:
-		dbg_printf(":integer( %d )\n", message->value._xinteger);
+		ts_status_debug(":integer( %d )\n", message->value._xinteger);
 		break;
 
 	case TsTypeFloat:
-		dbg_printf(":float( %f )\n", message->value._xfloat);
+		ts_status_debug(":float( %f )\n", message->value._xfloat);
 		break;
 
 	case TsTypeBoolean:
-		dbg_printf(":boolean( %u )\n", message->value._xboolean);
+		ts_status_debug(":boolean( %u )\n", message->value._xboolean);
 		break;
 
 	case TsTypeString:
-		dbg_printf(":string( %s )\n", message->value._xstring);
+		ts_status_debug(":string( %s )\n", message->value._xstring);
 		break;
 
 	case TsTypeArray: {
-		dbg_printf(":array\n");
+		ts_status_debug(":array\n");
 		for (int i = 0; i < TS_MESSAGE_MAX_BRANCHES; i++) {
 			TsMessageRef_t branch = message->value._xfields[i];
 			if (branch == NULL) {
 				break;
 			}
 			for (int i = 0; i < depth; i++) {
-				dbg_printf("  ");
+				ts_status_debug("  ");
 			}
-			dbg_printf("[%d] = {\n", i);
+			ts_status_debug("[%d] = {\n", i);
 			_ts_message_encode_debug(branch, depth + 1);
 			for (int i = 0; i < depth; i++) {
-				dbg_printf("  ");
+				ts_status_debug("  ");
 			}
-			dbg_printf("}\n");
+			ts_status_debug("}\n");
 		}
 		break;
 	}
 	case TsTypeMessage: {
-		dbg_printf(":message\n");
+		ts_status_debug(":message\n");
 		for (int i = 0; i < TS_MESSAGE_MAX_BRANCHES; i++) {
 			TsMessageRef_t branch = message->value._xfields[i];
 			if (branch == NULL) {
@@ -930,7 +925,7 @@ static TsStatus_t _ts_message_encode_debug(TsMessageRef_t message, int depth)
 		break;
 	}
 	default:
-		dbg_printf(":unknown\n");
+		ts_status_debug(":unknown\n");
 		break;
 	}
 	return TsStatusOk;
