@@ -7,9 +7,9 @@ See, https://chrisjean.com/git-submodules-adding-using-removing-and-updating, fo
 
 The following repo's where added as submodules:
 ```
-$ git submodule add https://github.com/icsiii/tinycbor.git
-$ git submodule add https://github.com/icsiii/cJSON.git
-$ git submodule add https://github.com/icsiii/paho.mqtt.embedded-c.git
-$ git submodule add https://github.com/icsiii/mbedtls.git
+$ git submodule add https://github.com/verizonlabs/tinycbor.git
+$ git submodule add https://github.com/verizonlabs/cJSON.git
+$ git submodule add https://github.com/verizonlabs/paho.mqtt.embedded-c.git
+$ git submodule add https://github.com/verizonlabs/mbedtls.git
 ```
 

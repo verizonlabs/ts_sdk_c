@@ -1,0 +1,15 @@
+[submodule "sdk_dependencies/tinycbor"]
+	path = sdk_dependencies/tinycbor
+	url = https://github.com/verizonlabs/tinycbor.git
+[submodule "sdk_dependencies/cJSON"]
+	path = sdk_dependencies/cJSON
+	url = https://github.com/verizonlabs/cJSON.git
+[submodule "sdk_dependencies/paho.mqtt.embedded-c"]
+	path = sdk_dependencies/paho.mqtt.embedded-c
+	url = https://github.com/verizonlabs/paho.mqtt.embedded-c.git
+[submodule "sdk_dependencies/mbedtls"]
+	path = sdk_dependencies/mbedtls
+	url = https://github.com/verizonlabs/mbedtls.git
+[submodule "sdk_dependencies/mocana_ssl"]
+	path = sdk_dependencies/mocana_ssl
+	url = https://github.com/verizonlabs/mocana_ssl.git
