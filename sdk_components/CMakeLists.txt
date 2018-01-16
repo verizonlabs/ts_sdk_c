@@ -10,7 +10,7 @@ include_directories( ${CMAKE_SOURCE_DIR}/sdk_dependencies/paho.mqtt.embedded-c/M
 
 file( GLOB SOURCES
         "*.c"
-        "protocol/*.c"
+        "service/*.c"
         "transport/*.c"
         "security/*.c"
         "controller/*.c" )
