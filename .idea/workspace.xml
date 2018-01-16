@@ -1,0 +1,1185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true" buildAllGenerated="true">
+    <generated>
+      <config projectName="ts_sdk_c" targetName="test_socket" />
+      <config projectName="ts_sdk_c" targetName="ts_sdk" />
+      <config projectName="ts_sdk_c" targetName="mbedcrypto" />
+      <config projectName="ts_sdk_c" targetName="mbedx509" />
+      <config projectName="ts_sdk_c" targetName="cjson" />
+      <config projectName="ts_sdk_c" targetName="mbedtls" />
+      <config projectName="ts_sdk_c" targetName="ts_sdk_components" />
+      <config projectName="ts_sdk_c" targetName="example_custom_transport" />
+      <config projectName="ts_sdk_c" targetName="tinycbor" />
+      <config projectName="ts_sdk_c" targetName="apidoc" />
+      <config projectName="ts_sdk_c" targetName="test_socket_tls" />
+      <config projectName="ts_sdk_c" targetName="lib" />
+      <config projectName="ts_sdk_c" targetName="test_transport_mqtt" />
+      <config projectName="ts_sdk_c" targetName="example_simple" />
+      <config projectName="ts_sdk_c" targetName="pahomqtt" />
+      <config projectName="ts_sdk_c" targetName="ts_sdk_platforms" />
+      <config projectName="ts_sdk_c" targetName="test_transport_mqtt_tls" />
+    </generated>
+  </component>
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="d7cb5783-e541-4c68-91db-f921c250180c" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" afterPath="$PROJECT_DIR$/CMakeLists.txt" />
+      <change beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
+      <change beforePath="$PROJECT_DIR$/documents/README.md" afterPath="$PROJECT_DIR$/documents/README.md" />
+      <change beforePath="$PROJECT_DIR$/examples/applications/simple/main.c" afterPath="$PROJECT_DIR$/examples/applications/simple/main.c" />
+      <change beforePath="$PROJECT_DIR$/sdk/include/ts_address.h" afterPath="$PROJECT_DIR$/sdk/include/ts_address.h" />
+      <change beforePath="$PROJECT_DIR$/sdk/include/ts_controller.h" afterPath="$PROJECT_DIR$/sdk/include/ts_controller.h" />
+      <change beforePath="$PROJECT_DIR$/sdk/include/ts_driver.h" afterPath="$PROJECT_DIR$/sdk/include/ts_driver.h" />
+      <change beforePath="$PROJECT_DIR$/sdk/include/ts_message.h" afterPath="$PROJECT_DIR$/sdk/include/ts_message.h" />
+      <change beforePath="$PROJECT_DIR$/sdk/include/ts_platform.h" afterPath="$PROJECT_DIR$/sdk/include/ts_platform.h" />
+      <change beforePath="$PROJECT_DIR$/sdk/include/ts_protocol.h" afterPath="$PROJECT_DIR$/sdk/include/ts_protocol.h" />
+      <change beforePath="$PROJECT_DIR$/sdk/include/ts_security.h" afterPath="$PROJECT_DIR$/sdk/include/ts_security.h" />
+      <change beforePath="$PROJECT_DIR$/sdk/include/ts_service.h" afterPath="$PROJECT_DIR$/sdk/include/ts_service.h" />
+      <change beforePath="$PROJECT_DIR$/sdk/include/ts_transport.h" afterPath="$PROJECT_DIR$/sdk/include/ts_transport.h" />
+      <change beforePath="$PROJECT_DIR$/sdk/source/ts_service.c" afterPath="$PROJECT_DIR$/sdk/source/ts_service.c" />
+      <change beforePath="$PROJECT_DIR$/sdk_components/CMakeLists.txt" afterPath="$PROJECT_DIR$/sdk_components/CMakeLists.txt" />
+      <change beforePath="$PROJECT_DIR$/sdk_components/controller/ts_controller_socket.c" afterPath="$PROJECT_DIR$/sdk_components/controller/ts_controller_socket.c" />
+      <change beforePath="$PROJECT_DIR$/sdk_components/protocol/ts_protocol_none.c" afterPath="$PROJECT_DIR$/sdk_components/protocol/ts_protocol_none.c" />
+      <change beforePath="$PROJECT_DIR$/sdk_components/protocol/ts_protocol_ts_cbor.c" afterPath="$PROJECT_DIR$/sdk_components/protocol/ts_protocol_ts_cbor.c" />
+      <change beforePath="$PROJECT_DIR$/sdk_components/protocol/ts_protocol_ts_json.c" afterPath="$PROJECT_DIR$/sdk_components/protocol/ts_protocol_ts_json.c" />
+      <change beforePath="$PROJECT_DIR$/sdk_components/service/ts_service_diagnostic.c" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/sdk_components/service/ts_service_profile.c" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/sdk_components/ts_components.c" afterPath="$PROJECT_DIR$/sdk_components/ts_components.c" />
+      <change beforePath="$PROJECT_DIR$/sdk_platforms/ts_platforms.c" afterPath="$PROJECT_DIR$/sdk_platforms/ts_platforms.c" />
+    </list>
+    <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="TRACKING_ENABLED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
+  <component name="FavoritesManager">
+    <favorites_list name="ts_sdk" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="ts_transport_mqtt.c" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/sdk_components/transport/ts_transport_mqtt.c">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ts_components.c" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/sdk_components/ts_components.c">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="240">
+              <caret line="16" column="17" lean-forward="false" selection-start-line="16" selection-start-column="17" selection-end-line="16" selection-end-column="17" />
+              <folding>
+                <element signature="e#155#222#0" expanded="true" />
+                <element signature="e#257#324#0" expanded="true" />
+                <element signature="e#357#421#0" expanded="true" />
+                <element signature="e#456#469#0" expanded="true" />
+                <element signature="e#660#726#0" expanded="true" />
+                <element signature="e#768#842#0" expanded="true" />
+                <element signature="e#912#979#0" expanded="true" />
+                <element signature="e#1212#1319#0" expanded="true" />
+                <element signature="e#1502#1727#0" expanded="true" />
+                <marker date="1515788270000" expanded="true" signature="762:842" ph="..." />
+                <marker date="1515788270000" expanded="true" signature="1020:1319" ph="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ts_protocol_none.c" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/sdk_components/protocol/ts_protocol_none.c">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="555">
+              <caret line="37" column="0" lean-forward="false" selection-start-line="37" selection-start-column="0" selection-end-line="37" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ts_protocol_ts_json.c" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/sdk_components/protocol/ts_protocol_ts_json.c">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="510">
+              <caret line="34" column="0" lean-forward="false" selection-start-line="34" selection-start-column="0" selection-end-line="34" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ts_protocol_ts_cbor.c" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/sdk_components/protocol/ts_protocol_ts_cbor.c">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="150">
+              <caret line="10" column="38" lean-forward="false" selection-start-line="10" selection-start-column="38" selection-end-line="10" selection-end-column="38" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ts_service.c" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/sdk/source/ts_service.c">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="2160">
+              <caret line="144" column="0" lean-forward="false" selection-start-line="144" selection-start-column="0" selection-end-line="144" selection-end-column="0" />
+              <folding>
+                <element signature="e#63#87#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ts_protocol.h" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/sdk/include/ts_protocol.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="375">
+              <caret line="25" column="0" lean-forward="false" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
+              <folding>
+                <element signature="e#108#127#0" expanded="true" />
+                <element signature="e#713#725#0" expanded="true" />
+                <element signature="e#1089#1101#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ts_message.h" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/sdk/include/ts_message.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="870">
+              <caret line="58" column="0" lean-forward="false" selection-start-line="58" selection-start-column="0" selection-end-line="58" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ts_transport.h" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/sdk/include/ts_transport.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="375">
+              <caret line="25" column="46" lean-forward="false" selection-start-line="25" selection-start-column="46" selection-end-line="25" selection-end-column="46" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ts_service.h" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/sdk/include/ts_service.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="420">
+              <caret line="28" column="18" lean-forward="false" selection-start-line="28" selection-start-column="18" selection-end-line="28" selection-end-column="18" />
+              <folding>
+                <element signature="e#106#130#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>credential</find>
+      <find>mbedtls_ssl_set_bio</find>
+      <find>SSL_HOST</find>
+      <find>TCP_READ</find>
+      <find>mbedtls_net</find>
+      <find>mbedtls_ssl_send_t</find>
+      <find>getadd</find>
+      <find>TsConnection</find>
+      <find>ts_connection</find>
+      <find>_channel</find>
+      <find>TsConnectionRef</find>
+      <find>TsSecurityEmbedRef_t</find>
+      <find>ts_connection_security</find>
+      <find>ts_connection_controller</find>
+      <find>connection</find>
+      <find>embed</find>
+      <find>snprint</find>
+      <find>ts_transport</find>
+      <find>ts_controller</find>
+      <find>MQTTIsCon</find>
+      <find>IsConn</find>
+      <find>isconnected</find>
+      <find>0x2700</find>
+      <find>TsApplication</find>
+      <find>channel</find>
+      <find>TsPath_t</find>
+      <find>TsService</find>
+      <find>ts_channel</find>
+      <find>XML</find>
+      <find>ts_service_hangup</find>
+    </findStrings>
+    <replaceStrings>
+      <replace>SECURITY</replace>
+      <replace>Security</replace>
+      <replace>TsSecurity</replace>
+      <replace>ts_connection</replace>
+      <replace>controller</replace>
+      <replace>TsControllerRef</replace>
+      <replace>ts_security</replace>
+      <replace>ts_controller</replace>
+      <replace>security</replace>
+      <replace>channel</replace>
+      <replace>mbed</replace>
+      <replace>ts_transport</replace>
+      <replace>ts_service</replace>
+      <replace>TsExtension</replace>
+      <replace>driver</replace>
+      <replace>TsProtocol</replace>
+      <replace>TsClient</replace>
+      <replace>ts_diver</replace>
+    </replaceStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/sdk_components/extension/ts_extension_diagnostic.c" />
+        <option value="$PROJECT_DIR$/sdk_components/extension/ts_extension_profile.c" />
+        <option value="$PROJECT_DIR$/sdk_components/controller/ts_controller_monarch.c" />
+        <option value="$PROJECT_DIR$/sdk_components/transport/ts_transport_mqtt.h" />
+        <option value="$PROJECT_DIR$/sdk_components/transport/ts_transport_mqtt.c" />
+        <option value="$PROJECT_DIR$/sdk_components/transport/ts_transport_none.c" />
+        <option value="$PROJECT_DIR$/sdk_platforms/channel/ts_driver_device.c" />
+        <option value="$PROJECT_DIR$/sdk_platforms/channel/ts_driver_port.c" />
+        <option value="$PROJECT_DIR$/sdk_components/service/ts_service_diagnostic.c" />
+        <option value="$PROJECT_DIR$/sdk_components/service/ts_service_profile.c" />
+        <option value="$PROJECT_DIR$/sdk_platforms/ts_platform_unix.c" />
+        <option value="$PROJECT_DIR$/sdk/include/ts_client.h" />
+        <option value="$PROJECT_DIR$/sdk/source/ts_status.c" />
+        <option value="$PROJECT_DIR$/sdk/include/ts_status.h" />
+        <option value="$PROJECT_DIR$/sdk_platforms/ts_platform.c" />
+        <option value="$PROJECT_DIR$/sdk_platforms/README.md" />
+        <option value="$PROJECT_DIR$/sdk_platforms/unix/ts_platform_unix.c" />
+        <option value="$PROJECT_DIR$/sdk_platforms/ts_platforms.h" />
+        <option value="$PROJECT_DIR$/examples/tests/test_transport_mqtt.c" />
+        <option value="$PROJECT_DIR$/examples/tests/test_transport_mqtt_tls.c" />
+        <option value="$PROJECT_DIR$/examples/tests/test_socket.c" />
+        <option value="$PROJECT_DIR$/examples/tests/test_socket_tls.c" />
+        <option value="$PROJECT_DIR$/examples/applications/custom_transport/main.c" />
+        <option value="$PROJECT_DIR$/sdk_platforms/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/sdk/include/ts_connection.h" />
+        <option value="$PROJECT_DIR$/examples/tests/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/examples/applications/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/sdk/include/ts_address.h" />
+        <option value="$PROJECT_DIR$/documents/refresh.bash" />
+        <option value="$PROJECT_DIR$/documents/Doxyfile" />
+        <option value="$PROJECT_DIR$/documents/README.md" />
+        <option value="$PROJECT_DIR$/README.md" />
+        <option value="$PROJECT_DIR$/sdk/include/ts_security.h" />
+        <option value="$PROJECT_DIR$/sdk_components/ts_components.h" />
+        <option value="$PROJECT_DIR$/sdk_components/controller/ts_controller_socket.c" />
+        <option value="$PROJECT_DIR$/sdk/include/ts_transport.h" />
+        <option value="$PROJECT_DIR$/sdk/include/ts_driver.h" />
+        <option value="$PROJECT_DIR$/sdk/include/ts_controller.h" />
+        <option value="$PROJECT_DIR$/sdk/include/ts_platform.h" />
+        <option value="$PROJECT_DIR$/sdk_platforms/ts_platforms.c" />
+        <option value="$PROJECT_DIR$/sdk_components/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/sdk_components/ts_components.c" />
+        <option value="$PROJECT_DIR$/examples/applications/simple/main.c" />
+        <option value="$PROJECT_DIR$/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/sdk_components/protocol/ts_protocol_none.c" />
+        <option value="$PROJECT_DIR$/sdk_components/protocol/ts_protocol_ts_cbor.c" />
+        <option value="$PROJECT_DIR$/sdk_components/protocol/ts_protocol_ts_json.c" />
+        <option value="$PROJECT_DIR$/sdk/source/ts_service.c" />
+        <option value="$PROJECT_DIR$/sdk/include/ts_service.h" />
+        <option value="$PROJECT_DIR$/sdk/include/ts_message.h" />
+        <option value="$PROJECT_DIR$/sdk/include/ts_protocol.h" />
+      </list>
+    </option>
+  </component>
+  <component name="JsBuildToolGruntFileManager" detection-done="true" sorting="DEFINITION_ORDER" />
+  <component name="JsBuildToolPackageJson" detection-done="true" sorting="DEFINITION_ORDER" />
+  <component name="JsGulpfileManager">
+    <detection-done>true</detection-done>
+    <sorting>DEFINITION_ORDER</sorting>
+  </component>
+  <component name="OCFindUsagesOptions" text="true" ivars="false" properties="true" derivedClasses="false" />
+  <component name="ProjectFrameBounds">
+    <option name="x" value="88" />
+    <option name="y" value="45" />
+    <option name="width" value="1672" />
+    <option name="height" value="1330" />
+  </component>
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
+  <component name="ProjectView">
+    <navigator currentView="ProjectPane" proportions="" version="1">
+      <flattenPackages />
+      <showMembers />
+      <showModules />
+      <showLibraryContents />
+      <hideEmptyPackages />
+      <abbreviatePackageNames />
+      <autoscrollToSource />
+      <autoscrollFromSource />
+      <sortByType />
+      <manualOrder />
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="ts_sdk_c" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
+              <item name="ts_sdk_c" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="ts_sdk_c" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
+              <item name="ts_sdk_c" type="462c0819:PsiDirectoryNode" />
+              <item name="examples" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="ts_sdk_c" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
+              <item name="ts_sdk_c" type="462c0819:PsiDirectoryNode" />
+              <item name="examples" type="462c0819:PsiDirectoryNode" />
+              <item name="applications" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="ts_sdk_c" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
+              <item name="ts_sdk_c" type="462c0819:PsiDirectoryNode" />
+              <item name="sdk" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="ts_sdk_c" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
+              <item name="ts_sdk_c" type="462c0819:PsiDirectoryNode" />
+              <item name="sdk" type="462c0819:PsiDirectoryNode" />
+              <item name="include" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="ts_sdk_c" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
+              <item name="ts_sdk_c" type="462c0819:PsiDirectoryNode" />
+              <item name="sdk" type="462c0819:PsiDirectoryNode" />
+              <item name="source" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="ts_sdk_c" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
+              <item name="ts_sdk_c" type="462c0819:PsiDirectoryNode" />
+              <item name="sdk_components" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="ts_sdk_c" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
+              <item name="ts_sdk_c" type="462c0819:PsiDirectoryNode" />
+              <item name="sdk_components" type="462c0819:PsiDirectoryNode" />
+              <item name="protocol" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="ts_sdk_c" type="dad4c3:CidrFilesViewHelper$MyProjectTreeStructure$1" />
+              <item name="ts_sdk_c" type="462c0819:PsiDirectoryNode" />
+              <item name="sdk_components" type="462c0819:PsiDirectoryNode" />
+              <item name="transport" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="SearchEverywhereHistoryKey" value="&#9;FILE&#9;file:///Users/v585584/Source/embedded/ts_sdk_c/sdk/include/ts_service.h" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/sdk_components" />
+      <recent name="$PROJECT_DIR$/sdk_platforms/unix" />
+      <recent name="$PROJECT_DIR$/documents" />
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/sdk_components/extension" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager" selected="Application.test_transport_mqtt_tls">
+    <configuration name="Build All" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="ts_sdk_c" RUN_TARGET_NAME="test_transport_mqtt" EXPLICIT_BUILD_TARGET_NAME="all">
+      <envs />
+    </configuration>
+    <configuration name="apidoc" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ts_sdk_c" TARGET_NAME="apidoc" CONFIG_NAME="Debug">
+      <envs />
+    </configuration>
+    <configuration name="cjson" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ts_sdk_c" TARGET_NAME="cjson" CONFIG_NAME="Debug">
+      <envs />
+    </configuration>
+    <configuration name="example_custom_transport" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ts_sdk_c" TARGET_NAME="example_custom_transport" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="ts_sdk_c" RUN_TARGET_NAME="example_custom_transport">
+      <envs />
+    </configuration>
+    <configuration name="example_simple" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ts_sdk_c" TARGET_NAME="example_simple" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="ts_sdk_c" RUN_TARGET_NAME="example_simple">
+      <envs />
+    </configuration>
+    <configuration name="lib" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ts_sdk_c" TARGET_NAME="lib" CONFIG_NAME="Debug">
+      <envs />
+    </configuration>
+    <configuration name="mbedcrypto" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ts_sdk_c" TARGET_NAME="mbedcrypto" CONFIG_NAME="Debug">
+      <envs />
+    </configuration>
+    <configuration name="mbedtls" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ts_sdk_c" TARGET_NAME="mbedtls" CONFIG_NAME="Debug">
+      <envs />
+    </configuration>
+    <configuration name="mbedx509" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ts_sdk_c" TARGET_NAME="mbedx509" CONFIG_NAME="Debug">
+      <envs />
+    </configuration>
+    <configuration name="pahomqtt" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ts_sdk_c" TARGET_NAME="pahomqtt" CONFIG_NAME="Debug">
+      <envs />
+    </configuration>
+    <configuration name="test_socket" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ts_sdk_c" TARGET_NAME="test_socket" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="ts_sdk_c" RUN_TARGET_NAME="test_transport_mqtt">
+      <envs />
+    </configuration>
+    <configuration name="test_socket_tls" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ts_sdk_c" TARGET_NAME="test_socket_tls" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="ts_sdk_c" RUN_TARGET_NAME="test_transport_mqtt">
+      <envs />
+    </configuration>
+    <configuration name="test_transport_mqtt" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ts_sdk_c" TARGET_NAME="test_transport_mqtt" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="ts_sdk_c" RUN_TARGET_NAME="test_transport_mqtt">
+      <envs />
+    </configuration>
+    <configuration name="test_transport_mqtt_tls" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ts_sdk_c" TARGET_NAME="test_transport_mqtt_tls" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="ts_sdk_c" RUN_TARGET_NAME="test_transport_mqtt_tls">
+      <envs />
+    </configuration>
+    <configuration name="tinycbor" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ts_sdk_c" TARGET_NAME="tinycbor" CONFIG_NAME="Debug">
+      <envs />
+    </configuration>
+    <configuration name="ts_sdk" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ts_sdk_c" TARGET_NAME="ts_sdk" CONFIG_NAME="Debug">
+      <envs />
+    </configuration>
+    <configuration name="ts_sdk_components" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ts_sdk_c" TARGET_NAME="ts_sdk_components" CONFIG_NAME="Debug">
+      <envs />
+    </configuration>
+    <configuration name="ts_sdk_platforms" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ts_sdk_c" TARGET_NAME="ts_sdk_platforms" CONFIG_NAME="Debug">
+      <envs />
+    </configuration>
+    <configuration default="true" type="ReactNative" factoryName="React Native">
+      <node-interpreter value="project" />
+      <platform value="ANDROID" />
+      <envs />
+    </configuration>
+    <configuration default="true" type="BashConfigurationType" factoryName="Bash">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="INTERPRETER_PATH" value="/bin/bash" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <module name="" />
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="true" type="CLion_Remote" factoryName="GDB Remote Debug" remoteCommand="" symbolFile="" sysroot="">
+      <method />
+    </configuration>
+    <configuration default="true" type="CMakeCatchTestRunConfigurationType" factoryName="Catch Test" PASS_PARENT_ENVS_2="true" TEST_MODE="SUITE_TEST">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="true" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" PASS_PARENT_ENVS_2="true" TEST_MODE="SUITE_TEST">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true">
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="true" type="ChromiumRemoteDebugType" factoryName="Chromium Remote">
+      <method />
+    </configuration>
+    <configuration default="true" type="CompoundRunConfigurationType" factoryName="Compound Run Configuration">
+      <method />
+    </configuration>
+    <configuration default="true" type="FirefoxRemoteDebugType" factoryName="Firefox Remote">
+      <method />
+    </configuration>
+    <configuration default="true" type="JavaScriptTestRunnerJest" factoryName="Jest">
+      <node-interpreter value="project" />
+      <working-dir value="" />
+      <envs />
+      <scope-kind value="ALL" />
+      <method />
+    </configuration>
+    <configuration default="true" type="JavaScriptTestRunnerProtractor" factoryName="Protractor">
+      <config-file value="" />
+      <node-interpreter value="project" />
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="true" type="JavascriptDebugType" factoryName="JavaScript Debug">
+      <method />
+    </configuration>
+    <configuration default="true" type="NodeWebKit" factoryName="NW.js">
+      <method />
+    </configuration>
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="ts_sdk_c" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="Tox" factoryName="Tox">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="ts_sdk_c" />
+      <method />
+    </configuration>
+    <configuration default="true" type="XSLT" factoryName="XSLT">
+      <option name="myOutputFile" />
+      <option name="myOpenOutputFile" value="false" />
+      <option name="myOpenInBrowser" value="false" />
+      <option name="mySmartErrorHandling" value="true" />
+      <option name="myRunnerPort" value="34873" />
+      <option name="myVmArguments" />
+      <option name="myWorkingDirectory" />
+      <option name="myModule" />
+      <option name="myJdk" />
+      <parameters />
+      <OutputType value="CONSOLE" save-to-file="false" />
+      <FileType name="XML" />
+      <JdkChoice value="FROM_MODULE" />
+      <method />
+    </configuration>
+    <configuration default="true" type="docker-deploy" factoryName="Docker Deployment">
+      <method />
+    </configuration>
+    <configuration default="true" type="js.build_tools.npm" factoryName="npm">
+      <command value="run" />
+      <scripts />
+      <node-interpreter value="project" />
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Doctests">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="ts_sdk_c" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="js.build_tools.grunt" factoryName="Grunt.js">
+      <node-interpreter value="project" />
+      <envs />
+    </configuration>
+    <configuration default="true" type="js.build_tools.gulp" factoryName="Gulp.js">
+      <node-interpreter>project</node-interpreter>
+      <node-options />
+      <gulpfile />
+      <tasks />
+      <arguments />
+      <envs />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Nosetests">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="ts_sdk_c" />
+      <option name="_new_regexPattern" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;.&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Unittests">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="ts_sdk_c" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;.&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="py.test">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="ts_sdk_c" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;.&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+    </configuration>
+    <list size="18">
+      <item index="0" class="java.lang.String" itemvalue="Application.Build All" />
+      <item index="1" class="java.lang.String" itemvalue="Application.example_custom_transport" />
+      <item index="2" class="java.lang.String" itemvalue="Application.example_simple" />
+      <item index="3" class="java.lang.String" itemvalue="Application.test_socket" />
+      <item index="4" class="java.lang.String" itemvalue="Application.test_socket_tls" />
+      <item index="5" class="java.lang.String" itemvalue="Application.test_transport_mqtt" />
+      <item index="6" class="java.lang.String" itemvalue="Application.test_transport_mqtt_tls" />
+      <item index="7" class="java.lang.String" itemvalue="Application.ts_sdk_platforms" />
+      <item index="8" class="java.lang.String" itemvalue="Application.ts_sdk" />
+      <item index="9" class="java.lang.String" itemvalue="Application.ts_sdk_components" />
+      <item index="10" class="java.lang.String" itemvalue="Application.cjson" />
+      <item index="11" class="java.lang.String" itemvalue="Application.pahomqtt" />
+      <item index="12" class="java.lang.String" itemvalue="Application.tinycbor" />
+      <item index="13" class="java.lang.String" itemvalue="Application.apidoc" />
+      <item index="14" class="java.lang.String" itemvalue="Application.lib" />
+      <item index="15" class="java.lang.String" itemvalue="Application.mbedcrypto" />
+      <item index="16" class="java.lang.String" itemvalue="Application.mbedtls" />
+      <item index="17" class="java.lang.String" itemvalue="Application.mbedx509" />
+    </list>
+  </component>
+  <component name="ShelveChangesManager" show_recycled="false">
+    <option name="remove_strategy" value="false" />
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="d7cb5783-e541-4c68-91db-f921c250180c" name="Default" comment="" />
+      <created>1512777932915</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1512777932915</updated>
+      <workItem from="1512777934172" duration="21920000" />
+      <workItem from="1513104018758" duration="16783000" />
+      <workItem from="1513256283045" duration="37317000" />
+      <workItem from="1513724940355" duration="9166000" />
+      <workItem from="1513799891343" duration="2475000" />
+      <workItem from="1514303691614" duration="16761000" />
+      <workItem from="1515425733434" duration="4000" />
+      <workItem from="1515431607947" duration="25466000" />
+      <workItem from="1515528528454" duration="64000" />
+      <workItem from="1515541486017" duration="4120000" />
+      <workItem from="1515547979627" duration="26800000" />
+      <workItem from="1515688295251" duration="6094000" />
+      <workItem from="1515701535920" duration="356000" />
+      <workItem from="1515701981451" duration="48000" />
+      <workItem from="1515702041331" duration="276000" />
+      <workItem from="1515702329161" duration="31391000" />
+      <workItem from="1516117699421" duration="482000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TimeTrackingManager">
+    <option name="totallyTimeSpent" value="199523000" />
+  </component>
+  <component name="TodoView">
+    <todo-panel id="selected-file">
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+    <todo-panel id="all">
+      <are-packages-shown value="true" />
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="88" y="45" width="1672" height="1330" extended-state="0" />
+    <editor active="true" />
+    <layout>
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32465172" sideWeight="0.49667618" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32938075" sideWeight="0.49713057" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.37944663" sideWeight="0.49713057" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32953465" sideWeight="0.5028694" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32938075" sideWeight="0.49713057" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32806325" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24964131" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.35704875" sideWeight="0.49713057" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25681493" sideWeight="0.50332385" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3992095" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="GfmBrowser" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32771084" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32938075" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+    </layout>
+    <layout-to-restore>
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32953465" sideWeight="0.49713057" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.37986705" sideWeight="0.49713057" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32953465" sideWeight="0.5028694" order="8" side_tool="true" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32953465" sideWeight="0.49713057" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4577398" sideWeight="0.49713057" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25681493" sideWeight="0.49667618" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32953465" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25681493" sideWeight="0.50332385" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+    </layout-to-restore>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="VcsContentAnnotationSettings">
+    <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/sdk_dependencies/mbedtls/library/net_sockets.c</url>
+          <line>29</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+      <option name="time" value="5" />
+    </breakpoint-manager>
+    <watches-manager />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/sdk_components/security/ts_security_mbedtls.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2816">
+          <caret line="216" column="22" lean-forward="false" selection-start-line="216" selection-start-column="22" selection-end-line="216" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sdk_platforms/README.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="570">
+            <caret line="44" column="21" lean-forward="false" selection-start-line="44" selection-start-column="21" selection-end-line="44" selection-end-column="21" />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sdk_platforms/unix/ts_platform_unix.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="165">
+          <caret line="13" column="28" lean-forward="false" selection-start-line="13" selection-start-column="28" selection-end-line="13" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sdk/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="195">
+          <caret line="13" column="0" lean-forward="true" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/LICENSE">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2374">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/PreventInSourceBuilds.cmake">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="585">
+          <caret line="39" column="0" lean-forward="true" selection-start-line="39" selection-start-column="0" selection-end-line="39" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sdk_platforms/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" column="13" lean-forward="false" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sdk_dependencies/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="45">
+          <caret line="3" column="15" lean-forward="false" selection-start-line="3" selection-start-column="15" selection-end-line="3" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sdk_platforms/ts_platforms.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" column="0" lean-forward="true" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/tests/test_socket.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="14" column="4" lean-forward="false" selection-start-line="14" selection-start-column="4" selection-end-line="14" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/tests/test_socket_tls.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="240">
+          <caret line="21" column="0" lean-forward="false" selection-start-line="21" selection-start-column="0" selection-end-line="21" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/tests/test_transport_mqtt.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="13" column="0" lean-forward="false" selection-start-line="12" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/tests/test_transport_mqtt_tls.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="17" column="0" lean-forward="false" selection-start-line="16" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/toolchain/Toolchain.cmake">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/applications/custom_transport/main.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" column="0" lean-forward="false" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/tests/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="300">
+          <caret line="20" column="106" lean-forward="false" selection-start-line="20" selection-start-column="54" selection-end-line="20" selection-end-column="106" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/applications/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="195">
+          <caret line="13" column="107" lean-forward="false" selection-start-line="13" selection-start-column="107" selection-end-line="13" selection-end-column="107" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sdk_components/driver/ts_driver_device.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="701">
+          <caret line="61" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="61" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sdk_components/controller/ts_controller_monarch.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="71">
+          <caret line="23" column="0" lean-forward="false" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/documents/xml/ts__address_8c.xml" />
+    <entry file="file://$PROJECT_DIR$/documents/xml/_r_e_a_d_m_e_8md.xml" />
+    <entry file="file://$PROJECT_DIR$/documents/html/index.html" />
+    <entry file="file://$PROJECT_DIR$/documents/Doxyfile">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="220">
+          <caret line="1105" column="28" lean-forward="false" selection-start-line="1105" selection-start-column="28" selection-end-line="1105" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/documents/refresh.bash" />
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="195">
+            <caret line="35" column="0" lean-forward="true" selection-start-line="35" selection-start-column="0" selection-end-line="35" selection-end-column="0" />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/documents/README.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="15">
+            <caret line="1" column="0" lean-forward="true" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sdk_components/controller/ts_controller_socket.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="341">
+          <caret line="58" column="29" lean-forward="false" selection-start-line="58" selection-start-column="29" selection-end-line="58" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sdk/include/ts_status.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="240">
+          <caret line="16" column="4" lean-forward="false" selection-start-line="16" selection-start-column="4" selection-end-line="16" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sdk/include/ts_security.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="341">
+          <caret line="59" column="13" lean-forward="false" selection-start-line="59" selection-start-column="13" selection-end-line="59" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sdk/include/ts_profile.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sdk/include/ts_driver.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="205">
+          <caret line="36" column="13" lean-forward="false" selection-start-line="36" selection-start-column="13" selection-end-line="36" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sdk/include/ts_controller.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="183">
+          <caret line="42" column="13" lean-forward="false" selection-start-line="42" selection-start-column="13" selection-end-line="42" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sdk/include/ts_connection.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="60">
+          <caret line="4" column="9" lean-forward="false" selection-start-line="4" selection-start-column="9" selection-end-line="4" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sdk/include/ts_address.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="23" column="0" lean-forward="false" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sdk/include/ts_platform.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="193">
+          <caret line="33" column="13" lean-forward="false" selection-start-line="33" selection-start-column="13" selection-end-line="33" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sdk/source/ts_connection.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="27" column="0" lean-forward="false" selection-start-line="9" selection-start-column="0" selection-end-line="27" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sdk_platforms/ts_platforms.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="5" column="6" lean-forward="false" selection-start-line="5" selection-start-column="6" selection-end-line="5" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sdk_components/ts_components.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="19" column="7" lean-forward="false" selection-start-line="19" selection-start-column="7" selection-end-line="19" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sdk_components/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="12" column="0" lean-forward="false" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/applications/simple/main.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="86">
+          <caret line="15" column="46" lean-forward="false" selection-start-line="15" selection-start-column="46" selection-end-line="15" selection-end-column="46" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="26" column="0" lean-forward="true" selection-start-line="26" selection-start-column="0" selection-end-line="26" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sdk_components/ts_components.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="240">
+          <caret line="16" column="17" lean-forward="false" selection-start-line="16" selection-start-column="17" selection-end-line="16" selection-end-column="17" />
+          <folding>
+            <element signature="e#155#222#0" expanded="true" />
+            <element signature="e#257#324#0" expanded="true" />
+            <element signature="e#357#421#0" expanded="true" />
+            <element signature="e#456#469#0" expanded="true" />
+            <element signature="e#660#726#0" expanded="true" />
+            <element signature="e#768#842#0" expanded="true" />
+            <element signature="e#912#979#0" expanded="true" />
+            <element signature="e#1212#1319#0" expanded="true" />
+            <element signature="e#1502#1727#0" expanded="true" />
+            <marker date="1515788270000" expanded="true" signature="762:842" ph="..." />
+            <marker date="1515788270000" expanded="true" signature="1020:1319" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sdk/include/ts_message.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="870">
+          <caret line="58" column="0" lean-forward="false" selection-start-line="58" selection-start-column="0" selection-end-line="58" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sdk/include/ts_transport.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="375">
+          <caret line="25" column="46" lean-forward="false" selection-start-line="25" selection-start-column="46" selection-end-line="25" selection-end-column="46" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sdk/source/ts_service.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2160">
+          <caret line="144" column="0" lean-forward="false" selection-start-line="144" selection-start-column="0" selection-end-line="144" selection-end-column="0" />
+          <folding>
+            <element signature="e#63#87#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sdk_components/protocol/ts_protocol_ts_json.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="510">
+          <caret line="34" column="0" lean-forward="false" selection-start-line="34" selection-start-column="0" selection-end-line="34" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sdk_components/protocol/ts_protocol_ts_cbor.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="10" column="38" lean-forward="false" selection-start-line="10" selection-start-column="38" selection-end-line="10" selection-end-column="38" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sdk_components/protocol/ts_protocol_none.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="555">
+          <caret line="37" column="0" lean-forward="false" selection-start-line="37" selection-start-column="0" selection-end-line="37" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sdk/include/ts_service.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="420">
+          <caret line="28" column="18" lean-forward="false" selection-start-line="28" selection-start-column="18" selection-end-line="28" selection-end-column="18" />
+          <folding>
+            <element signature="e#106#130#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sdk_components/transport/ts_transport_mqtt.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sdk/include/ts_protocol.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="375">
+          <caret line="25" column="0" lean-forward="false" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
+          <folding>
+            <element signature="e#108#127#0" expanded="true" />
+            <element signature="e#713#725#0" expanded="true" />
+            <element signature="e#1089#1101#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+  <component name="masterDetails">
+    <states>
+      <state key="ScopeChooserConfigurable.UI">
+        <settings>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+    </states>
+  </component>
+</project>
