@@ -18,7 +18,6 @@
 static TsStatus_t ts_create( TsControllerRef_t * );
 static TsStatus_t ts_destroy( TsControllerRef_t );
 static TsStatus_t ts_tick( TsControllerRef_t, uint32_t );
-static TsStatus_t ts_report( TsControllerRef_t );
 
 static TsStatus_t ts_connect( TsControllerRef_t, TsAddress_t );
 static TsStatus_t ts_disconnect( TsControllerRef_t );

@@ -124,6 +124,10 @@ static TsStatus_t handler( TsServiceRef_t service, TsServiceAction_t action, TsM
 	case TsServiceActionDeactivate:
 	case TsServiceActionSuspend:
 	case TsServiceActionResume:
+
+		// not supported by TS-JSON
+		// fallthrough
+
 	default:
 
 		// do nothing
@@ -141,9 +145,9 @@ static TsStatus_t initialize( TsServiceRef_t * service ) {
 	// security initialization
 	ts_status_debug( "simple: initializing certificates,...\n");
 	ts_service_set_server_cert_hostname( *service, "simpm.thingspace.verizon.com" );
-	ts_service_set_server_cert( *service, cacert_buf, 891 );
-	ts_service_set_client_cert( *service, client_cert, 941 );
-	ts_service_set_client_key( *service, client_key, 605 );
+	ts_service_set_server_cert( *service, cacert_buf, sizeof( cacert_buf ) );
+	ts_service_set_client_cert( *service, client_cert, sizeof( client_cert ) );
+	ts_service_set_client_key( *service, client_key, sizeof( client_key ) );
 
 	// connect to thingspace server
 	ts_status_debug( "simple: initializing connection,...\n");

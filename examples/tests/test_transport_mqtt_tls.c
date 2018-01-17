@@ -34,9 +34,9 @@ int main() {
 	TsConnectionRef_t connection;
 	ts_transport_get_connection( transport, &connection );
 	ts_connection_set_server_cert_hostname( connection, "simpm.thingspace.verizon.com" );
-	ts_connection_set_server_cert( connection, cacert_buf, 891 );
-	ts_connection_set_client_cert( connection, client_cert, 941 );
-	ts_connection_set_client_key( connection, client_key, 605 );
+	ts_connection_set_server_cert( connection, cacert_buf, sizeof( cacert_buf ) );
+	ts_connection_set_client_cert( connection, client_cert, sizeof( client_cert ) );
+	ts_connection_set_client_key( connection, client_key, sizeof( client_key ) );
 
 	// connect
 	status = ts_transport_dial( transport, "simpm.thingspace.verizon.com:8883" );
