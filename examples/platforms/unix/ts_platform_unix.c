@@ -70,8 +70,8 @@ static uint64_t ts_time() {
 static void ts_sleep(uint32_t microseconds) {
 #if _POSIX_C_SOURCE >= 199309L
     struct timespec ts;
-    ts.tv_sec = microseconds / 1.0e6;
-    ts.tv_nsec = (microseconds % 1.0e6) * 1000;
+    ts.tv_sec = microseconds / TS_TIME_SEC_TO_USEC;
+    ts.tv_nsec = (microseconds % TS_TIME_SEC_TO_USEC) * TS_TIME_USEC_TO_NSEC;
     nanosleep(&ts, NULL);
 #else
     usleep(microseconds);
