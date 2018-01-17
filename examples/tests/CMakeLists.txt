@@ -6,7 +6,7 @@ include_directories( ${CMAKE_SOURCE_DIR}/sdk_components )
 include_directories( ${CMAKE_SOURCE_DIR}/sdk_dependencies/cJSON )
 include_directories( ${CMAKE_SOURCE_DIR}/sdk_dependencies/tinycbor/src )
 include_directories( ${CMAKE_SOURCE_DIR}/sdk_dependencies/mbedtls/include )
-include_directories( ${CMAKE_SOURCE_DIR}/sdk_platforms )
+include_directories( ${CMAKE_SOURCE_DIR}/examples/platforms )
 
 add_executable( test_socket test_socket.c)
 target_link_libraries( test_socket ts_sdk ts_sdk_components ts_sdk_platforms mbedtls pahomqtt )
