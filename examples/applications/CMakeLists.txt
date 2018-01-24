@@ -18,3 +18,7 @@ target_link_libraries( example_custom_transport ts_sdk ts_sdk_components ts_sdk_
 # executable, CUSTOM-SECURITY application
 add_executable( example_custom_security custom_security/main.c)
 target_link_libraries( example_custom_security ts_sdk ts_sdk_components ts_sdk_platforms )
+
+# executable, SIMPLE-TS-CBOR application
+add_executable( example_simple_ts_cbor simple_ts_cbor/main.c)
+target_link_libraries( example_simple_ts_cbor ts_sdk ts_sdk_components ts_sdk_platforms mbedtls pahomqtt )

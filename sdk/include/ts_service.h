@@ -6,6 +6,7 @@
 #include "ts_transport.h"
 
 #define TS_SERVICE_MAX_HANDLERS 8
+#define TS_SERVICE_MAX_PATH_SIZE 256
 
 // TODO - fix to one enum, and one mapping
 typedef enum {
@@ -39,7 +40,7 @@ typedef TsStatus_t (* TsServiceHandler_t)( TsServiceRef_t, TsServiceAction_t, Ts
 
 // TODO - should we switch all specializations to use a void* for state?
 typedef struct TsService {
-	void *              _state;
+	char                _subscription[TS_SERVICE_MAX_PATH_SIZE];
 	TsServiceHandler_t  _handlers[TS_SERVICE_MAX_HANDLERS];
 	TsTransportRef_t    _transport;
 } TsService_t;

@@ -30,7 +30,8 @@
 
 // maximum size of a string attribute 
 // i.e., length of a uuid with dashes (36) plus termination 
-#define TS_MESSAGE_MAX_STRING_SIZE  37
+#define TS_MESSAGE_UUID_SIZE        36
+#define TS_MESSAGE_MAX_STRING_SIZE  TS_MESSAGE_UUID_SIZE + 1
 
 // maximum size of a key (i.e., field name) 
 #define TS_MESSAGE_MAX_KEY_SIZE     24
@@ -40,6 +41,7 @@ typedef enum {
 	TsEncoderDebug,
 	TsEncoderJson,
 	TsEncoderCbor,
+	TsEncoderTsCbor,
 } TsEncoder_t;
 
 // supported encoded field types

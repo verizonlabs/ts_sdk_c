@@ -42,6 +42,14 @@ const char * ts_status_string(TsStatus_t status)
 	return _status_to_string[0].string;
 }
 
+int ts_status_code(TsStatus_t status) {
+	return status & TsStatusStatusMask;
+}
+
+int ts_status_error(TsStatus_t status) {
+	return status & TsStatusCodeMask;
+}
+
 void ts_status_set_level(TsStatusLevel_t level) {
 	_level = level;
 }
@@ -98,3 +106,4 @@ void ts_status_alarm(const char * format, ...) {
 		va_end(argp);
 	}
 }
+

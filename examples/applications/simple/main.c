@@ -38,11 +38,29 @@ int main() {
 
 	// initialize client (see ts_service.h)
 	TsServiceRef_t service;
-	TsStatus_t status = initialize( &service );
+	ts_service_create( &service );
+
+	// security initialization
+	ts_status_debug( "simple: initializing certificates,...\n");
+	ts_service_set_server_cert_hostname( service, "simpm.thingspace.verizon.com" );
+	ts_service_set_server_cert( service, cacert_buf, sizeof( cacert_buf ) );
+	ts_service_set_client_cert( service, client_cert, sizeof( client_cert ) );
+	ts_service_set_client_key( service, client_key, sizeof( client_key ) );
+
+	// connect to thingspace server
+	ts_status_debug( "simple: initializing connection,...\n");
+	TsStatus_t status = ts_service_dial( service, "simpm.thingspace.verizon.com:8883" );
 	if( status != TsStatusOk ) {
-		ts_status_debug( "simple: failed to initialize service, %s\n", ts_status_string(status) );
-		ts_message_destroy( sensors );
-		return 0;
+		ts_status_debug("simple: failed to dial, %s\n", ts_status_string(status));
+		return status;
+	}
+
+	//  subscribe to field gets and sets
+	ts_status_debug( "simple: initializing callback,...\n");
+	status = ts_service_dequeue( service, TsServiceActionMaskAll, handler );
+	if( status != TsStatusOk ) {
+		ts_status_debug("simple: failed to dial, %s\n", ts_status_string(status));
+		return status;
 	}
 
 	// enter run loop,...
@@ -134,38 +152,6 @@ static TsStatus_t handler( TsServiceRef_t service, TsServiceAction_t action, TsM
 		break;
 	}
 
-	return TsStatusOk;
-}
-
-static TsStatus_t initialize( TsServiceRef_t * service ) {
-
-	ts_status_debug( "simple: initializing service,...\n");
-	ts_service_create( service );
-
-	// security initialization
-	ts_status_debug( "simple: initializing certificates,...\n");
-	ts_service_set_server_cert_hostname( *service, "simpm.thingspace.verizon.com" );
-	ts_service_set_server_cert( *service, cacert_buf, sizeof( cacert_buf ) );
-	ts_service_set_client_cert( *service, client_cert, sizeof( client_cert ) );
-	ts_service_set_client_key( *service, client_key, sizeof( client_key ) );
-
-	// connect to thingspace server
-	ts_status_debug( "simple: initializing connection,...\n");
-	TsStatus_t status = ts_service_dial( *service, "simpm.thingspace.verizon.com:8883" );
-	if( status != TsStatusOk ) {
-		ts_status_debug("simple: failed to dial, %s\n", ts_status_string(status));
-		return status;
-	}
-
-	//  subscribe to field gets and sets
-	ts_status_debug( "simple: initializing callback,...\n");
-	status = ts_service_dequeue( *service, TsServiceActionMaskAll, handler );
-	if( status != TsStatusOk ) {
-		ts_status_debug("simple: failed to dial, %s\n", ts_status_string(status));
-		return status;
-	}
-
-	ts_status_debug( "simple: initializing done.\n");
 	return TsStatusOk;
 }
 

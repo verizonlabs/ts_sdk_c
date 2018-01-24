@@ -31,7 +31,11 @@ int main() {
 		return 0;
 	}
 
-	TsPath_t subscription = (TsPath_t)"/thingspace/icsiii/subscription";
+	const uint8_t id[ TS_CONTROLLER_MAX_ID_SIZE ];
+	ts_connection_get_spec_id( transport->_connection, id, TS_CONTROLLER_MAX_ID_SIZE );
+
+	char subscription[256];
+	snprintf( subscription, 256, "ThingSpace/%s/ProviderToElement", id );
 	status = ts_transport_listen( transport, NULL, subscription, handler, NULL );
 	if( status != TsStatusOk ) {
 		ts_status_debug("failed to listen, %s\n", ts_status_string(status));
@@ -42,17 +46,17 @@ int main() {
 	while(++count) {
 
 		char payload[ 256 ];
-		sprintf(payload, "message number %d", count);
+		sprintf(payload, "{\"kind\":\"ts.event\",\"action\":\"update\",\"fields\":{\"temperature\":%d}}", count);
 
-		ts_status_debug("sending message, %d\n", count);
-		TsPath_t topic = (TsPath_t)"/thingspace/icsiii/test";
+		ts_status_debug("sending message, '%s'\n", payload);
+		TsPath_t topic = (TsPath_t)"ThingSpace/B827EBA15910/ElementToProvider";
 		status = ts_transport_speak( transport, topic, (const uint8_t*)payload, strlen(payload) );
 		if( status != TsStatusOk ) {
 			ts_status_debug("failed to speak, %s\n", ts_status_string(status));
 			break;
 		}
 
-		status = ts_transport_tick( transport, 1000000);
+		status = ts_transport_tick( transport, 5 * TS_TIME_SEC_TO_USEC );
 		if( status != TsStatusOk ) {
 			ts_status_debug("failed to tick, %s\n", ts_status_string(status));
 			break;
@@ -63,7 +67,7 @@ int main() {
 }
 
 static TsStatus_t handler( TsTransportRef_t transport, void * data, TsPath_t path, const uint8_t * buffer, size_t buffer_size ) {
-	ts_status_debug("handler called\n");
+	ts_status_debug( "handler: message, '%.*s'\n", buffer_size, buffer );
 	return TsStatusOk;
 }
 

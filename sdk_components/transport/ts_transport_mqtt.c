@@ -11,18 +11,19 @@
  * be modified to support this compiler directive.
  */
 #define TS_REMOVE_INLINE_MQTTISCONNECTED
+
 #include "MQTTClient.h"
 
-static TsStatus_t ts_create(TsTransportRef_t *);
-static TsStatus_t ts_destroy(TsTransportRef_t);
-static TsStatus_t ts_tick(TsTransportRef_t, uint32_t);
+static TsStatus_t ts_create( TsTransportRef_t * );
+static TsStatus_t ts_destroy( TsTransportRef_t );
+static TsStatus_t ts_tick( TsTransportRef_t, uint32_t );
 
-static TsStatus_t ts_get_connection( TsTransportRef_t, TsConnectionRef_t* );
+static TsStatus_t ts_get_connection( TsTransportRef_t, TsConnectionRef_t * );
 
-static TsStatus_t ts_dial(TsTransportRef_t, TsAddress_t);
-static TsStatus_t ts_hangup(TsTransportRef_t);
-static TsStatus_t ts_listen(TsTransportRef_t, TsAddress_t, TsPath_t, TsTransportHandler_t, void*);
-static TsStatus_t ts_speak(TsTransportRef_t, TsPath_t, const uint8_t*, size_t);
+static TsStatus_t ts_dial( TsTransportRef_t, TsAddress_t );
+static TsStatus_t ts_hangup( TsTransportRef_t );
+static TsStatus_t ts_listen( TsTransportRef_t, TsAddress_t, TsPath_t, TsTransportHandler_t, void * );
+static TsStatus_t ts_speak( TsTransportRef_t, TsPath_t, const uint8_t *, size_t );
 
 TsTransportVtable_t ts_transport_mqtt = {
 
@@ -39,8 +40,8 @@ TsTransportVtable_t ts_transport_mqtt = {
 
 };
 
-static int paho_mqtt_read(Network*, unsigned char*, int, int);
-static int paho_mqtt_write(Network*, unsigned char*, int, int);
+static int paho_mqtt_read( Network *, unsigned char *, int, int );
+static int paho_mqtt_write( Network *, unsigned char *, int, int );
 static void paho_mqtt_disconnect( Network * );
 static void paho_mqtt_callback( MessageData * );
 
@@ -61,26 +62,26 @@ typedef struct TsTransportMqtt {
 	// inheritance by encapsulation; must be the first
 	// attribute in order to treat this struct as a
 	// TsTransport struct
-	TsTransport_t	_transport;
+	TsTransport_t _transport;
 
 	// mqtt
-	Network			_network;
-	MQTTClient		_client;
+	Network _network;
+	MQTTClient _client;
 	MQTTPacket_connectData _connection;
-	uint8_t *       _read_buffer;
-	uint8_t *       _write_buffer;
-	uint32_t        _read_write_buffer_size;
-	char            _id[TS_CONTROLLER_MAX_ID_SIZE];
+	uint8_t * _read_buffer;
+	uint8_t * _write_buffer;
+	uint32_t _read_write_buffer_size;
+	char _id[TS_CONTROLLER_MAX_ID_SIZE];
 
 	// mqtt spec parameters
-	enum QoS        _spec_qos;
+	enum QoS _spec_qos;
 
 } TsTransportMqtt_t;
 
-static TsStatus_t ts_create(TsTransportRef_t *transport) {
+static TsStatus_t ts_create( TsTransportRef_t * transport ) {
 
-	ts_status_trace("ts_transport_create: mqtt\n");
-	ts_platform_assert(transport != NULL);
+	ts_status_trace( "ts_transport_create: mqtt\n" );
+	ts_platform_assert( transport != NULL );
 
 	// create related connection
 	TsConnectionRef_t connection;
@@ -91,8 +92,8 @@ static TsStatus_t ts_create(TsTransportRef_t *transport) {
 	}
 
 	// create and initialize this transport state
-	TsTransportMqttRef_t mqtt = (TsTransportMqttRef_t)(ts_platform_malloc(sizeof(TsTransportMqtt_t)));
-	*transport = (TsTransportRef_t)mqtt;
+	TsTransportMqttRef_t mqtt = (TsTransportMqttRef_t) ( ts_platform_malloc( sizeof( TsTransportMqtt_t )));
+	*transport = (TsTransportRef_t) mqtt;
 
 	// NOTE - the transport attribute, "handler" isn't used due to
 	// (poort) paho design, we have to use a local static variable,
@@ -106,12 +107,12 @@ static TsStatus_t ts_create(TsTransportRef_t *transport) {
 
 	// get controller specifications for id, timeout and buffer sizes
 	uint32_t mcu, budget;
-	ts_connection_get_spec_id( connection, (const uint8_t*)&(mqtt->_id), TS_CONTROLLER_MAX_ID_SIZE );
+	ts_connection_get_spec_id( connection, (const uint8_t *) &( mqtt->_id ), TS_CONTROLLER_MAX_ID_SIZE );
 	ts_connection_get_spec_budget( connection, &budget );
 	ts_connection_get_spec_mcu( connection, &mcu );
 
 	// initialize mqtt connection configuration (used for MQTTConnect)
-	memcpy( &(mqtt->_connection), &default_connection, sizeof(MQTTPacket_connectData) );
+	memcpy( &( mqtt->_connection ), &default_connection, sizeof( MQTTPacket_connectData ));
 	mqtt->_connection.willFlag = 0;                 // no will
 	mqtt->_connection.MQTTVersion = 3;              // version 3
 	mqtt->_connection.clientID.cstring = mqtt->_id; // client-id is the device-id
@@ -121,8 +122,8 @@ static TsStatus_t ts_create(TsTransportRef_t *transport) {
 	mqtt->_connection.cleansession = 1;             // clean-session
 
 	// initialize mqtt intermediate buffers
-	mqtt->_read_buffer = ts_platform_malloc(mcu);
-	mqtt->_write_buffer = ts_platform_malloc(mcu);
+	mqtt->_read_buffer = ts_platform_malloc( mcu );
+	mqtt->_write_buffer = ts_platform_malloc( mcu );
 	mqtt->_read_write_buffer_size = mcu;
 
 	// initialize mqtt spec parameters
@@ -130,9 +131,9 @@ static TsStatus_t ts_create(TsTransportRef_t *transport) {
 
 	// initialize mqtt client
 	MQTTClientInit(
-		&(mqtt->_client),
-		&(mqtt->_network),
-		budget / 1000,
+		&( mqtt->_client ),
+		&( mqtt->_network ),
+		budget/1000,
 		mqtt->_write_buffer,
 		mqtt->_read_write_buffer_size,
 		mqtt->_read_buffer,
@@ -142,42 +143,47 @@ static TsStatus_t ts_create(TsTransportRef_t *transport) {
 	return TsStatusOk;
 }
 
-static TsStatus_t ts_destroy(TsTransportRef_t transport) {
+static TsStatus_t ts_destroy( TsTransportRef_t transport ) {
 
-	ts_status_trace("ts_transport_destroy\n");
-	ts_platform_assert(transport != NULL);
+	ts_status_trace( "ts_transport_destroy\n" );
+	ts_platform_assert( transport != NULL );
 
-	TsTransportMqttRef_t mqtt = (TsTransportMqttRef_t)transport;
+	TsTransportMqttRef_t mqtt = (TsTransportMqttRef_t) transport;
 
 	ts_connection_destroy( mqtt->_transport._connection );
-	ts_platform_free(mqtt->_read_buffer, mqtt->_read_write_buffer_size);
-	ts_platform_free(mqtt->_write_buffer, mqtt->_read_write_buffer_size);
-	ts_platform_free(mqtt, sizeof(TsTransportMqtt_t));
+	ts_platform_free( mqtt->_read_buffer, mqtt->_read_write_buffer_size );
+	ts_platform_free( mqtt->_write_buffer, mqtt->_read_write_buffer_size );
+	ts_platform_free( mqtt, sizeof( TsTransportMqtt_t ));
 
 	return TsStatusOk;
 }
 
-static TsStatus_t ts_tick(TsTransportRef_t transport, uint32_t budget) {
+static TsStatus_t ts_tick( TsTransportRef_t transport, uint32_t budget ) {
 
-	ts_status_trace("ts_transport_tick\n");
-	ts_platform_assert(transport != NULL);
-	ts_platform_assert(budget > 0);
+	ts_status_debug( "ts_transport_tick\n" );
+	ts_platform_assert( transport != NULL );
+	ts_platform_assert( budget > 0 );
 
-	TsTransportMqttRef_t mqtt = (TsTransportMqttRef_t)transport;
+	TsTransportMqttRef_t mqtt = (TsTransportMqttRef_t) transport;
 	uint64_t timestamp = ts_platform_time();
 
 	// provide connection tick
 	ts_connection_tick( mqtt->_transport._connection, budget );
 
 	// provide mqtt tick
-	if( ( mqtt->_client.isconnected ) && ( ts_platform_time() - timestamp < budget ) ) {
-		MQTTYield( &(mqtt->_client), budget / 1000 );
+	if(( mqtt->_client.isconnected ) && ( ts_platform_time() - timestamp < budget )) {
+		int code = MQTTYield( &( mqtt->_client ), budget/TS_TIME_MSEC_TO_USEC );
+		if( code != 0 ) {
+			ts_status_alarm( "ts_transport_tick: mqtt yield failed, %d, ignoring,...\n", code );
+		}
+	} else {
+		ts_status_alarm( "ts_transport_tick: not connected.\n" );
 	}
 
 	// report budget status and return
 	timestamp = ts_platform_time() - timestamp;
-	if( timestamp > budget ) {
-		ts_status_debug( "ts_transport_tick: exceeded time budget, %d msec\n", timestamp / 1000 );
+	if( timestamp > budget + TS_TIME_MSEC_TO_USEC ) {
+		ts_status_alarm( "ts_transport_tick: exceeded time budget, %d msec\n", timestamp/TS_TIME_MSEC_TO_USEC );
 	}
 
 	return TsStatusOk;
@@ -185,9 +191,9 @@ static TsStatus_t ts_tick(TsTransportRef_t transport, uint32_t budget) {
 
 static TsStatus_t ts_get_connection( TsTransportRef_t transport, TsConnectionRef_t * connection ) {
 
-	ts_status_trace("ts_transport_tick\n");
-	ts_platform_assert(transport != NULL);
-	ts_platform_assert(connection != NULL);
+	ts_status_trace( "ts_transport_tick\n" );
+	ts_platform_assert( transport != NULL );
+	ts_platform_assert( connection != NULL );
 
 	*connection = transport->_connection;
 
@@ -201,15 +207,15 @@ static TsStatus_t ts_get_connection( TsTransportRef_t transport, TsConnectionRef
  * @param address
  * @return
  */
-static TsStatus_t ts_dial(TsTransportRef_t transport, TsAddress_t address) {
+static TsStatus_t ts_dial( TsTransportRef_t transport, TsAddress_t address ) {
 
-	ts_status_trace("ts_transport_dial\n");
-	ts_platform_assert(transport != NULL);
+	ts_status_trace( "ts_transport_dial\n" );
+	ts_platform_assert( transport != NULL );
 
-	TsTransportMqttRef_t mqtt = (TsTransportMqttRef_t)transport;
+	TsTransportMqttRef_t mqtt = (TsTransportMqttRef_t) transport;
 
 	if( mqtt->_client.isconnected ) {
-		ts_status_debug("ts_transport_dial: failed, mqtt already connected\n");
+		ts_status_debug( "ts_transport_dial: failed, mqtt already connected\n" );
 		return TsStatusErrorPreconditionFailed;
 	}
 
@@ -222,7 +228,7 @@ static TsStatus_t ts_dial(TsTransportRef_t transport, TsAddress_t address) {
 		return status;
 	}
 
-	int code = MQTTConnect( &(mqtt->_client), &(mqtt->_connection) );
+	int code = MQTTConnect( &( mqtt->_client ), &( mqtt->_connection ));
 	if( code != 0 ) {
 		ts_connection_disconnect( mqtt->_transport._connection );
 		return TsStatusErrorInternalServerError;
@@ -231,14 +237,14 @@ static TsStatus_t ts_dial(TsTransportRef_t transport, TsAddress_t address) {
 	return TsStatusOk;
 }
 
-static TsStatus_t ts_hangup(TsTransportRef_t transport) {
+static TsStatus_t ts_hangup( TsTransportRef_t transport ) {
 
-	ts_status_trace("ts_transport_hangup\n");
-	ts_platform_assert(transport != NULL);
+	ts_status_trace( "ts_transport_hangup\n" );
+	ts_platform_assert( transport != NULL );
 
-	TsTransportMqttRef_t mqtt = (TsTransportMqttRef_t)transport;
+	TsTransportMqttRef_t mqtt = (TsTransportMqttRef_t) transport;
 
-	MQTTDisconnect( &(mqtt->_client) );
+	MQTTDisconnect( &( mqtt->_client ));
 	ts_connection_disconnect( mqtt->_transport._connection );
 
 	return TsStatusOk;
@@ -255,107 +261,109 @@ static TsStatus_t ts_hangup(TsTransportRef_t transport) {
  * @param handler
  * @return
  */
-static TsStatus_t ts_listen(TsTransportRef_t transport, TsAddress_t address, TsPath_t path, TsTransportHandler_t handler, void * handler_data) {
+static TsStatus_t ts_listen( TsTransportRef_t transport, TsAddress_t address, TsPath_t path, TsTransportHandler_t handler, void * handler_data ) {
 
-	ts_status_trace("ts_transport_listen\n");
-	ts_platform_assert(transport != NULL);
+	ts_status_debug( "ts_transport_listen\n" );
+	ts_platform_assert( transport != NULL );
 
-	TsTransportMqttRef_t mqtt = (TsTransportMqttRef_t)transport;
+	TsTransportMqttRef_t mqtt = (TsTransportMqttRef_t) transport;
 
-	if( !(mqtt->_client.isconnected) ) {
-		ts_status_debug("ts_transport_listen: failed, mqtt not connected\n");
+	if( !( mqtt->_client.isconnected )) {
+		ts_status_debug( "ts_transport_listen: failed, mqtt not connected\n" );
 		return TsStatusErrorPreconditionFailed;
 	}
 
+	// TODO - change so that we can target a handler by address and path
 	// NOTE - the transport attribute, "handler" isn't used due to
-	// (poort) paho design, we have to use a local static variable,
+	// (poor) paho design, we have to use a local static variable,
 	// i.e., '_default_handler'.
 	_default_handler.transport = transport;
 	_default_handler.handler = handler;
 	_default_handler.data = handler_data;
 
 	// subscribe
-	int code = MQTTSubscribe( &(mqtt->_client), (char*)path, mqtt->_spec_qos, paho_mqtt_callback );
+	ts_status_debug( "ts_transport_listen: listening to, '%s'\n", path );
+	int code = MQTTSubscribe( &( mqtt->_client ), (char *) path, mqtt->_spec_qos, paho_mqtt_callback );
 	if( code != 0 ) {
-		ts_status_debug("ts_transport_listen: failed due to mqtt error, %d\n", code);
+		ts_status_debug( "ts_transport_listen: failed due to mqtt error, %d\n", code );
 		return TsStatusErrorPreconditionFailed;
 	}
 
 	return TsStatusOk;
 }
 
-static TsStatus_t ts_speak(TsTransportRef_t transport, TsPath_t path, const uint8_t * buffer, size_t buffer_size ) {
+static TsStatus_t ts_speak( TsTransportRef_t transport, TsPath_t path, const uint8_t * buffer, size_t buffer_size ) {
 
-	ts_status_trace("ts_transport_speak\n");
-	ts_platform_assert(transport != NULL);
+	ts_status_trace( "ts_transport_speak\n" );
+	ts_platform_assert( transport != NULL );
 
-	TsTransportMqttRef_t mqtt = (TsTransportMqttRef_t)transport;
+	TsTransportMqttRef_t mqtt = (TsTransportMqttRef_t) transport;
 
-	if( !(mqtt->_client.isconnected) ) {
-		ts_status_debug("ts_transport_speak: failed, mqtt not connected\n");
+	if( !( mqtt->_client.isconnected )) {
+		ts_status_debug( "ts_transport_speak: failed, mqtt not connected\n" );
 		return TsStatusErrorPreconditionFailed;
 	}
 
 	MQTTMessage message;
 	message.dup = 0;
 	message.id = 0;
-	message.payload = (void*)buffer;
+	message.payload = (void *) buffer;
 	message.payloadlen = buffer_size;
 	message.qos = mqtt->_spec_qos;
 	message.retained = 0;
-	int code = MQTTPublish( &(mqtt->_client), (const char *)path, &message );
+	int code = MQTTPublish( &( mqtt->_client ), (const char *) path, &message );
 	if( code != 0 ) {
-		ts_status_debug("ts_speak: failed due to mqtt error, %d\n", code);
+		ts_status_debug( "ts_speak: failed due to mqtt error, %d\n", code );
 		return TsStatusErrorPreconditionFailed;
 	}
 
 	return TsStatusOk;
 }
 
-void TimerInit(Timer *timer) {
+void TimerInit( Timer * timer ) {
 	timer->end_time = 0;
 }
 
-char TimerIsExpired(Timer *timer) {
+char TimerIsExpired( Timer * timer ) {
 	uint64_t now = ts_platform_time();
 	return timer->end_time <= now;
 }
 
-void TimerCountdownMS(Timer *timer, unsigned int ms) {
+void TimerCountdownMS( Timer * timer, unsigned int ms ) {
 	uint64_t now = ts_platform_time();
-	timer->end_time = now + ms * 1000;
+	timer->end_time = now + ms*1000;
 }
 
-void TimerCountdown(Timer *timer, unsigned int sec) {
+void TimerCountdown( Timer * timer, unsigned int sec ) {
 	uint64_t now = ts_platform_time();
-	timer->end_time = now + sec * 1000000;
+	timer->end_time = now + sec*1000000;
 }
 
-int TimerLeftMS(Timer *timer) {
+int TimerLeftMS( Timer * timer ) {
 	uint64_t now = ts_platform_time();
-	return timer->end_time <= now ? 0 : (int) (timer->end_time - now) / 1000;
+	return timer->end_time <= now ? 0 : (int) ( timer->end_time - now )/1000;
 }
 
-static int paho_mqtt_read(Network* network, unsigned char* buffer, int buffer_size, int budget) {
+static int paho_mqtt_read( Network * network, unsigned char * buffer, int buffer_size, int budget ) {
 
-	ts_status_trace("paho_mqtt_read\n");
-	ts_platform_assert(network != NULL);
-	ts_platform_assert(network->_connection != NULL);
+	ts_status_trace( "paho_mqtt_read\n" );
+	ts_platform_assert( network != NULL );
+	ts_platform_assert( network->_connection != NULL );
 
 	int index = 0;
 	bool reading = true;
 	uint64_t timestamp = ts_platform_time();
 	do {
 
-		size_t xbuffer_size = (size_t)(buffer_size - index);
-		TsStatus_t status = ts_connection_read( network->_connection, (uint8_t *) (buffer + index), &xbuffer_size, (uint32_t)budget );
+		size_t xbuffer_size = (size_t) ( buffer_size - index );
+		TsStatus_t status = ts_connection_read( network->_connection, (uint8_t *) ( buffer + index ), &xbuffer_size, (uint32_t) budget );
 		switch( status ) {
 		default:
-			ts_status_debug( "paho_mqtt_read: %s\n", ts_status_string(status) );
+			ts_status_debug( "paho_mqtt_read: %s\n", ts_status_string( status ));
 			return -1;
 
 		case TsStatusErrorConnectionReset:
-			ts_status_debug( "paho_mqtt_read: %s\n", ts_status_string(status) );
+			ts_status_debug( "paho_mqtt_read: %s\n", ts_status_string( status ));
 			return -1;
 
 		case TsStatusReadPending:
@@ -367,10 +375,10 @@ static int paho_mqtt_read(Network* network, unsigned char* buffer, int buffer_si
 			break;
 		}
 
-		index = index + (int)xbuffer_size;
+		index = index + (int) xbuffer_size;
 		if( index >= buffer_size ) {
 			reading = false;
-		} else if ( ts_platform_time() - timestamp > budget ) {
+		} else if( ts_platform_time() - timestamp > budget ) {
 			// ts_status_debug( "paho_mqtt_read: budget exhausted, returning control to caller,...\n" );
 			reading = false;
 		}
@@ -379,26 +387,26 @@ static int paho_mqtt_read(Network* network, unsigned char* buffer, int buffer_si
 	return index;
 }
 
-static int paho_mqtt_write(Network* network, unsigned char* buffer, int buffer_size, int budget) {
+static int paho_mqtt_write( Network * network, unsigned char * buffer, int buffer_size, int budget ) {
 
-	ts_status_trace("paho_mqtt_write\n");
-	ts_platform_assert(network != NULL);
-	ts_platform_assert(network->_connection != NULL);
+	ts_status_trace( "paho_mqtt_write\n" );
+	ts_platform_assert( network != NULL );
+	ts_platform_assert( network->_connection != NULL );
 
 	int index = 0;
 	bool writing = true;
 	uint64_t timestamp = ts_platform_time();
 	do {
 
-		size_t xbuffer_size = (size_t)(buffer_size - index);
-		TsStatus_t status = ts_connection_write( network->_connection, (uint8_t *) (buffer + index), &xbuffer_size, (uint32_t)budget );
+		size_t xbuffer_size = (size_t) ( buffer_size - index );
+		TsStatus_t status = ts_connection_write( network->_connection, (uint8_t *) ( buffer + index ), &xbuffer_size, (uint32_t) budget );
 		switch( status ) {
 		default:
-			ts_status_debug( "paho_mqtt_write: %s\n", ts_status_string(status) );
+			ts_status_debug( "paho_mqtt_write: %s\n", ts_status_string( status ));
 			return -1;
 
 		case TsStatusErrorConnectionReset:
-			ts_status_debug( "paho_mqtt_write: %s\n", ts_status_string(status) );
+			ts_status_debug( "paho_mqtt_write: %s\n", ts_status_string( status ));
 			return -1;
 
 		case TsStatusWritePending:
@@ -410,10 +418,10 @@ static int paho_mqtt_write(Network* network, unsigned char* buffer, int buffer_s
 			break;
 		}
 
-		index = index + (int)xbuffer_size;
+		index = index + (int) xbuffer_size;
 		if( index >= buffer_size ) {
 			writing = false;
-		} else if ( ts_platform_time() - timestamp > budget ) {
+		} else if( ts_platform_time() - timestamp > budget ) {
 			ts_status_debug( "paho_mqtt_write: budget exhausted, returning control to caller,...\n" );
 			writing = false;
 		}
@@ -424,25 +432,26 @@ static int paho_mqtt_write(Network* network, unsigned char* buffer, int buffer_s
 
 static void paho_mqtt_disconnect( Network * network ) {
 
-	ts_status_trace("paho_mqtt_disconnect\n");
-	ts_platform_assert(network != NULL);
-	ts_platform_assert(network->_connection != NULL);
+	ts_status_debug( "paho_mqtt_disconnect\n" );
+	ts_platform_assert( network != NULL );
+	ts_platform_assert( network->_connection != NULL );
 
 	// network disconnect?
 }
 
 static void paho_mqtt_callback( MessageData * data ) {
 
-	ts_status_trace("paho_mqtt_callback\n");
-	ts_platform_assert(data != NULL);
+	ts_status_debug( "paho_mqtt_callback\n" );
+	ts_platform_assert( data != NULL );
 	ts_platform_assert( _default_handler.handler != NULL );
 
-	MQTTMessage* message = data->message;
-	ts_status_debug("%.*s\t", data->topicName->lenstring.len, data->topicName->lenstring.data);
-	ts_status_debug("%.*s\n", (int)message->payloadlen, (char*)message->payload);
+	MQTTMessage * message = data->message;
+	ts_status_debug( "paho_mqtt_callback: %.*s, '%.*s'\n",
+		data->topicName->lenstring.len, data->topicName->lenstring.data,
+		(int) message->payloadlen, (char *) message->payload );
 
 	// NOTE - the transport attribute, "handler" isn't used due to
 	// (poort) paho design, we have to use a local static variable,
 	// i.e., '_default_handler'.
-	_default_handler.handler( _default_handler.transport, _default_handler.data, (TsPath_t)(data->topicName), message->payload, message->payloadlen );
+	_default_handler.handler( _default_handler.transport, _default_handler.data, (TsPath_t) ( data->topicName ), message->payload, message->payloadlen );
 }

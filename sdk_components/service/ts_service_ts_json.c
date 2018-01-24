@@ -23,7 +23,7 @@ TsServiceVtable_t ts_service_ts_json = {
 // TODO - clean-up controller x connection confusion (i.e., ...MAX_ID_SIZE)
 static TsStatus_t ts_create( TsServiceRef_t * service ) {
 
-	ts_status_trace("ts_service_create\n");
+	ts_status_trace("ts_service_create: ts-json\n");
 
 	// do nothing
 
@@ -124,10 +124,8 @@ static TsStatus_t ts_dequeue( TsServiceRef_t service, TsServiceAction_t action, 
 
 	// listen to topic
 	// TODO - can be called multiple times, but re-check later for another improved impl?
-	size_t topic_size = 256;
-	char topic[ 256 ];
-	snprintf( topic, topic_size, "ThingspaceSDK/%s/TSServerPublishCommand", id );
-	return ts_transport_listen( service->_transport, NULL, (TsPath_t)topic, handler, service );
+	snprintf( service->_subscription, TS_SERVICE_MAX_PATH_SIZE, "ThingspaceSDK/%s/TSServerPublishCommand", id );
+	return ts_transport_listen( service->_transport, NULL, service->_subscription, handler, service );
 }
 
 static TsStatus_t handler_get( TsServiceRef_t service, TsMessageRef_t message ) {

@@ -70,7 +70,7 @@ TsStatus_t ts_service_tick( TsServiceRef_t service, uint32_t budget ) {
 	// determine remaining timer budget
 	uint32_t interval = (uint32_t)(ts_platform_time() - timestamp);
 	if( interval >= budget ) {
-		ts_status_debug( "ts_service_tick: budget exeeced, ignoring,...\n" );
+		ts_status_debug( "ts_service_tick: budget exceeded, ignoring,...\n" );
 		interval = 0;
 	}
 
@@ -164,7 +164,7 @@ TsStatus_t ts_service_enqueue( TsServiceRef_t service, TsMessageRef_t message ) 
 
 TsStatus_t ts_service_dequeue( TsServiceRef_t service, TsServiceAction_t action, TsServiceHandler_t handler ) {
 
-	ts_status_trace( "ts_service_enqueue\n" );
+	ts_status_trace( "ts_service_dequeue\n" );
 	ts_platform_assert( ts_transport != NULL );
 	ts_platform_assert( service != NULL );
 	ts_platform_assert( service->_transport != NULL );

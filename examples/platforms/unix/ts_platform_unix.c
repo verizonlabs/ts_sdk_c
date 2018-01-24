@@ -92,7 +92,7 @@ static void ts_free(void * pointer, size_t size) {
 }
 
 static void ts_assertion(const char *msg, const char *file, int line) {
-    ts_printf("assertion failed, '%s' at %s:%d\n", msg, file, line);
+    printf("assertion failed, '%s' at %s:%d\n", msg, file, line);
     fflush(stdout);
     exit(0);
 }
