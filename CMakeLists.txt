@@ -19,7 +19,7 @@ endif()
 project( ts_sdk_c C CXX ASM )
 
 # component and platform selection
-add_definitions( -DTS_SERVICE_TS_JSON )     # TS_JSON, TS_CBOR, NONE or CUSTOM
+add_definitions( -DTS_SERVICE_TS_CBOR )     # TS_JSON, TS_CBOR, NONE or CUSTOM
 add_definitions( -DTS_TRANSPORT_MQTT )      # MQTT or CUSTOM only
 add_definitions( -DTS_SECURITY_NONE )       # MBED, MOCANA, NONE or CUSTOM
 add_definitions( -DTS_CONTROLLER_SOCKET )   # MONARCH, SOCKET or CUSTOM
@@ -33,14 +33,19 @@ set( LIB_VERSION_STRING ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_M
 message( STATUS "## Build Version                         : ${LIB_VERSION_STRING}" )
 
 # libraries
-add_subdirectory( sdk )
 add_subdirectory( sdk_dependencies )
 add_subdirectory( sdk_components )
-add_subdirectory( sdk_platforms )
+add_subdirectory( sdk )
+
+# example platforms
+add_subdirectory( examples/platforms )
+
+# example drivers
+# add_subdirectory( examples/drivers )
 
 # build example applications (optional)
-set( BUILD_APPLICATIONS ON CACHE BOOL "Build optional executables and/or reference binaries" FORCE)
-message( STATUS "## Build Executables            (ON|OFF) : ${BUILD_EXECUTABLES}" )
+set( BUILD_APPLICATIONS ON CACHE BOOL "Build optional applications" FORCE)
+message( STATUS "## Build Executables            (ON|OFF) : ${BUILD_APPLICATIONS}" )
 if( BUILD_APPLICATIONS )
     add_subdirectory( examples/applications )
 endif()

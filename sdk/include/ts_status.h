@@ -53,7 +53,8 @@ extern "C" {
 #endif
 
 const char *	ts_status_string(TsStatus_t);
-// TODO - add get HTTPStatus and get Error
+int             ts_status_code(TsStatus_t);
+int             ts_status_error(TsStatus_t);
 
 void			ts_status_set_level(TsStatusLevel_t);
 TsStatusLevel_t	ts_status_get_level();

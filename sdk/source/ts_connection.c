@@ -214,7 +214,7 @@ TsStatus_t ts_connection_read( TsConnectionRef_t connection, const uint8_t * buf
 
 	default:
 
-		ts_status_info( "ts_connection_read: error received, %d\n", status );
+		ts_status_info( "ts_connection_read: error received, %s\n", ts_status_string(status) );
 		break;
 	}
 	return status;

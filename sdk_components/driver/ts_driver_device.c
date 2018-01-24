@@ -9,6 +9,7 @@ static TsStatus_t ts_tick(TsDriverRef_t, uint32_t);
 static TsStatus_t ts_connect(TsDriverRef_t, TsAddress_t);
 static TsStatus_t ts_disconnect(TsDriverRef_t);
 static TsStatus_t ts_read(TsDriverRef_t, const uint8_t *, size_t *, uint32_t);
+static TsStatus_t ts_reader(TsDriverRef_t, void*, TsDriverReader_t);
 static TsStatus_t ts_write(TsDriverRef_t, const uint8_t *, size_t *, uint32_t);
 
 /**
@@ -22,6 +23,7 @@ TsDriverVtable_t ts_driver_device = {
 	.connect = ts_connect,
 	.disconnect = ts_disconnect,
 	.read = ts_read,
+	.reader = ts_reader,
 	.write = ts_write,
 };
 
@@ -52,6 +54,11 @@ static TsStatus_t ts_disconnect(TsDriverRef_t driver) {
 
 static TsStatus_t ts_read(TsDriverRef_t driver, const uint8_t * buffer, size_t * buffer_size, uint32_t budget) {
 	ts_status_trace("ts_driver_read\n");
+	return TsStatusErrorNotImplemented;
+}
+
+static TsStatus_t ts_reader(TsDriverRef_t driver, void* data, TsDriverReader_t reader) {
+	ts_status_trace("ts_driver_reader\n");
 	return TsStatusErrorNotImplemented;
 }
 

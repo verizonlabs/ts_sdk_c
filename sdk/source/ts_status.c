@@ -17,7 +17,7 @@ static IndexToString_t _status_to_string[] = {
 	{TsStatusErrorNotFound, "failed due to missing information"},
 	{TsStatusErrorPreconditionFailed, "failed due to missing or wrong data or parameters"},
 	{TsStatusErrorPayloadTooLarge, "failed due to large data set(s)"},
-	{TsStatusErrorInternalServerError, "failed due to an unknown critical error (e.g., seg-fault)"},
+	{TsStatusErrorInternalServerError, "failed due to an unknown critical error"},
 	{TsStatusErrorBadGateway, "connection failed from gateway"},
 	{TsStatusErrorNotImplemented, "operation not ready for use"},
 	{TsStatusErrorOutOfMemory, "failed due to soft (detectable) out-of-memory state"},
@@ -40,6 +40,14 @@ const char * ts_status_string(TsStatus_t status)
 		}
 	}
 	return _status_to_string[0].string;
+}
+
+int ts_status_code(TsStatus_t status) {
+	return status & TsStatusStatusMask;
+}
+
+int ts_status_error(TsStatus_t status) {
+	return status & TsStatusCodeMask;
 }
 
 void ts_status_set_level(TsStatusLevel_t level) {
@@ -98,3 +106,4 @@ void ts_status_alarm(const char * format, ...) {
 		va_end(argp);
 	}
 }
+

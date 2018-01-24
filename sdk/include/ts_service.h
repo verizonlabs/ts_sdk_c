@@ -5,11 +5,14 @@
 #include "ts_message.h"
 #include "ts_transport.h"
 
+#define TS_SERVICE_MAX_HANDLERS 8
+#define TS_SERVICE_MAX_PATH_SIZE 256
+
+// TODO - fix to one enum, and one mapping
 typedef enum {
 
 	TsServiceActionGet = 0x0001,
 	TsServiceActionSet = 0x0002,
-	TsServiceActionDiagnostic = 0x0004,
 	TsServiceActionActivate = 0x0010,
 	TsServiceActionDeactivate = 0x0020,
 	TsServiceActionSuspend = 0x0040,
@@ -20,13 +23,25 @@ typedef enum {
 
 } TsServiceAction_t;
 
+typedef enum {
+
+	TsServiceActionGetIndex = 0,
+	TsServiceActionSetIndex = 1,
+	TsServiceActionActivateIndex = 4,
+	TsServiceActionDeactivateIndex = 5,
+	TsServiceActionSuspendIndex = 6,
+	TsServiceActionResumeIndex = 7,
+} TsServiceActionIndex_t;
+
 typedef struct TsService * TsServiceRef_t;
 
+// TODO - should we follow transport pattern, allowing us to echo a void* (set when dequeue called)?
 typedef TsStatus_t (* TsServiceHandler_t)( TsServiceRef_t, TsServiceAction_t, TsMessageRef_t );
 
 // TODO - should we switch all specializations to use a void* for state?
 typedef struct TsService {
-	void *              _state;
+	char                _subscription[TS_SERVICE_MAX_PATH_SIZE];
+	TsServiceHandler_t  _handlers[TS_SERVICE_MAX_HANDLERS];
 	TsTransportRef_t    _transport;
 } TsService_t;
 

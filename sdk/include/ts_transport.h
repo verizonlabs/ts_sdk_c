@@ -8,10 +8,13 @@
 #include "ts_connection.h"
 
 typedef struct TsTransport * TsTransportRef_t;
-typedef TsStatus_t (*TsTransportHandler_t)( TsTransportRef_t, TsPath_t, const uint8_t *, size_t );
+
+typedef TsStatus_t (*TsTransportHandler_t)( TsTransportRef_t, void *, TsPath_t, const uint8_t *, size_t );
+
 typedef struct TsTransport {
-	TsConnectionRef_t _connection;
-	TsTransportHandler_t _handler;
+	TsConnectionRef_t       _connection;
+	TsTransportHandler_t    _handler;
+	void *                  _handler_data;
 } TsTransport_t;
 
 typedef struct TsTransportVtable {
@@ -24,7 +27,7 @@ typedef struct TsTransportVtable {
 
 	TsStatus_t (* dial)( TsTransportRef_t, TsAddress_t );
 	TsStatus_t (* hangup)( TsTransportRef_t );
-	TsStatus_t (* listen)( TsTransportRef_t, TsAddress_t, TsPath_t, TsTransportHandler_t );
+	TsStatus_t (* listen)( TsTransportRef_t, TsAddress_t, TsPath_t, TsTransportHandler_t, void* );
 	TsStatus_t (* speak)( TsTransportRef_t, TsPath_t, const uint8_t *, size_t );
 
 } TsTransportVtable_t;

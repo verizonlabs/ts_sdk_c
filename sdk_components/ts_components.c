@@ -39,9 +39,9 @@ const TsSecurityVtable_t *  ts_security = &(ts_security_none);
 // connection controller binding
 #if defined(TS_CONTROLLER_SOCKET)
 const TsControllerVtable_t * ts_controller = &(ts_controller_socket);
-#elif define(TS_CONTROLLER_MONARCH)
+#elif defined(TS_CONTROLLER_MONARCH)
 const TsControllerVtable_t * ts_controller = &(ts_controller_monarch);
-#elif define(TS_CONTROLLER_CUSTOM)
+#elif defined(TS_CONTROLLER_CUSTOM)
 // do nothing
 #else
 #warning "TS_CONTROLLER_<TYPE> not defined, options include MONARCH, SOCKET (UNIX only) or CUSTOM"

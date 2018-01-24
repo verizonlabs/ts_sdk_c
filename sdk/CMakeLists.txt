@@ -1,6 +1,11 @@
 # Copyright (C) 2017, Verizon, Inc. All rights reserved.
 # ThingSpace SDK
 
+# (optional) toolchain
+if( NOT CMAKE_TOOLCHAIN_FILE )
+    include( ${CMAKE_SOURCE_DIR}/toolchain/Toolchain.cmake )
+endif()
+
 include_directories( include )
 include_directories( ${CMAKE_SOURCE_DIR}/sdk_dependencies/cJSON )
 include_directories( ${CMAKE_SOURCE_DIR}/sdk_dependencies/tinycbor/src )

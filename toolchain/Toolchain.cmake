@@ -18,7 +18,7 @@ if( TOOLCHAIN )
     # * "arm-linux-gnueabihf"  raspberry-pi
     # * "arm-none-eabi"        cortex-R and M mcus, bare-metal targets (e.g., ST32)
     # * "arm-eabi"             cortex-A mcus, bare-metal targets
-    set( TRIPLET    "arm-none-eabi" CACHE STRING "Triplet prefix: arm-linux-gnueabihf, arm-none-eabi or arm-eabi" FORCE)
+    set( TRIPLET    "arm-linux-gnueabihf" CACHE STRING "Triplet prefix: arm-linux-gnueabihf, arm-none-eabi or arm-eabi" FORCE)
     message( STATUS "## Triplet                               : ${TRIPLET}" )
 
     # compiler and other tools
@@ -39,6 +39,7 @@ if( TOOLCHAIN )
     cmake_force_cxx_compiler( ${ROOTPATH}/${TRIPLET}/bin/${GPP} GNU )
 
     # common compiler flags
+    # -v                    Add if needing verbose output
     # -f no-builtin         Don’t recognize built-in functions that do not begin with ‘__builtin_’ as prefix.
     # -f function-sections  Place each function or data item into its own section in the output file if the target
     #                       supports arbitrary sections.
@@ -51,12 +52,15 @@ if( TOOLCHAIN )
     # -m float-abi          An ARM option, specifies which floating-point ABI to use. ‘hard’ allows generation of
     #                       floating-point instructions and uses FPU-specific calling conventions.
     # TODO - missing "-f lto" (link time optimization)? e.g., optimizing static variable use - expensive compile time
-    set( COMMON_FLAGS "-v -Werror -Os -fno-builtin -ffunction-sections -fdata-sections -fno-strict-aliasing" )
+    set( COMMON_FLAGS "-Werror -Os -fno-builtin -ffunction-sections -fdata-sections -fno-strict-aliasing" )
     set( COMMON_FLAGS "${COMMON_FLAGS} -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16" )
 
     # (TODO) remove hack, the __GLIBC__ should be defined automatically - we should be linking glibc (not just libc)?
     set( CMAKE_C_FLAGS "${COMMON_FLAGS} -D __GLIBC__ -std=c99" )
+    message( STATUS "## CMAKE_C_FLAGS                         : ${CMAKE_C_FLAGS}" )
+
     set( CMAKE_CXX_FLAGS "${COMMON_FLAGS} -std=c++03" )
+    message( STATUS "## CMAKE_CXX_FLAGS                       : ${CMAKE_CXX_FLAGS}" )
 
     # bare metal linker flags
     # --gc-sections Enable garbage collection of unused input sections.

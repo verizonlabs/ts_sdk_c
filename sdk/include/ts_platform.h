@@ -17,6 +17,7 @@ typedef struct TsPlatform {
 
 // TODO - rework to fit convention (e.g., initialize becomes create - enable profiling, enable status returns
 // TODO - comment on the time unit (e.g., usec vs msec)
+// TODO - should drivers be accessible from this struct? or separate (as it is today)
 
 typedef struct TsPlatformVtable {
 	void		(*initialize)();
@@ -26,6 +27,8 @@ typedef struct TsPlatformVtable {
 	uint64_t	(*time)();
 	void		(*sleep)(uint32_t);
 	void		(*random)(uint32_t*);
+	// TODO - should enable memory profile
+	// TODO - should return status to indicate OOM or low-memory condition
 	void *		(*malloc)(size_t);
 	void		(*free)(void*,size_t);
 	void		(*assertion)(const char *msg, const char *file, int line);

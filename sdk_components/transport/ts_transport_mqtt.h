@@ -4,6 +4,8 @@
 
 #include "ts_connection.h"
 
+#define TS_TRANSPORT_MQTT_MAX_HANDLERS 4
+
 typedef struct Timer {
 	uint64_t end_time;
 } Timer;
@@ -13,6 +15,7 @@ typedef struct Network Network;
 struct Network {
 
 	TsConnectionRef_t _connection;
+	TsStatus_t _last_status;
 
 	int (*mqttread) (Network*, unsigned char*, int, int);
 	int (*mqttwrite) (Network*, unsigned char*, int, int);

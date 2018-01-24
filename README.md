@@ -41,21 +41,20 @@ sdk                     -- the thingspace client framework
  
 sdk_components          -- framework options
     service             -- application integration and ThingSpace protocols
-    security            -- optional credentials and security (e.g., ssl)
     transport           -- pub-sub or point-to-point protocols (e.g., mqtt)
-    connection          -- transport-layer interface (e.g., socket)
-        controller      -- optional modem controllers (e.g., qualcom)
- 
-sdk_applications        -- built-in applications (e.g., diagnostics)
+    connection          -- network connectivity  
+    security            -- optional connection credentials and security (e.g., ssl)
+    controller          -- optional connection modem controllers (e.g., qualcom)
+    driver              -- optional connection device driver 
  
 sdk_dependencies        -- external vendor libraries
  
 examples
-    platforms           -- hardware platforms (e.g., freedom-nxp)
+    platforms           -- os and hardware specific libraries 
     applications        -- end-user applications (e.g., track-and-trace)
-    tests               -- tests
+    tests               -- unit tests
     
-toolchain               -- optional compiler toolchain
+toolchain               -- optional cross compiler toolchain
 
 documents               -- developer documentation
 

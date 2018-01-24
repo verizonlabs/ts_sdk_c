@@ -12,9 +12,11 @@ file( GLOB SOURCES cJSON/cJSON.[ch] )
 add_library( cjson STATIC ${SOURCES} )
 
 # library, mbedTLS
-set( ENABLE_PROGRAMS OFF )
-set( ENABLE_TESTING OFF )
+# TODO - run( cd mbedtls; ./vz_configure_mbedtls no-net )
+set( ENABLE_PROGRAMS OFF CACHE BOOL "Disable mbedtls program compilation" FORCE )
+set( ENABLE_TESTING OFF CACHE BOOL "Disable mbedtls testing compilation" FORCE )
 add_subdirectory( mbedtls )
+# TODO - rerun toolchain?
 
 # library, paho.mqtt.embeded-c
 include_directories( ${CMAKE_SOURCE_DIR}/sdk_dependencies/cJSON )
