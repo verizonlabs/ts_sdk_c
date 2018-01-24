@@ -15,6 +15,7 @@ typedef struct Network Network;
 struct Network {
 
 	TsConnectionRef_t _connection;
+	TsStatus_t _last_status;
 
 	int (*mqttread) (Network*, unsigned char*, int, int);
 	int (*mqttwrite) (Network*, unsigned char*, int, int);

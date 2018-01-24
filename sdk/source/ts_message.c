@@ -26,7 +26,6 @@ static TsStatus_t _ts_message_encode_debug( TsMessageRef_t, int );
 static TsStatus_t _ts_message_encode_json( TsMessageRef_t, uint8_t *, size_t );
 static TsStatus_t _ts_message_encode_cbor( TsMessageRef_t, CborEncoder *, uint8_t *, size_t );
 static TsStatus_t _ts_message_encode_ts_cbor( TsMessageRef_t, CborEncoder *, bool, uint8_t *, size_t );
-static TsStatus_t _ts_message_decode_cbor( TsMessageRef_t, int, CborValue * );
 static TsStatus_t _ts_message_decode_ts_cbor( TsMessageRef_t, int, CborValue * );
 
 TsStatus_t ts_message_report() {
@@ -98,6 +97,7 @@ TsStatus_t ts_message_create( TsMessageRef_t * message ) {
 
 /* ts_message_create_message */
 TsStatus_t ts_message_create_copy( TsMessageRef_t message, TsMessageRef_t * value ) {
+
 	/* TODO - check depth, check message null */
 	/* allocate a single message node */
 	TsStatus_t status = ts_message_create( value );
@@ -152,6 +152,7 @@ TsStatus_t ts_message_create_copy( TsMessageRef_t message, TsMessageRef_t * valu
 
 /* ts_message_create_message */
 TsStatus_t ts_message_create_message( TsMessageRef_t message, TsPathNode_t field, TsMessageRef_t * value ) {
+
 	/* allocate a single message node */
 	TsStatus_t status = ts_message_create( value );
 	if( status == TsStatusOk ) {
@@ -178,6 +179,7 @@ TsStatus_t ts_message_create_message( TsMessageRef_t message, TsPathNode_t field
 /* ts_message_create_array */
 /* TODO - precreate array item type and size */
 TsStatus_t ts_message_create_array( TsMessageRef_t message, TsPathNode_t field, TsMessageRef_t * value ) {
+
 	/* allocate a single message node */
 	TsStatus_t status = ts_message_create( value );
 	if( status == TsStatusOk ) {
@@ -251,6 +253,7 @@ TsStatus_t ts_message_destroy( TsMessageRef_t message ) {
  * The status of the call as defined by ts_common.h
  */
 TsStatus_t ts_message_set( TsMessageRef_t message, TsPathNode_t field, TsMessageRef_t value ) {
+
 	/* hold the type of the value, since set will force it to be TsTypeMessage */
 	TsType_t type = value->type;
 
@@ -306,6 +309,7 @@ TsStatus_t ts_message_set_message( TsMessageRef_t message, TsPathNode_t field, T
 
 /* ts_message_has */
 TsStatus_t ts_message_has( TsMessageRef_t message, TsPathNode_t field, TsMessageRef_t * value ) {
+
 	if( message == NULL || field == NULL || value == NULL) {
 		return TsStatusErrorPreconditionFailed;
 	}
@@ -362,6 +366,7 @@ TsStatus_t ts_message_get_message( TsMessageRef_t message, TsPathNode_t field, T
 
 /* ts_message_get_size */
 TsStatus_t ts_message_get_size( TsMessageRef_t array, size_t * size ) {
+
 	/* check preconditions */
 	if( array == NULL || array->type != TsTypeArray ) {
 		return TsStatusErrorPreconditionFailed;
@@ -381,6 +386,7 @@ TsStatus_t ts_message_get_size( TsMessageRef_t array, size_t * size ) {
 
 /* ts_message_get_at */
 TsStatus_t ts_message_get_at( TsMessageRef_t array, size_t index, TsMessageRef_t * item ) {
+
 	/* check preconditions */
 	if( array == NULL || array->type != TsTypeArray ) {
 		return TsStatusErrorPreconditionFailed;
@@ -396,6 +402,7 @@ TsStatus_t ts_message_get_at( TsMessageRef_t array, size_t index, TsMessageRef_t
 
 /* ts_message_set_at */
 TsStatus_t ts_message_set_at( TsMessageRef_t array, size_t index, TsMessageRef_t item ) {
+
 	/* check preconditions */
 	if( array == NULL || array->type != TsTypeArray ) {
 		return TsStatusErrorPreconditionFailed;
@@ -462,9 +469,6 @@ TsStatus_t ts_message_encode( TsMessageRef_t message, TsEncoder_t encoder, uint8
 	if( message == NULL) {
 		return TsStatusErrorPreconditionFailed;
 	}
-	if( buffer == NULL) {
-		return TsStatusErrorBadRequest;
-	}
 
 	/* perform encoding */
 	switch( encoder ) {
@@ -474,6 +478,10 @@ TsStatus_t ts_message_encode( TsMessageRef_t message, TsEncoder_t encoder, uint8
 
 	case TsEncoderTsCbor: {
 
+		if( buffer == NULL) {
+			return TsStatusErrorBadRequest;
+		}
+
 		CborEncoder cbor;
 		cbor_encoder_init( &cbor, buffer, *buffer_size, 0 );
 		TsStatus_t status = _ts_message_encode_ts_cbor( message, &cbor, true, buffer, *buffer_size );
@@ -482,6 +490,10 @@ TsStatus_t ts_message_encode( TsMessageRef_t message, TsEncoder_t encoder, uint8
 	}
 	case TsEncoderJson: {
 
+		if( buffer == NULL) {
+			return TsStatusErrorBadRequest;
+		}
+
 		memset( buffer, 0x00, *buffer_size );
 		TsStatus_t status = _ts_message_encode_json( message, buffer, *buffer_size );
 		*buffer_size = strlen((char *) buffer );
@@ -489,6 +501,9 @@ TsStatus_t ts_message_encode( TsMessageRef_t message, TsEncoder_t encoder, uint8
 	}
 	case TsEncoderCbor: {
 
+		if( buffer == NULL) {
+			return TsStatusErrorBadRequest;
+		}
 		CborEncoder cbor;
 		cbor_encoder_init( &cbor, buffer, *buffer_size, 0 );
 		TsStatus_t status = _ts_message_encode_cbor( message, &cbor, buffer, *buffer_size );
@@ -521,6 +536,9 @@ TsStatus_t ts_message_decode( TsMessageRef_t message, TsEncoder_t encoder, uint8
 		}
 
 		cJSON * cjson = cJSON_Parse((const char *) buffer );
+		if( cjson == NULL ) {
+			return TsStatusErrorBadRequest;
+		}
 		if( cjson->type == cJSON_Object) {
 			cjson = cjson->child;
 		}
@@ -529,9 +547,10 @@ TsStatus_t ts_message_decode( TsMessageRef_t message, TsEncoder_t encoder, uint8
 
 		return status;
 	}
+
 	case TsEncoderCbor:
-		/* not implemented */
-		/* fallthrough */
+		// fallthrough
+		// both cbor and ts-cbor are handled below
 
 	case TsEncoderTsCbor: {
 
@@ -613,171 +632,6 @@ TsStatus_t ts_message_decode_json( TsMessageRef_t message, cJSON * value ) {
 	return status;
 }
 
-/* ts_message_decode_cbor */
-TsStatus_t _ts_message_decode_cbor( TsMessageRef_t message, int depth, CborValue * value ) {
-	/* TODO - _ts_message_decode_cbor not implemented */
-	return TsStatusErrorNotImplemented;
-}
-
-/* ts_message_decode_json */
-TsStatus_t _ts_message_decode_ts_cbor( TsMessageRef_t message, int depth, CborValue * value ) {
-
-	// decode each node in the current value
-	TsStatus_t status = TsStatusOk;
-	do {
-
-		bool get_next_sibling = false;
-		CborError error;
-
-		// get key if in object
-		size_t key_size;
-		char * key = NULL;
-		if( depth > 0 ) {
-
-			// check that the format of the message is correct
-			if( !cbor_value_is_text_string( value ) ) {
-				ts_status_alarm( "ts_message_decode_ts_cbor: malformed TS-CBOR\n" );
-				status = TsStatusErrorBadRequest;
-				break;
-			}
-
-			// notice this will advance to the next sibling
-			cbor_value_copy_text_string( value, key, &key_size, value );
-		}
-
-		// decode value node
-		CborType type = cbor_value_get_type( value );
-		switch( type ) {
-		case CborNullType:
-
-			status = ts_message_set_null( message, key );
-			get_next_sibling = true;
-			break;
-
-		case CborIntegerType: {
-
-			int64_t data = 0;
-			cbor_value_get_int64( value, &data);
-			ts_message_set_int( message, key, (int)data );
-			get_next_sibling = true;
-			break;
-		}
-		case CborTextStringType: {
-
-			size_t data_size;
-			char * data = NULL;
-			error = cbor_value_copy_text_string( value, data, &data_size, value );
-			if( error ) {
-				status = TsStatusErrorInternalServerError;
-				break;
-			}
-			ts_message_set_string( message, key, data );
-			free(data);
-			break;
-		}
-		case CborByteStringType: {
-
-			size_t data_size;
-			uint8_t * data = NULL;
-			error = cbor_value_dup_byte_string( value, &data, &data_size, value );
-			if( error ) {
-				status = TsStatusErrorInternalServerError;
-				break;
-			}
-			// TODO - move data to message as base64 or other (e.g., UUID)
-			ts_status_debug ("ts_message_decode_ts_cbor: byte string decoding not implemented\n" );
-			ts_message_set_string( message, key, "not-saved" );
-			free( data );
-			break;
-		}
-		case CborBooleanType: {
-
-			bool data;
-			cbor_value_get_boolean( value, &data );
-			ts_message_set_bool( message, key, data );
-			get_next_sibling = true;
-		}
-		case CborDoubleType: {
-
-			double data;
-			cbor_value_get_double( value, &data );
-			// TODO - check for possible loss of data
-			ts_message_set_float( message, key, (float)data );
-			get_next_sibling = true;
-			break;
-		}
-		case CborFloatType: {
-
-			float data;
-			cbor_value_get_float( value, & data );
-			ts_message_set_float( message, key, data );
-			get_next_sibling = true;
-			break;
-		}
-		case CborHalfFloatType:
-
-			// TODO - half-float not implemented
-			ts_status_alarm( "ts_message_decode_ts_cbor: half-float decoding not implemented\n" );
-			status = TsStatusErrorNotImplemented;
-			break;
-
-		case CborArrayType:
-
-			// TODO - array not implemented
-			ts_status_alarm( "ts_message_decode_ts_cbor: array decoding not implemented\n" );
-			status = TsStatusErrorNotImplemented;
-			break;
-
-		case CborMapType: {
-
-			// recursive type
-			CborValue recursed;
-			error = cbor_value_enter_container( value, &recursed );
-			if( error ) {
-				ts_status_alarm( "ts_message_decode_ts_cbor: failed to open container\n" );
-				status = TsStatusErrorInternalServerError;
-			}
-
-			TsMessageRef_t content;
-			ts_message_create_message( message, key, &content );
-			status = _ts_message_decode_ts_cbor( content, depth + 1, &recursed );
-			if( status != TsStatusOk ) {
-				ts_status_debug( "ts_message_decode_ts_cbor: recursion failed, %s\n", ts_status_string(status) );
-			}
-
-			error = cbor_value_leave_container( value, &recursed );
-			if( error ) {
-				ts_status_alarm( "ts_message_decode_ts_cbor: failed to close container\n" );
-				status = TsStatusErrorInternalServerError;
-			}
-			break;
-		}
-
-		default:
-
-			ts_status_alarm( "ts_message_decode_ts_cbor: unknown type encountered during decode, %d\n", value->type );
-			status = TsStatusErrorNotImplemented;
-			break;
-		}
-
-		// clean-up key
-		free( key );
-
-		// get next key sibling
-		if( get_next_sibling ) {
-
-			error = cbor_value_advance_fixed( value );
-			if( error ) {
-				ts_status_alarm( "ts_message_decode_ts_cbor: failed to advance, %d\n", error );
-				status = TsStatusErrorInternalServerError;
-			}
-		}
-
-	} while( !cbor_value_at_end( value ) && status == TsStatusOk );
-
-	return status;
-}
-
 /* //////////////////////////////////////////////////////////////////////////// */
 /* P R I V A T E */
 
@@ -821,6 +675,7 @@ static TsStatus_t _ts_message_initialize()
  * The status of the call as defined by ts_common.h
  */
 static TsStatus_t _ts_message_set( TsMessageRef_t message, TsPathNode_t field, TsType_t type, TsValue_t value ) {
+
 	/* check preconditions */
 	if( message == NULL || ( type != TsTypeNull && value == NULL)) {
 		return TsStatusErrorPreconditionFailed;
@@ -935,6 +790,7 @@ static TsStatus_t _ts_message_set( TsMessageRef_t message, TsPathNode_t field, T
 
 /* _ts_message_get */
 static TsStatus_t _ts_message_get( TsMessageRef_t message, TsPathNode_t field, TsType_t type, TsValue_t value ) {
+
 	TsMessageRef_t object;
 	if( ts_message_has( message, field, &object ) == TsStatusOk ) {
 
@@ -1007,6 +863,7 @@ static TsStatus_t _ts_message_get( TsMessageRef_t message, TsPathNode_t field, T
 /* _ts_message_encode_none */
 /* simple debug based 'encoder', display the structure of the message as it stands */
 static TsStatus_t _ts_message_encode_debug( TsMessageRef_t message, int depth ) {
+
 	/* pretty print (indent) */
 	for( int i = 0; i < depth; i++ ) {
 		ts_status_debug( "  " );
@@ -1076,6 +933,7 @@ static TsStatus_t _ts_message_encode_debug( TsMessageRef_t message, int depth ) 
 
 /* _ts_message_encode_json */
 static TsStatus_t _ts_message_encode_json( TsMessageRef_t message, uint8_t * buffer, size_t buffer_size ) {
+
 	/* re-point buffer append */
 	/* TODO - check for negative sizes, etc. */
 	char * xbuffer = (char *) buffer;
@@ -1233,6 +1091,7 @@ static TsStatus_t _ts_message_encode_cbor( TsMessageRef_t message, CborEncoder *
 }
 
 typedef enum {
+	TsCborValueTypeNone,
 	TsCborValueTypeDefault,
 	TsCborValueTypeUUID,
 	TsCborValueTypeKind,
@@ -1255,6 +1114,22 @@ static TsCborKeyMapping_t _ts_cbor_key_mapping[] = {
 	{ "status",         7, TsCborValueTypeDefault },
 	{ "error",          8, TsCborValueTypeDefault },
 	{ "createdon",      9, TsCborValueTypeDefault },
+};
+
+static char * _ts_cbor_kind_mapping[] = {
+	"ts.element",
+	"ts.event",
+	"ts.event.diagnostic",
+};
+
+static char * _ts_cbor_action_mapping[] = {
+	"activate",
+	"suspend",
+	"resume",
+	"deactivate",
+	"get",
+	"set",
+	"update",
 };
 
 static TsStatus_t _ts_message_encode_ts_cbor_key( CborEncoder * encoder, bool is_root, char * name, TsCborValueType_t * type ) {
@@ -1336,6 +1211,7 @@ static TsStatus_t _ts_message_encode_ts_cbor_value( CborEncoder * encoder, bool 
 				cbor_encode_text_stringz( encoder, value );
 			}
 			break;
+
 		case TsCborValueTypeAction:
 			if( strcmp( value, "activate" ) == 0 ) {
 				cbor_encode_int( encoder, 1 );
@@ -1437,4 +1313,244 @@ static TsStatus_t _ts_message_encode_ts_cbor( TsMessageRef_t message, CborEncode
 		return TsStatusErrorOutOfMemory;
 	}
 	return TsStatusOk;
+}
+
+/* _ts_message_decode_ts_cbor */
+TsStatus_t _ts_message_decode_ts_cbor( TsMessageRef_t message, int depth, CborValue * value ) {
+
+	// decode each node in the current value
+	TsStatus_t status = TsStatusOk;
+	do {
+
+		bool get_next_sibling = false;
+		CborError error;
+
+		// get key if in object
+		TsCborValueType_t key_type = TsCborValueTypeNone;
+		size_t key_size;
+		char * key = NULL;
+		bool key_needs_free = false;
+		switch( depth ) {
+		case 0:
+
+			// do nothing
+			break;
+
+		case 1: {
+
+			if( cbor_value_is_integer( value )) {
+
+				int64_t data;
+				cbor_value_get_int64( value, &data );
+				if( data > 0 && data <= sizeof(_ts_cbor_key_mapping) ) {
+
+					key = _ts_cbor_key_mapping[ data - 1 ].name;
+					key_type = _ts_cbor_key_mapping[ data - 1 ].type;
+
+					error = cbor_value_advance_fixed( value );
+					if( error ) {
+						ts_status_alarm( "ts_message_decode_ts_cbor: failed to advance, %d\n", error );
+						return TsStatusErrorInternalServerError;
+					}
+					if( cbor_value_at_end( value )) {
+						return TsStatusErrorBadRequest;
+					}
+				} else {
+					return TsStatusErrorBadRequest;
+				}
+				break;
+			}
+			// fallthrough
+		}
+		default:
+
+			// check that the format of the message is correct
+			if( !cbor_value_is_text_string( value ) ) {
+				ts_status_alarm( "ts_message_decode_ts_cbor: malformed TS-CBOR\n" );
+				status = TsStatusErrorBadRequest;
+				break;
+			}
+
+			// notice this will advance to the next sibling
+			cbor_value_dup_text_string( value, &key, &key_size, value );
+			key_needs_free = true;
+		}
+
+		// decode value node
+		CborType type = cbor_value_get_type( value );
+		switch( type ) {
+		case CborNullType:
+
+			status = ts_message_set_null( message, key );
+			get_next_sibling = true;
+			break;
+
+		case CborIntegerType: {
+
+			int64_t data = 0;
+			cbor_value_get_int64( value, &data);
+			switch(key_type) {
+			case TsCborValueTypeNone:
+				ts_message_set_int( message, key, (int)data );
+				break;
+
+			case TsCborValueTypeAction: {
+				if( data > 0 && data <= sizeof(_ts_cbor_action_mapping) ) {
+					ts_message_set_string( message, key, _ts_cbor_action_mapping[data-1] );
+				} else {
+					status = TsStatusErrorBadRequest;
+				}
+				break;
+			}
+			case TsCborValueTypeKind: {
+				if( data > 0 && data <= sizeof(_ts_cbor_kind_mapping) ) {
+					ts_message_set_string( message, key, _ts_cbor_kind_mapping[data-1] );
+				} else {
+					status = TsStatusErrorBadRequest;
+				}
+				break;
+			}
+			default:
+				ts_status_alarm( "ts_message_decode_ts_cbor: malformed TS-CBOR, expected wrong type\n" );
+				break;
+			}
+			get_next_sibling = true;
+			break;
+		}
+		case CborTextStringType: {
+
+			size_t data_size;
+			char * data = NULL;
+			error = cbor_value_dup_text_string( value, &data, &data_size, value );
+			if( error ) {
+				status = TsStatusErrorInternalServerError;
+				break;
+			}
+			ts_message_set_string( message, key, data );
+			free(data);
+			break;
+		}
+		case CborByteStringType: {
+
+			if( key_type != TsCborValueTypeUUID ) {
+				status = TsStatusErrorBadRequest;
+				break;
+			}
+
+			size_t data_size;
+			uint8_t * data = NULL;
+			error = cbor_value_dup_byte_string( value, &data, &data_size, value );
+			if( error ) {
+				status = TsStatusErrorInternalServerError;
+				break;
+			}
+			if( data_size != 16 ) {
+				status = TsStatusErrorBadRequest;
+			} else {
+				int uuid_index = 0;
+				char uuid[ TS_MESSAGE_UUID_SIZE + 1 ];
+				for( int i = 0; i < 16; i++ ) {
+					// 00000000-0000-0000-0000-000000000000
+					snprintf(uuid + uuid_index, 2, "%02x", data[i] );
+					uuid_index = uuid_index + 2;
+					if( i == 4 || i == 6 || i == 8 || i == 10 ) {
+						snprintf(uuid + uuid_index, 1, "-" );
+						uuid_index = uuid_index + 1;
+					}
+				}
+				ts_message_set_string( message, key, uuid );
+			}
+			free( data );
+			break;
+		}
+		case CborBooleanType: {
+
+			bool data;
+			cbor_value_get_boolean( value, &data );
+			ts_message_set_bool( message, key, data );
+			get_next_sibling = true;
+		}
+		case CborDoubleType: {
+
+			double data;
+			cbor_value_get_double( value, &data );
+			// TODO - check for possible loss of data
+			ts_message_set_float( message, key, (float)data );
+			get_next_sibling = true;
+			break;
+		}
+		case CborFloatType: {
+
+			float data;
+			cbor_value_get_float( value, & data );
+			ts_message_set_float( message, key, data );
+			get_next_sibling = true;
+			break;
+		}
+		case CborHalfFloatType:
+
+			// TODO - half-float not implemented
+			ts_status_alarm( "ts_message_decode_ts_cbor: half-float decoding not implemented\n" );
+			status = TsStatusErrorNotImplemented;
+			break;
+
+		case CborArrayType:
+
+			// TODO - array not implemented
+			ts_status_alarm( "ts_message_decode_ts_cbor: array decoding not implemented\n" );
+			status = TsStatusErrorNotImplemented;
+			break;
+
+		case CborMapType: {
+
+			// recursive type
+			CborValue recursed;
+			error = cbor_value_enter_container( value, &recursed );
+			if( error ) {
+				ts_status_alarm( "ts_message_decode_ts_cbor: failed to open container\n" );
+				status = TsStatusErrorInternalServerError;
+			}
+
+			TsMessageRef_t content = message;
+			if( key != NULL ) {
+				ts_message_create_message( message, key, &content );
+			}
+			status = _ts_message_decode_ts_cbor( content, depth + 1, &recursed );
+			if( status != TsStatusOk ) {
+				ts_status_debug( "ts_message_decode_ts_cbor: recursion failed, %s\n", ts_status_string(status) );
+			}
+
+			error = cbor_value_leave_container( value, &recursed );
+			if( error ) {
+				ts_status_alarm( "ts_message_decode_ts_cbor: failed to close container\n" );
+				status = TsStatusErrorInternalServerError;
+			}
+			break;
+		}
+
+		default:
+
+			ts_status_alarm( "ts_message_decode_ts_cbor: unknown type encountered during decode, %d\n", value->type );
+			status = TsStatusErrorNotImplemented;
+			break;
+		}
+
+		// clean-up key
+		if( key_needs_free && key != NULL ) {
+			free( key );
+		}
+
+		// get next key sibling
+		if( get_next_sibling  && status == TsStatusOk ) {
+
+			error = cbor_value_advance_fixed( value );
+			if( error ) {
+				ts_status_alarm( "ts_message_decode_ts_cbor: failed to advance, %d\n", error );
+				status = TsStatusErrorInternalServerError;
+			}
+		}
+
+	} while( !cbor_value_at_end( value ) && status == TsStatusOk );
+
+	return status;
 }

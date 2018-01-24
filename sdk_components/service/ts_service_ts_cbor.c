@@ -88,6 +88,7 @@ static TsStatus_t ts_enqueue( TsServiceRef_t service, TsMessageRef_t sensor ) {
 	char topic[ 256 ];
 	snprintf( topic, topic_size, "ThingSpace/%s/ElementToProvider", id );
 	ts_status_debug( "ts_service_enqueue: sending (%.*s) on (%s)\n", buffer_size, buffer, topic );
+	// TODO - check return codes - may have disconnected.
 	ts_transport_speak( service->_transport, (TsPath_t)topic, buffer, buffer_size );
 
 	// clean-up and return

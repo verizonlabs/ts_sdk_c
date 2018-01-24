@@ -6,7 +6,7 @@
 #include "ts_profile.h"
 
 typedef struct TsDriver *TsDriverRef_t;
-typedef TsStatus_t (*TsDriverRead_t)(TsDriverRef_t, void*, const uint8_t *, size_t);
+typedef TsStatus_t (*TsDriverReader_t)(TsDriverRef_t, void*, const uint8_t *, size_t);
 typedef struct TsDriver {
 
 	TsProfileRef_t _profile;
@@ -29,7 +29,7 @@ typedef struct TsDriverVtable {
 	TsStatus_t (*read)(TsDriverRef_t, const uint8_t *, size_t *, uint32_t);
 	/* opt. reader performs a callback to the given function when data received,
 	 * passing the given void* in the same function (e.g., controller pointer) */
-	TsStatus_t (*reader)(TsDriverRef_t, void*, TsDriverRead_t);
+	TsStatus_t (*reader)(TsDriverRef_t, void*, TsDriverReader_t);
 	TsStatus_t (*write)(TsDriverRef_t, const uint8_t *, size_t *, uint32_t);
 
 } TsDriverVtable_t;

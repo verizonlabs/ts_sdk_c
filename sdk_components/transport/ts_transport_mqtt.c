@@ -101,6 +101,7 @@ static TsStatus_t ts_create( TsTransportRef_t * transport ) {
 
 	mqtt->_transport._connection = connection;
 	mqtt->_network._connection = connection;
+	mqtt->_network._last_status = TsStatusOk;
 	mqtt->_network.mqttread = paho_mqtt_read;
 	mqtt->_network.mqttwrite = paho_mqtt_write;
 	mqtt->_network.disconnect = paho_mqtt_disconnect;
@@ -220,7 +221,7 @@ static TsStatus_t ts_dial( TsTransportRef_t transport, TsAddress_t address ) {
 	}
 
 	// NOTE - the transport attribute, "handler" isn't used due to
-	// (poort) paho design, we have to use a local static variable,
+	// (poor) paho design, we have to use a local static variable,
 	// i.e., '_default_handler'.
 
 	TsStatus_t status = ts_connection_connect( mqtt->_transport._connection, address );
@@ -228,10 +229,12 @@ static TsStatus_t ts_dial( TsTransportRef_t transport, TsAddress_t address ) {
 		return status;
 	}
 
+	mqtt->_network._last_status = TsStatusOk;
 	int code = MQTTConnect( &( mqtt->_client ), &( mqtt->_connection ));
-	if( code != 0 ) {
+	if( code < 0 ) {
+		ts_status_debug( "ts_transport_dial: failed due to mqtt error, %d\n", code );
 		ts_connection_disconnect( mqtt->_transport._connection );
-		return TsStatusErrorInternalServerError;
+		return mqtt->_network._last_status == TsStatusOk ? TsStatusErrorInternalServerError : mqtt->_network._last_status;
 	}
 
 	return TsStatusOk;
@@ -283,12 +286,12 @@ static TsStatus_t ts_listen( TsTransportRef_t transport, TsAddress_t address, Ts
 
 	// subscribe
 	ts_status_debug( "ts_transport_listen: listening to, '%s'\n", path );
+	mqtt->_network._last_status = TsStatusOk;
 	int code = MQTTSubscribe( &( mqtt->_client ), (char *) path, mqtt->_spec_qos, paho_mqtt_callback );
-	if( code != 0 ) {
+	if( code < 0 ) {
 		ts_status_debug( "ts_transport_listen: failed due to mqtt error, %d\n", code );
-		return TsStatusErrorPreconditionFailed;
+		return mqtt->_network._last_status == TsStatusOk ? TsStatusErrorInternalServerError : mqtt->_network._last_status;
 	}
-
 	return TsStatusOk;
 }
 
@@ -311,10 +314,11 @@ static TsStatus_t ts_speak( TsTransportRef_t transport, TsPath_t path, const uin
 	message.payloadlen = buffer_size;
 	message.qos = mqtt->_spec_qos;
 	message.retained = 0;
+	mqtt->_network._last_status = TsStatusOk;
 	int code = MQTTPublish( &( mqtt->_client ), (const char *) path, &message );
 	if( code != 0 ) {
 		ts_status_debug( "ts_speak: failed due to mqtt error, %d\n", code );
-		return TsStatusErrorPreconditionFailed;
+		return mqtt->_network._last_status == TsStatusOk ? TsStatusErrorInternalServerError : mqtt->_network._last_status;
 	}
 
 	return TsStatusOk;
@@ -360,10 +364,12 @@ static int paho_mqtt_read( Network * network, unsigned char * buffer, int buffer
 		switch( status ) {
 		default:
 			ts_status_debug( "paho_mqtt_read: %s\n", ts_status_string( status ));
+			network->_last_status = status;
 			return -1;
 
 		case TsStatusErrorConnectionReset:
 			ts_status_debug( "paho_mqtt_read: %s\n", ts_status_string( status ));
+			network->_last_status = status;
 			return -1;
 
 		case TsStatusReadPending:
@@ -403,10 +409,12 @@ static int paho_mqtt_write( Network * network, unsigned char * buffer, int buffe
 		switch( status ) {
 		default:
 			ts_status_debug( "paho_mqtt_write: %s\n", ts_status_string( status ));
+			network->_last_status = status;
 			return -1;
 
 		case TsStatusErrorConnectionReset:
 			ts_status_debug( "paho_mqtt_write: %s\n", ts_status_string( status ));
+			network->_last_status = status;
 			return -1;
 
 		case TsStatusWritePending:
