@@ -14,7 +14,7 @@ typedef struct TsDriver {
 } TsDriver_t;
 
 /**
- * The (optional) "channel" provides access to the network-layer via
+ * The (optional) "driver" provides access to the network-layer via
  * a device driver, typically used to access the SMS or TCP/IP stack on
  * a cellular modem.
  */
@@ -48,7 +48,7 @@ extern const TsDriverVtable_t * ts_driver;
 #define ts_driver_disconnect ts_driver->disconnect
 #define ts_driver_read		ts_driver->read
 #define ts_driver_reader    ts_driver->reader
-#define ts_diver_write		ts_driver->write
+#define ts_driver_write		ts_driver->write
 
 #ifdef __cplusplus
 }
