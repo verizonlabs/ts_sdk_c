@@ -3,6 +3,7 @@
 #define TS_PLATFORMS_H
 
 #include "ts_platform.h"
+#include "ts_driver.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -14,6 +15,7 @@ extern TsPlatformVtable_t ts_platform_unix;
 //extern TsPlatformVtable_t ts_platform_none_freedom;
 //extern TsPlatformVtable_t ts_platform_none_nucleo;
 //extern TsPlatformVtable_t ts_platform_threadX_renasas_s5;
+extern TsDriverVtable_t ts_driver_unix_socket;
 
 #ifdef __cplusplus
 }

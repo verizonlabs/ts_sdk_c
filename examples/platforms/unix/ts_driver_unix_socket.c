@@ -13,18 +13,19 @@
 #include <stdbool.h>
 
 #include "ts_platform.h"
-#include "ts_controller.h"
+#include "ts_driver.h"
 
-static TsStatus_t ts_create( TsControllerRef_t * );
-static TsStatus_t ts_destroy( TsControllerRef_t );
-static TsStatus_t ts_tick( TsControllerRef_t, uint32_t );
+static TsStatus_t ts_create( TsDriverRef_t * );
+static TsStatus_t ts_destroy( TsDriverRef_t );
+static TsStatus_t ts_tick( TsDriverRef_t, uint32_t );
 
-static TsStatus_t ts_connect( TsControllerRef_t, TsAddress_t );
-static TsStatus_t ts_disconnect( TsControllerRef_t );
-static TsStatus_t ts_read( TsControllerRef_t, const uint8_t *, size_t *, uint32_t );
-static TsStatus_t ts_write( TsControllerRef_t, const uint8_t *, size_t *, uint32_t );
+static TsStatus_t ts_connect( TsDriverRef_t, TsAddress_t );
+static TsStatus_t ts_disconnect( TsDriverRef_t );
+static TsStatus_t ts_read( TsDriverRef_t, const uint8_t *, size_t *, uint32_t );
+static TsStatus_t ts_reader(TsDriverRef_t, void*, TsDriverReader_t);
+static TsStatus_t ts_write( TsDriverRef_t, const uint8_t *, size_t *, uint32_t );
 
-TsControllerVtable_t ts_controller_socket = {
+TsDriverVtable_t ts_driver_unix_socket = {
 	.create = ts_create,
 	.destroy = ts_destroy,
 	.tick = ts_tick,
@@ -32,67 +33,67 @@ TsControllerVtable_t ts_controller_socket = {
 	.connect = ts_connect,
 	.disconnect = ts_disconnect,
 	.read = ts_read,
+	.reader = ts_reader,
 	.write = ts_write,
 };
 
-typedef struct TsControllerSocket * TsControllerSocketRef_t;
-typedef struct TsControllerSocket {
+typedef struct TsDriverSocket * TsDriverSocketRef_t;
+typedef struct TsDriverSocket {
 
 	// inheritance by encapsulation; must be the first
 	// attribute in order to treat this struct as a
-	// TsController struct
-	TsController_t _controller;
+	// TsDriver struct
+	TsDriver_t _driver;
 
 	int _fd;
 	uint64_t _last_read_timestamp;
 
-} TsControllerSocket_t;
+} TsDriverSocket_t;
 
-static TsStatus_t ts_create( TsControllerRef_t * controller ) {
+static TsStatus_t ts_create( TsDriverRef_t * driver ) {
 
-	ts_status_trace( "ts_controller_create: socket\n" );
-	ts_platform_assert( controller != NULL );
+	ts_status_trace( "ts_driver_create: socket\n" );
+	ts_platform_assert( driver != NULL );
 
-	TsControllerSocketRef_t sock = (TsControllerSocketRef_t) ( ts_platform_malloc( sizeof( TsControllerSocket_t )));
-	sock->_controller._address = "";
-	sock->_controller._driver = NULL;
-	sock->_controller._profile = NULL;
-	sock->_controller._spec_budget = 60 * TS_TIME_SEC_TO_USEC;
-	sock->_controller._spec_mcu = 2048;
+	TsDriverSocketRef_t sock = (TsDriverSocketRef_t) ( ts_platform_malloc( sizeof( TsDriverSocket_t )));
+	sock->_driver._address = "";
+	sock->_driver._profile = NULL;
+	sock->_driver._spec_budget = 60 * TS_TIME_SEC_TO_USEC;
+	sock->_driver._spec_mcu = 2048;
 	// TODO - should provide mac address here
 	// TODO - currently using my own mac-id - need to change this asap.
-	snprintf( (char *)(sock->_controller._spec_id), TS_CONTROLLER_MAX_ID_SIZE, "%s", "B827EBA15910" );
+	snprintf( (char *)(sock->_driver._spec_id), TS_DRIVER_MAX_ID_SIZE, "%s", "B827EBA15910" );
 	sock->_fd = -1;
 
-	*controller = (TsControllerRef_t) sock;
+	*driver = (TsDriverRef_t) sock;
 
 	return TsStatusOk;
 }
 
-static TsStatus_t ts_destroy( TsControllerRef_t controller ) {
-	ts_status_trace( "ts_controller_destroy\n" );
-	ts_platform_assert( controller != NULL );
+static TsStatus_t ts_destroy( TsDriverRef_t driver ) {
+	ts_status_trace( "ts_driver_destroy\n" );
+	ts_platform_assert( driver != NULL );
 
-	TsControllerSocketRef_t sock = (TsControllerSocketRef_t) ( controller );
-	ts_platform->free( sock, sizeof( TsControllerSocket_t ));
+	TsDriverSocketRef_t sock = (TsDriverSocketRef_t) ( driver );
+	ts_platform->free( sock, sizeof( TsDriverSocket_t ));
 
 	return TsStatusOk;
 }
 
-static TsStatus_t ts_tick( TsControllerRef_t controller, uint32_t budget ) {
+static TsStatus_t ts_tick( TsDriverRef_t driver, uint32_t budget ) {
 
-	ts_status_trace( "ts_controller_tick\n" );
-	ts_platform_assert( controller != NULL );
+	ts_status_trace( "ts_driver_tick\n" );
+	ts_platform_assert( driver != NULL );
 
 	// do nothing
 
 	return TsStatusOk;
 }
 
-static TsStatus_t ts_connect( TsControllerRef_t controller, TsAddress_t address ) {
+static TsStatus_t ts_connect( TsDriverRef_t driver, TsAddress_t address ) {
 
-	ts_status_trace( "ts_controller_connect\n" );
-	ts_platform_assert( controller != NULL );
+	ts_status_trace( "ts_driver_connect\n" );
+	ts_platform_assert( driver != NULL );
 
 	// TODO - init sockets?
 	// signal( SIGPIPE, SIG_IGN );
@@ -117,7 +118,7 @@ static TsStatus_t ts_connect( TsControllerRef_t controller, TsAddress_t address 
 	}
 
 	// find active listener
-	TsControllerSocketRef_t sock = (TsControllerSocketRef_t) ( controller );
+	TsDriverSocketRef_t sock = (TsDriverSocketRef_t) ( driver );
 	TsStatus_t status = TsStatusOk;
 	struct addrinfo * current;
 	for( current = address_list; current != NULL; current = current->ai_next ) {
@@ -138,25 +139,25 @@ static TsStatus_t ts_connect( TsControllerRef_t controller, TsAddress_t address 
 			break;
 		}
 		status = TsStatusErrorBadGateway;
-		ts_disconnect( controller );
+		ts_disconnect( driver );
 	}
 	freeaddrinfo( address_list );
 	return status;
 }
 
-static TsStatus_t ts_disconnect( TsControllerRef_t controller ) {
+static TsStatus_t ts_disconnect( TsDriverRef_t driver ) {
 
-	ts_status_trace( "ts_controller_disconnect\n" );
-	ts_platform_assert( controller != NULL );
+	ts_status_trace( "ts_driver_disconnect\n" );
+	ts_platform_assert( driver != NULL );
 
-	TsControllerSocketRef_t sock = (TsControllerSocketRef_t) ( controller );
+	TsDriverSocketRef_t sock = (TsDriverSocketRef_t) ( driver );
 	close( sock->_fd );
 
 	return TsStatusOk;
 }
 
 /**
- * Read from the socket controller (non-blocking). Note that we dont use select() in order to emulate
+ * Read from the socket driver (non-blocking). Note that we dont use select() in order to emulate
  * the other channels better, e.g., uart and usb.
  *
  * @note
@@ -164,7 +165,7 @@ static TsStatus_t ts_disconnect( TsControllerRef_t controller ) {
  * has returned pending and there isn't data in the buffer, in all other cases
  * return a valid status with the contents of the current buffer.
  *
- * @param controller
+ * @param driver
  * [in] The socket state
  *
  * @param buffer
@@ -183,18 +184,18 @@ static TsStatus_t ts_disconnect( TsControllerRef_t controller ) {
  * TsStatusOkPendingRead        - Indicates a blocking condition exists (and avoided),
  *                                note, *buffer_size is guaranteed to be zero when this condition occurs.
  *                                TODO - currently, we dont wait for the budget to be exhausted, this may change later
- * TsStatusErrorConnectionReset - Indicates that the controller was broken
+ * TsStatusErrorConnectionReset - Indicates that the driver was broken
  * TsStatusError*               - Indicates an error has occurred, see ts_status.h for more information.
  */
-static TsStatus_t ts_read( TsControllerRef_t controller, const uint8_t * buffer, size_t * buffer_size, uint32_t budget ) {
+static TsStatus_t ts_read( TsDriverRef_t driver, const uint8_t * buffer, size_t * buffer_size, uint32_t budget ) {
 
-	ts_status_trace( "ts_controller_read\n" );
-	ts_platform_assert( controller != NULL );
+	ts_status_trace( "ts_driver_read\n" );
+	ts_platform_assert( driver != NULL );
 	ts_platform_assert( buffer != NULL );
 	ts_platform_assert( buffer_size != NULL );
 	ts_platform_assert( *buffer_size > 0 );
 
-	TsControllerSocketRef_t sock = (TsControllerSocketRef_t) ( controller );
+	TsDriverSocketRef_t sock = (TsDriverSocketRef_t) ( driver );
 
 	// initialize timestamp for read timer budgeting
 	uint64_t timestamp = ts_platform_time();
@@ -220,7 +221,7 @@ static TsStatus_t ts_read( TsControllerRef_t controller, const uint8_t * buffer,
 		if( size < 0 ) {
 
 			// recv has indicated either non-block status
-			// or an actual controller issue,...
+			// or an actual driver issue,...
 			size = 0;
 			reading = false;
 
@@ -235,7 +236,7 @@ static TsStatus_t ts_read( TsControllerRef_t controller, const uint8_t * buffer,
 			} else if( errno == EPIPE || errno == ECONNRESET ) {
 				status = TsStatusErrorConnectionReset;
 			} else if( errno != 0 ) {
-				ts_status_debug( "ts_controller_read: ignoring error, %d\n", errno);
+				ts_status_debug( "ts_driver_read: ignoring error, %d\n", errno);
 				status = TsStatusErrorInternalServerError;
 			}
 
@@ -249,7 +250,7 @@ static TsStatus_t ts_read( TsControllerRef_t controller, const uint8_t * buffer,
 
 			// there is more to read than expected on this attempt,
 			// give back control to caller
-			ts_status_debug( "ts_controller_read: timer budget exceeded\n", errno);
+			ts_status_debug( "ts_driver_read: timer budget exceeded\n", errno);
 			reading = false;
 
 			if( index > 0 ) {
@@ -274,15 +275,19 @@ static TsStatus_t ts_read( TsControllerRef_t controller, const uint8_t * buffer,
 	return status;
 }
 
-static TsStatus_t ts_write( TsControllerRef_t controller, const uint8_t * buffer, size_t * buffer_size, uint32_t budget ) {
+static TsStatus_t ts_reader(TsDriverRef_t driver, void* data, TsDriverReader_t reader ) {
+	return TsStatusErrorNotImplemented;
+}
 
-	ts_status_trace( "ts_controller_write\n" );
-	ts_platform_assert( controller != NULL );
+static TsStatus_t ts_write( TsDriverRef_t driver, const uint8_t * buffer, size_t * buffer_size, uint32_t budget ) {
+
+	ts_status_trace( "ts_driver_write\n" );
+	ts_platform_assert( driver != NULL );
 	ts_platform_assert( buffer != NULL );
 	ts_platform_assert( buffer_size != NULL );
 	ts_platform_assert( *buffer_size > 0 );
 
-	TsControllerSocketRef_t sock = (TsControllerSocketRef_t) ( controller );
+	TsDriverSocketRef_t sock = (TsDriverSocketRef_t) ( driver );
 
 	// initialize timestamp for write timer budgeting
 	uint64_t timestamp = ts_platform_time();
@@ -299,7 +304,7 @@ static TsStatus_t ts_write( TsControllerRef_t controller, const uint8_t * buffer
 		if( size < 0 ) {
 
 			// send has indicated either non-block status
-			// or an actual controller issue,...
+			// or an actual driver issue,...
 			size = 0;
 			writing = false;
 
@@ -313,14 +318,14 @@ static TsStatus_t ts_write( TsControllerRef_t controller, const uint8_t * buffer
 			} else if( errno == EPIPE || errno == ECONNRESET ) {
 				status = TsStatusErrorConnectionReset;
 			} else if( errno != 0 ) {
-				ts_status_debug( "ts_controller_write: ignoring error, %d\n", errno);
+				ts_status_debug( "ts_driver_write: ignoring error, %d\n", errno);
 				status = TsStatusErrorInternalServerError;
 			}
 
 		} else if( size == 0 ) {
 
 			// unexpected non-blocking call returns zero bytes
-			ts_status_info( "ts_controller_write: unexpected empty write occured\n" );
+			ts_status_info( "ts_driver_write: unexpected empty write occured\n" );
 			writing = false;
 			if( index > 0 ) {
 				status = TsStatusOk;
@@ -331,7 +336,7 @@ static TsStatus_t ts_write( TsControllerRef_t controller, const uint8_t * buffer
 		} else if( ts_platform_time() - timestamp > budget ) {
 
 			// there is more to write, but dont give control back to the caller
-			ts_status_debug( "ts_controller_write: ignoring timer budget exceeded\n", errno);
+			ts_status_debug( "ts_driver_write: ignoring timer budget exceeded\n", errno);
 		}
 
 		index = index + size;

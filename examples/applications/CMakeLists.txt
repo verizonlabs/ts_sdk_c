@@ -9,16 +9,13 @@ include_directories( ${CMAKE_SOURCE_DIR}/examples/platforms )
 
 # executable, SIMPLE application
 add_executable( example_simple simple/main.c)
-target_link_libraries( example_simple ts_sdk ts_sdk_components ts_sdk_platforms mbedtls pahomqtt )
+target_link_libraries( example_simple ts_sdk ts_sdk_platforms mbedtls pahomqtt )
 
 # executable, CUSTOM-TRANSPORT application
 add_executable( example_custom_transport custom_transport/main.c)
-target_link_libraries( example_custom_transport ts_sdk ts_sdk_components ts_sdk_platforms )
+target_link_libraries( example_custom_transport ts_sdk ts_sdk_platforms )
 
 # executable, CUSTOM-SECURITY application
 add_executable( example_custom_security custom_security/main.c)
-target_link_libraries( example_custom_security ts_sdk ts_sdk_components ts_sdk_platforms )
+target_link_libraries( example_custom_security ts_sdk ts_sdk_platforms )
 
-# executable, SIMPLE-TS-CBOR application
-add_executable( example_simple_ts_cbor simple_ts_cbor/main.c)
-target_link_libraries( example_simple_ts_cbor ts_sdk ts_sdk_components ts_sdk_platforms mbedtls pahomqtt )

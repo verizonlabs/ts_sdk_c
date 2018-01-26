@@ -2,6 +2,8 @@
 # ThingSpace Platforms
 
 include_directories( ${CMAKE_SOURCE_DIR}/sdk/include )
+include_directories( ${CMAKE_SOURCE_DIR}/sdk_dependencies/cJSON )
+include_directories( ${CMAKE_SOURCE_DIR}/sdk_dependencies/tinycbor/src )
 
 # TODO - should only add platform sources
 file( GLOB SOURCES

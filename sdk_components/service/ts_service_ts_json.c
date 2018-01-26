@@ -59,8 +59,8 @@ static TsStatus_t ts_enqueue( TsServiceRef_t service, TsMessageRef_t sensor ) {
 	const char * unit_serial_number = "unit-serial-number";
 
 	// get device-id from controller (via connection)
-	const uint8_t id[ TS_CONTROLLER_MAX_ID_SIZE ];
-	ts_connection_get_spec_id( service->_transport->_connection, id, TS_CONTROLLER_MAX_ID_SIZE );
+	const uint8_t id[ TS_DRIVER_MAX_ID_SIZE ];
+	ts_connection_get_spec_id( service->_transport->_connection, id, TS_DRIVER_MAX_ID_SIZE );
 
 	// create message content
 	TsMessageRef_t message, sensors, characteristics;
@@ -119,8 +119,8 @@ static TsStatus_t ts_dequeue( TsServiceRef_t service, TsServiceAction_t action, 
 	ts_status_trace("ts_service_dequeue\n");
 
 	// get device-id from controller (via connection)
-	const uint8_t id[ TS_CONTROLLER_MAX_ID_SIZE ];
-	ts_connection_get_spec_id( service->_transport->_connection, id, TS_CONTROLLER_MAX_ID_SIZE );
+	const uint8_t id[ TS_DRIVER_MAX_ID_SIZE ];
+	ts_connection_get_spec_id( service->_transport->_connection, id, TS_DRIVER_MAX_ID_SIZE );
 
 	// listen to topic
 	// TODO - can be called multiple times, but re-check later for another improved impl?
