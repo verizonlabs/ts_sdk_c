@@ -57,7 +57,7 @@ static TsStatus_t ts_create( TsDriverRef_t * driver ) {
 
 	//sigignore(SIGHUP);
 	//sigignore(SIGINT);
-	sigignore(SIGPIPE);
+	//sigignore(SIGPIPE);
 	//sigignore(SIGALRM);
 
 	TsDriverSocketRef_t sock = (TsDriverSocketRef_t) ( ts_platform_malloc( sizeof( TsDriverSocket_t )));

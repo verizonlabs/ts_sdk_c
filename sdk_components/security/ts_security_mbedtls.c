@@ -151,15 +151,16 @@ static TsStatus_t ts_create(TsSecurityRef_t *security) {
 
 	// initialize ssl-config debugging
 	mbedtls_ssl_conf_dbg(&(mbed->_ssl_config), mbedtls_debug, mbed);
-	switch (ts_status_get_level()) {
-	default:
-		mbedtls_debug_set_threshold(1);
-		break;
-
-	case TsStatusLevelTrace:
-		mbedtls_debug_set_threshold(4);
-		break;
-	}
+	// TODO - this is was removed in the stripped down version of mbedTLS
+//	switch (ts_status_get_level()) {
+//	default:
+//		mbedtls_debug_set_threshold(1);
+//		break;
+//
+//	case TsStatusLevelTrace:
+//		mbedtls_debug_set_threshold(4);
+//		break;
+//	}
 
 	// default to no verification (setting the cacert will enable it again)
 	mbedtls_ssl_conf_authmode(&(mbed->_ssl_config), MBEDTLS_SSL_VERIFY_NONE);

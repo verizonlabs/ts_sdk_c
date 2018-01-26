@@ -9,7 +9,7 @@
 #include "include/client-crt.h"
 #include "include/client-key.h"
 
-#if defined(TS_TRANSPORT_MQTT) && ( defined(TS_SECURITY_MBED) || defined(TS_SECURITY_MOCANA) )
+#if defined(TS_TRANSPORT_MQTT)
 
 // application sensor cache
 static TsMessageRef_t sensors;

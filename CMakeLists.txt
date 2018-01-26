@@ -18,21 +18,31 @@ endif()
 project( ts_sdk_c C CXX ASM )
 message( STATUS "## Build Type            (Debug|Release) : ${CMAKE_BUILD_TYPE}" )
 
-# component and platform selection
+# build vendor libraries
+add_subdirectory( sdk_dependencies )
+
+# component selection
 add_definitions( -DTS_SERVICE_TS_JSON )     # TS_JSON, TS_CBOR, NONE or CUSTOM
 add_definitions( -DTS_TRANSPORT_MQTT )      # MQTT or CUSTOM only
 add_definitions( -DTS_SECURITY_MBED )       # MBED, MOCANA, NONE or CUSTOM
 add_definitions( -DTS_CONTROLLER_NONE )     # MONARCH, NONE or CUSTOM
 
-# libraries
-add_subdirectory( sdk_dependencies )
+# platform configuration
+add_definitions( -DTS_PLATFORM_UNIX )       # UNIX, THREADX, NONE or CUSTOM
+
+# platform OS and board configuration
+# unix, unix/raspberry_pi, threadX/renesas_s5_d9, none/freedom, none/nucleo
+set( TS_BOARD unix CACHE STRING "rtos and board" FORCE )
+
+# build object libraries
 add_subdirectory( sdk_components )
+add_subdirectory( sdk_platforms )
 add_subdirectory( sdk )
 
-# build common library
+# build common static library
 # (depends on components and dependencies)
-add_library( ts_sdk STATIC $<TARGET_OBJECTS:ts_sdk_apis> $<TARGET_OBJECTS:ts_sdk_components> )
-target_link_libraries( ts_sdk tinycbor cjson )
+add_library( ts_sdk STATIC $<TARGET_OBJECTS:ts_sdk_apis> $<TARGET_OBJECTS:ts_sdk_components> $<TARGET_OBJECTS:ts_sdk_platforms> )
+target_link_libraries( ts_sdk tinycbor cjson mbedtls pahomqtt )
 
-# example executables
+# build example executables
 add_subdirectory( examples )
