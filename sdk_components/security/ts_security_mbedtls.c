@@ -329,7 +329,7 @@ static TsStatus_t ts_connect(TsSecurityRef_t security, TsAddress_t address) {
 
 		default:
 
-			ts_status_debug("ts_security_connect: error, '%d'\n", error);
+			ts_status_debug("ts_security_connect: error, '0x%04x'\n", -1 * error);
 			status = TsStatusErrorPreconditionFailed;
 			ts_controller_disconnect(security->_controller);
 			// fallthrough
