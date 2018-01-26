@@ -156,7 +156,7 @@ static TsStatus_t ts_create(TsSecurityRef_t *security) {
 		mbedtls_debug_set_threshold(1);
 		break;
 
-	case TsStatusTrace:
+	case TsStatusLevelTrace:
 		mbedtls_debug_set_threshold(4);
 		break;
 	}
@@ -448,7 +448,7 @@ static TsStatus_t ts_read(TsSecurityRef_t security, const uint8_t *buffer, size_
 			if( index > 0 ) {
 				status = TsStatusOk;
 			} else {
-				status = TsStatusReadPending;
+				status = TsStatusOkReadPending;
 			}
 			break;
 
@@ -625,7 +625,7 @@ static int mbedtls_tcp_recv(void *context, unsigned char *buffer, size_t buffer_
 			ts_status_debug( "mbedtls_tcp_recv: %s\n", ts_status_string(status) );
 			return MBEDTLS_ERR_NET_CONN_RESET;
 
-		case TsStatusReadPending:
+		case TsStatusOkReadPending:
 			if( index == 0 ) {
 				return MBEDTLS_ERR_SSL_WANT_READ;
 			} else {
@@ -691,7 +691,7 @@ static int mbedtls_tcp_send(void *context, const unsigned char *buffer, size_t b
 			ts_status_debug( "mbedtls_tcp_send: %s\n", ts_status_string(status) );
 			return MBEDTLS_ERR_NET_CONN_RESET;
 
-		case TsStatusWritePending:
+		case TsStatusOkWritePending:
 			if( index == 0 ) {
 				return MBEDTLS_ERR_SSL_WANT_WRITE;
 			} else {

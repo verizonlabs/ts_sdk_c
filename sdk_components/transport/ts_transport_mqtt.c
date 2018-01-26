@@ -372,7 +372,7 @@ static int paho_mqtt_read( Network * network, unsigned char * buffer, int buffer
 			network->_last_status = status;
 			return -1;
 
-		case TsStatusReadPending:
+		case TsStatusOkReadPending:
 			// continue reading till budget exhausted
 			xbuffer_size = 0;
 			// fallthrough
@@ -417,7 +417,7 @@ static int paho_mqtt_write( Network * network, unsigned char * buffer, int buffe
 			network->_last_status = status;
 			return -1;
 
-		case TsStatusWritePending:
+		case TsStatusOkWritePending:
 			// continue writing till budget exhausted
 			xbuffer_size = 0;
 			// fallthrough

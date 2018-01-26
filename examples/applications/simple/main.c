@@ -29,7 +29,7 @@ int main() {
 	//}
 
 	// initialize status reporting level (see ts_status.h)
-	ts_status_set_level( TsStatusDebug );
+	ts_status_set_level( TsStatusLevelDebug );
 	ts_status_debug( "simple: initializing,...\n");
 
 	// initialize sensor cache (usually set from hardware)

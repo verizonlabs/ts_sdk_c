@@ -27,6 +27,7 @@ static void ts_assertion(const char *, const char *, int);
 
 TsPlatformVtable_t ts_platform_unix = {
     .initialize = ts_initialize,
+    .printf = ts_printf,
     .vprintf = ts_vprintf,
     .time = ts_time,
     .sleep = ts_sleep,

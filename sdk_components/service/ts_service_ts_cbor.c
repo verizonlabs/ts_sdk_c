@@ -277,7 +277,7 @@ static TsStatus_t handler( TsTransportRef_t transport, void * data, TsPath_t pat
 	// modify given message to include status data
 	ts_message_set_int( message, "status", ts_status_code( status ) );
 	if( status != TsStatusOk ) {
-		ts_message_set_int( message, "error", ts_status_error( status ) );
+		ts_message_set_int( message, "error", status );
 	}
 
 	// get device-id from controller (via connection)

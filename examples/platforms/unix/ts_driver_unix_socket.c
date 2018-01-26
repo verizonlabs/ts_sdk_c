@@ -55,6 +55,11 @@ static TsStatus_t ts_create( TsDriverRef_t * driver ) {
 	ts_status_trace( "ts_driver_create: socket\n" );
 	ts_platform_assert( driver != NULL );
 
+	//sigignore(SIGHUP);
+	//sigignore(SIGINT);
+	sigignore(SIGPIPE);
+	//sigignore(SIGALRM);
+
 	TsDriverSocketRef_t sock = (TsDriverSocketRef_t) ( ts_platform_malloc( sizeof( TsDriverSocket_t )));
 	sock->_driver._address = "";
 	sock->_driver._profile = NULL;
@@ -119,7 +124,7 @@ static TsStatus_t ts_connect( TsDriverRef_t driver, TsAddress_t address ) {
 
 	// find active listener
 	TsDriverSocketRef_t sock = (TsDriverSocketRef_t) ( driver );
-	TsStatus_t status = TsStatusOk;
+	TsStatus_t status = TsStatusErrorNotFound;
 	struct addrinfo * current;
 	for( current = address_list; current != NULL; current = current->ai_next ) {
 
@@ -161,7 +166,7 @@ static TsStatus_t ts_disconnect( TsDriverRef_t driver ) {
  * the other channels better, e.g., uart and usb.
  *
  * @note
- * TsStatusReadPending has a very specific meaning, only return when the read
+ * TsStatusOkReadPending has a very specific meaning, only return when the read
  * has returned pending and there isn't data in the buffer, in all other cases
  * return a valid status with the contents of the current buffer.
  *
@@ -205,7 +210,7 @@ static TsStatus_t ts_read( TsDriverRef_t driver, const uint8_t * buffer, size_t 
 	// just the number of reattempts by the caller,...
 	if( timestamp - sock->_last_read_timestamp == 0 ) {
 		*buffer_size = 0;
-		return TsStatusReadPending;
+		return TsStatusOkReadPending;
 	}
 	sock->_last_read_timestamp = timestamp;
 
@@ -231,7 +236,7 @@ static TsStatus_t ts_read( TsDriverRef_t driver, const uint8_t * buffer, size_t 
 					status = TsStatusOk;
 				} else {
 					// TODO - allow the timer budget to be exhausted before returning?
-					status = TsStatusReadPending;
+					status = TsStatusOkReadPending;
 				}
 			} else if( errno == EPIPE || errno == ECONNRESET ) {
 				status = TsStatusErrorConnectionReset;
@@ -256,7 +261,7 @@ static TsStatus_t ts_read( TsDriverRef_t driver, const uint8_t * buffer, size_t 
 			if( index > 0 ) {
 				status = TsStatusOk;
 			} else {
-				status = TsStatusReadPending;
+				status = TsStatusOkReadPending;
 			}
 		}
 
@@ -313,7 +318,7 @@ static TsStatus_t ts_write( TsDriverRef_t driver, const uint8_t * buffer, size_t
 				if( index > 0 ) {
 					status = TsStatusOk;
 				} else {
-					status = TsStatusWritePending;
+					status = TsStatusOkWritePending;
 				}
 			} else if( errno == EPIPE || errno == ECONNRESET ) {
 				status = TsStatusErrorConnectionReset;
@@ -330,7 +335,7 @@ static TsStatus_t ts_write( TsDriverRef_t driver, const uint8_t * buffer, size_t
 			if( index > 0 ) {
 				status = TsStatusOk;
 			} else {
-				status = TsStatusWritePending;
+				status = TsStatusOkWritePending;
 			}
 
 		} else if( ts_platform_time() - timestamp > budget ) {

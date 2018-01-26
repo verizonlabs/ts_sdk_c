@@ -207,7 +207,7 @@ TsStatus_t ts_connection_read( TsConnectionRef_t connection, const uint8_t * buf
 		// do nothing
 		break;
 
-	case TsStatusReadPending:
+	case TsStatusOkReadPending:
 
 		if( * buffer_size > 0 ) {
 			ts_status_alarm( "ts_connection_read: read-pending status contains received bytes, %d, data dropped!\n",
@@ -245,7 +245,7 @@ TsStatus_t ts_connection_write( TsConnectionRef_t connection, const uint8_t * bu
 		ts_status_info( "ts_connection_write: error received, %d\n", status );
 		break;
 
-	case TsStatusWritePending:
+	case TsStatusOkWritePending:
 
 		// do nothing
 		break;

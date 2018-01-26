@@ -16,7 +16,7 @@ static TsStatus_t handler( TsTransportRef_t, void *, TsPath_t, const uint8_t *, 
 
 int main() {
 
-	ts_status_set_level(TsStatusDebug);
+	ts_status_set_level(TsStatusLevelDebug);
 
 	TsTransportRef_t transport;
 	TsStatus_t status = ts_transport_create( &transport );
