@@ -31,6 +31,7 @@ static TsStatusIndexTuple_t _ts_status_index_map[] = {
 	{ TsStatusErrorOutOfMemory,         500, "out_of_memory",   "soft (detectable) out-of-memory state" },
 	{ TsStatusErrorIndexOutOfRange,     500, "out_of_range",    "index is out of range" },
 	{ TsStatusErrorRecursionTooDeep,    500, "recursion",       "stack limitation exceeded" },
+	{ TsStatusErrorExceedTimeBudget,    500, "timeout",         "time limit exceeded"},
 	{ TsStatusErrorNoResourceAvailable, 500, "no_resource",     "no hardware resources available" },
 	{ TsStatusErrorConnectionReset,     500, "connection",      "connection reset" },
 };
