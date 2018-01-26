@@ -59,7 +59,7 @@ static uint64_t ts_time() {
 #if _POSIX_C_SOURCE >= 200809L
     struct timespec spec;
     clock_gettime(CLOCK_REALTIME, &spec);
-    microseconds = (uint64_t)(spec.tv_nsec) / TS_TIME_USEC_TO_NSEC;
+    microseconds = (uint64_t)(spec.tv_sec) * TS_TIME_SEC_TO_USEC + (uint64_t)(spec.tv_nsec) / TS_TIME_USEC_TO_NSEC;
 #else
     struct timeval tv;
     gettimeofday(&tv, NULL);

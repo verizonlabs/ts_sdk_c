@@ -17,13 +17,13 @@
 #define SSL_HOST "simpm.thingspace.verizon.com"
 #endif
 #ifndef SSL_HANDSHAKE_TIMEOUT
-#define SSL_HANDSHAKE_TIMEOUT 30e6
+#define SSL_HANDSHAKE_TIMEOUT (30 * TS_TIME_SEC_TO_USEC)
 #endif
 #ifndef SSL_READ_BUDGET
-#define SSL_READ_BUDGET		50e3
+#define SSL_READ_BUDGET (50 * TS_TIME_SEC_TO_USEC)
 #endif
 #ifndef SSL_WRITE_BUDGET
-#define SSL_WRITE_BUDGET	50e3
+#define SSL_WRITE_BUDGET (50 * TS_TIME_SEC_TO_USEC)
 #endif
 
 typedef struct TsSecurity *TsSecurityRef_t;

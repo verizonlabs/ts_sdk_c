@@ -94,12 +94,12 @@ void ts_status_printf( TsStatusLevel_t level, const char * file, int line, const
 		snprintf( hfile, sizeof(hfile), "%s:%d", filename, line );
 
 		// format tick
-		int hours = (int)(timestamp / ( 60L * 60L * TS_TIME_SEC_TO_USEC ) );
-		timestamp = timestamp % ( 60L * 60L * TS_TIME_SEC_TO_USEC );
-		int minutes = (int)(timestamp / ( 60L * TS_TIME_SEC_TO_USEC ) );
-		timestamp = timestamp % ( 60L * TS_TIME_SEC_TO_USEC );
-		int seconds = (int)(timestamp / ( 1L * TS_TIME_SEC_TO_USEC ) );
-		int useconds = (int)( timestamp % ( 1L * TS_TIME_SEC_TO_USEC ) );
+		int hours = (int)(timestamp / TS_TIME_HOUR_TO_USEC);
+		timestamp = timestamp % TS_TIME_HOUR_TO_USEC;
+		int minutes = (int)(timestamp / TS_TIME_MIN_TO_USEC);
+		timestamp = timestamp % TS_TIME_MIN_TO_USEC;
+		int seconds = (int)(timestamp / TS_TIME_SEC_TO_USEC);
+		int useconds = (int)(timestamp % TS_TIME_SEC_TO_USEC);
 		snprintf( htick, sizeof(htick), "%d:%02d:%02d.%06d", hours, minutes, seconds, useconds );
 
 		// output status message

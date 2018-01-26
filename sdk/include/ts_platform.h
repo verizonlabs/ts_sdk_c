@@ -6,9 +6,11 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#define TS_TIME_SEC_TO_USEC  1000000
-#define TS_TIME_MSEC_TO_USEC 1000
-#define TS_TIME_USEC_TO_NSEC 1000
+#define TS_TIME_HOUR_TO_USEC 3600000000L
+#define TS_TIME_MIN_TO_USEC  60000000L
+#define TS_TIME_SEC_TO_USEC  1000000L
+#define TS_TIME_MSEC_TO_USEC 1000L
+#define TS_TIME_USEC_TO_NSEC 1000L
 
 typedef struct TsPlatform *TsPlatformRef_t;
 typedef struct TsPlatform {
