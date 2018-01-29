@@ -6,6 +6,7 @@ set( TARGETS ts_sdk_components )
 file( GLOB SOURCES
     "*.c"
     "service/*.c"
+    "at_interpreter/*.c"
     "transport/*.c"
     "security/*.c"
     "controller/*.c" )
