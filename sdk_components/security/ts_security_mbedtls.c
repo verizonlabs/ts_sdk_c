@@ -151,15 +151,16 @@ static TsStatus_t ts_create(TsSecurityRef_t *security) {
 
 	// initialize ssl-config debugging
 	mbedtls_ssl_conf_dbg(&(mbed->_ssl_config), mbedtls_debug, mbed);
-	switch (ts_status_get_level()) {
-	default:
-		mbedtls_debug_set_threshold(1);
-		break;
-
-	case TsStatusTrace:
-		mbedtls_debug_set_threshold(4);
-		break;
-	}
+	// TODO - this is was removed in the stripped down version of mbedTLS
+//	switch (ts_status_get_level()) {
+//	default:
+//		mbedtls_debug_set_threshold(1);
+//		break;
+//
+//	case TsStatusLevelTrace:
+//		mbedtls_debug_set_threshold(4);
+//		break;
+//	}
 
 	// default to no verification (setting the cacert will enable it again)
 	mbedtls_ssl_conf_authmode(&(mbed->_ssl_config), MBEDTLS_SSL_VERIFY_NONE);
@@ -328,7 +329,7 @@ static TsStatus_t ts_connect(TsSecurityRef_t security, TsAddress_t address) {
 
 		default:
 
-			ts_status_debug("ts_security_connect: error, '%d'\n", error);
+			ts_status_debug("ts_security_connect: error, '0x%04x'\n", -1 * error);
 			status = TsStatusErrorPreconditionFailed;
 			ts_controller_disconnect(security->_controller);
 			// fallthrough
@@ -448,7 +449,7 @@ static TsStatus_t ts_read(TsSecurityRef_t security, const uint8_t *buffer, size_
 			if( index > 0 ) {
 				status = TsStatusOk;
 			} else {
-				status = TsStatusReadPending;
+				status = TsStatusOkReadPending;
 			}
 			break;
 
@@ -625,7 +626,7 @@ static int mbedtls_tcp_recv(void *context, unsigned char *buffer, size_t buffer_
 			ts_status_debug( "mbedtls_tcp_recv: %s\n", ts_status_string(status) );
 			return MBEDTLS_ERR_NET_CONN_RESET;
 
-		case TsStatusReadPending:
+		case TsStatusOkReadPending:
 			if( index == 0 ) {
 				return MBEDTLS_ERR_SSL_WANT_READ;
 			} else {
@@ -691,7 +692,7 @@ static int mbedtls_tcp_send(void *context, const unsigned char *buffer, size_t b
 			ts_status_debug( "mbedtls_tcp_send: %s\n", ts_status_string(status) );
 			return MBEDTLS_ERR_NET_CONN_RESET;
 
-		case TsStatusWritePending:
+		case TsStatusOkWritePending:
 			if( index == 0 ) {
 				return MBEDTLS_ERR_SSL_WANT_WRITE;
 			} else {

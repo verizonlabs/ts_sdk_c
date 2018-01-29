@@ -71,7 +71,7 @@ typedef struct TsTransportMqtt {
 	uint8_t * _read_buffer;
 	uint8_t * _write_buffer;
 	uint32_t _read_write_buffer_size;
-	char _id[TS_CONTROLLER_MAX_ID_SIZE];
+	char _id[TS_DRIVER_MAX_ID_SIZE];
 
 	// mqtt spec parameters
 	enum QoS _spec_qos;
@@ -108,7 +108,7 @@ static TsStatus_t ts_create( TsTransportRef_t * transport ) {
 
 	// get controller specifications for id, timeout and buffer sizes
 	uint32_t mcu, budget;
-	ts_connection_get_spec_id( connection, (const uint8_t *) &( mqtt->_id ), TS_CONTROLLER_MAX_ID_SIZE );
+	ts_connection_get_spec_id( connection, (const uint8_t *) &( mqtt->_id ), TS_DRIVER_MAX_ID_SIZE );
 	ts_connection_get_spec_budget( connection, &budget );
 	ts_connection_get_spec_mcu( connection, &mcu );
 
@@ -372,7 +372,7 @@ static int paho_mqtt_read( Network * network, unsigned char * buffer, int buffer
 			network->_last_status = status;
 			return -1;
 
-		case TsStatusReadPending:
+		case TsStatusOkReadPending:
 			// continue reading till budget exhausted
 			xbuffer_size = 0;
 			// fallthrough
@@ -417,7 +417,7 @@ static int paho_mqtt_write( Network * network, unsigned char * buffer, int buffe
 			network->_last_status = status;
 			return -1;
 
-		case TsStatusWritePending:
+		case TsStatusOkWritePending:
 			// continue writing till budget exhausted
 			xbuffer_size = 0;
 			// fallthrough

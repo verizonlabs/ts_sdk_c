@@ -20,7 +20,7 @@ static TsStatus_t handler( TsTransportRef_t transport, void *, TsPath_t path, co
 
 int main() {
 
-	ts_status_set_level(TsStatusDebug);
+	ts_status_set_level(TsStatusLevelDebug);
 
 	// create mqtt transport
 	TsTransportRef_t transport;

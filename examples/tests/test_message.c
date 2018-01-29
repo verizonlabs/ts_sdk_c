@@ -7,7 +7,7 @@
 int main() {
 
 	TsStatus_t status;
-	ts_status_set_level( TsStatusDebug );
+	ts_status_set_level( TsStatusLevelDebug );
 
 	ts_status_debug("** create example message\n");
 	TsMessageRef_t message, sensor;

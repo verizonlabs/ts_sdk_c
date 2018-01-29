@@ -1,6 +1,6 @@
 // Copyright (C) 2017, 2018 Verizon, Inc. All rights reserved.
 #include "ts_platform.h"
-#include "ts_connection.h"
+#include "ts_controller.h"
 
 static TsStatus_t ts_create( TsControllerRef_t * );
 static TsStatus_t ts_destroy( TsControllerRef_t );

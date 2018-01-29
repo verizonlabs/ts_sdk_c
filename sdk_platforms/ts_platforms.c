@@ -3,7 +3,8 @@
 
 // platform binding
 #if defined(TS_PLATFORM_UNIX)
-const TsPlatformVtable_t *    ts_platform = &(ts_platform_unix);
+const TsPlatformVtable_t *  ts_platform = &(ts_platform_unix);
+const TsDriverVtable_t *    ts_driver = &(ts_driver_unix_socket);
 #elif defined(TS_PLATFORM_CUSTOM)
 // do nothing
 #else

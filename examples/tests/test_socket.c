@@ -17,7 +17,7 @@
 int main() {
 
 	TsStatus_t status;
-	ts_status_set_level(TsStatusDebug);
+	ts_status_set_level(TsStatusLevelDebug);
 
 	// create a connection state struct
 	TsConnectionRef_t connection;
@@ -58,7 +58,7 @@ int main() {
 				ts_status_info("%s\n", (char*)buffer);
 			}
 			// fallthrough
-		case TsStatusReadPending:
+		case TsStatusOkReadPending:
 			// read-pending should never have data returned
 			break;
 		default:

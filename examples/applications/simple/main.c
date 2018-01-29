@@ -9,7 +9,7 @@
 #include "include/client-crt.h"
 #include "include/client-key.h"
 
-#if defined(TS_TRANSPORT_MQTT) && ( defined(TS_SECURITY_MBED) || defined(TS_SECURITY_MOCANA) )
+#if defined(TS_TRANSPORT_MQTT)
 
 // application sensor cache
 static TsMessageRef_t sensors;
@@ -29,7 +29,7 @@ int main() {
 	//}
 
 	// initialize status reporting level (see ts_status.h)
-	ts_status_set_level( TsStatusDebug );
+	ts_status_set_level( TsStatusLevelDebug );
 	ts_status_debug( "simple: initializing,...\n");
 
 	// initialize sensor cache (usually set from hardware)

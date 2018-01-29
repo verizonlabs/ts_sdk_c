@@ -6,19 +6,11 @@
 #include "ts_profile.h"
 #include "ts_driver.h"
 
-#define TS_CONTROLLER_MAX_ID_SIZE 36
-
 typedef struct TsController *TsControllerRef_t;
 typedef struct TsController {
 
 	TsDriverRef_t   _driver;
 	TsProfileRef_t	_profile;
-	TsAddress_t		_address;
-
-	// advertised controller specifications
-	uint32_t        _spec_budget;   // read/write timer budget in microseconds
-	uint32_t        _spec_mcu;      // maximum buffer size in bytes
-	uint8_t         _spec_id[TS_CONTROLLER_MAX_ID_SIZE]; // zero terminated device id
 
 } TsController_t;
 

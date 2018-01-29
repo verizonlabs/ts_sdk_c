@@ -90,9 +90,10 @@ TsStatus_t ts_connection_get_spec_mcu( TsConnectionRef_t connection, uint32_t* m
 	ts_platform_assert( connection != NULL );
 	ts_platform_assert( connection->_security != NULL );
 	ts_platform_assert( connection->_security->_controller != NULL );
+	ts_platform_assert( connection->_security->_controller->_driver != NULL );
 	ts_platform_assert( mcu != NULL );
 
-	*mcu = connection->_security->_controller->_spec_mcu;
+	*mcu = connection->_security->_controller->_driver->_spec_mcu;
 
 	return TsStatusOk;
 }
@@ -104,10 +105,11 @@ TsStatus_t ts_connection_get_spec_id( TsConnectionRef_t connection, const uint8_
 	ts_platform_assert( connection != NULL );
 	ts_platform_assert( connection->_security != NULL );
 	ts_platform_assert( connection->_security->_controller != NULL );
+	ts_platform_assert( connection->_security->_controller->_driver != NULL );
 	ts_platform_assert( id != NULL );
-	ts_platform_assert( id_size <= TS_CONTROLLER_MAX_ID_SIZE );
+	ts_platform_assert( id_size <= TS_DRIVER_MAX_ID_SIZE );
 
-	snprintf( (char *)id, id_size, "%s", (const char *)(connection->_security->_controller->_spec_id) );
+	snprintf( (char *)id, id_size, "%s", (const char *)(connection->_security->_controller->_driver->_spec_id) );
 
 	return TsStatusOk;
 }
@@ -119,9 +121,10 @@ TsStatus_t ts_connection_get_spec_budget( TsConnectionRef_t connection, uint32_t
 	ts_platform_assert( connection != NULL );
 	ts_platform_assert( connection->_security != NULL );
 	ts_platform_assert( connection->_security->_controller != NULL );
+	ts_platform_assert( connection->_security->_controller->_driver != NULL );
 	ts_platform_assert( budget != NULL );
 
-	*budget = connection->_security->_controller->_spec_budget;
+	*budget = connection->_security->_controller->_driver->_spec_budget;
 
 	return TsStatusOk;
 }
@@ -204,7 +207,7 @@ TsStatus_t ts_connection_read( TsConnectionRef_t connection, const uint8_t * buf
 		// do nothing
 		break;
 
-	case TsStatusReadPending:
+	case TsStatusOkReadPending:
 
 		if( * buffer_size > 0 ) {
 			ts_status_alarm( "ts_connection_read: read-pending status contains received bytes, %d, data dropped!\n",
@@ -242,7 +245,7 @@ TsStatus_t ts_connection_write( TsConnectionRef_t connection, const uint8_t * bu
 		ts_status_info( "ts_connection_write: error received, %d\n", status );
 		break;
 
-	case TsStatusWritePending:
+	case TsStatusOkWritePending:
 
 		// do nothing
 		break;

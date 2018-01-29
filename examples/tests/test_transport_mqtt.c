@@ -16,7 +16,7 @@ static TsStatus_t handler( TsTransportRef_t, void *, TsPath_t, const uint8_t *, 
 
 int main() {
 
-	ts_status_set_level(TsStatusDebug);
+	ts_status_set_level(TsStatusLevelDebug);
 
 	TsTransportRef_t transport;
 	TsStatus_t status = ts_transport_create( &transport );
@@ -31,8 +31,8 @@ int main() {
 		return 0;
 	}
 
-	const uint8_t id[ TS_CONTROLLER_MAX_ID_SIZE ];
-	ts_connection_get_spec_id( transport->_connection, id, TS_CONTROLLER_MAX_ID_SIZE );
+	const uint8_t id[ TS_DRIVER_MAX_ID_SIZE ];
+	ts_connection_get_spec_id( transport->_connection, id, TS_DRIVER_MAX_ID_SIZE );
 
 	char subscription[256];
 	snprintf( subscription, 256, "ThingSpace/%s/ProviderToElement", id );

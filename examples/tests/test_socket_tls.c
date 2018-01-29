@@ -23,7 +23,7 @@
 int main() {
 
 	TsStatus_t status;
-	ts_status_set_level(TsStatusDebug);
+	ts_status_set_level(TsStatusLevelDebug);
 
 	// create a connection state struct
 	TsConnectionRef_t connection;
@@ -35,7 +35,8 @@ int main() {
 
 	// set ca-cert
 	ts_connection_set_server_cert_hostname(connection, "www.google.com" );
-	ts_connection_set_server_cert(connection, (const uint8_t *)mbedtls_test_cas_pem, mbedtls_test_cas_pem_len);
+	// TODO - removed in trimmed down version of mbedTLS
+	//ts_connection_set_server_cert(connection, (const uint8_t *)mbedtls_test_cas_pem, mbedtls_test_cas_pem_len);
 
 	// connect
 	status = ts_connection_connect(connection, "www.google.com:443");
@@ -69,7 +70,7 @@ int main() {
 				ts_status_info("%s\n", (char*)buffer);
 			}
 			break;
-		case TsStatusReadPending:
+		case TsStatusOkReadPending:
 			// read-pending should never have data returned
 			if( buffer_size > 0 ) {
 				ts_status_info("unexpected data contained in pending-read, %d\n", buffer_size);

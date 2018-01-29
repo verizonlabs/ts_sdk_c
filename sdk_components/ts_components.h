@@ -18,7 +18,7 @@ extern TsServiceVtable_t    ts_service_ts_json;
 extern TsTransportVtable_t  ts_transport_mqtt;
 
 extern TsControllerVtable_t ts_controller_monarch;
-extern TsControllerVtable_t ts_controller_socket;
+extern TsControllerVtable_t ts_controller_none;
 
 extern TsSecurityVtable_t   ts_security_mbedtls;
 extern TsSecurityVtable_t   ts_security_mocana;

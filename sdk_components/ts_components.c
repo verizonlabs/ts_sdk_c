@@ -37,10 +37,10 @@ const TsSecurityVtable_t *  ts_security = &(ts_security_none);
 #endif
 
 // connection controller binding
-#if defined(TS_CONTROLLER_SOCKET)
-const TsControllerVtable_t * ts_controller = &(ts_controller_socket);
-#elif defined(TS_CONTROLLER_MONARCH)
+#if defined(TS_CONTROLLER_MONARCH)
 const TsControllerVtable_t * ts_controller = &(ts_controller_monarch);
+#elif defined(TS_CONTROLLER_NONE)
+const TsControllerVtable_t * ts_controller = &(ts_controller_none);
 #elif defined(TS_CONTROLLER_CUSTOM)
 // do nothing
 #else

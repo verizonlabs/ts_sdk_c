@@ -5,11 +5,19 @@
 #include "ts_status.h"
 #include "ts_profile.h"
 
+#define TS_DRIVER_MAX_ID_SIZE 36
+
 typedef struct TsDriver *TsDriverRef_t;
 typedef TsStatus_t (*TsDriverReader_t)(TsDriverRef_t, void*, const uint8_t *, size_t);
 typedef struct TsDriver {
 
-	TsProfileRef_t _profile;
+	TsProfileRef_t  _profile;
+	TsAddress_t		_address;
+
+	// advertised driver specifications
+	uint32_t        _spec_budget;   // read/write timer budget in microseconds
+	uint32_t        _spec_mcu;      // maximum buffer size in bytes
+	uint8_t         _spec_id[TS_DRIVER_MAX_ID_SIZE]; // zero terminated device id
 
 } TsDriver_t;
 
