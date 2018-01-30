@@ -8,6 +8,15 @@
 #define TS_SERVICE_MAX_HANDLERS 8
 #define TS_SERVICE_MAX_PATH_SIZE 256
 
+typedef enum {
+	TsServiceEnvelopeVersionOne = 0x01,
+} TsServiceEnvelopeVersion_t;
+
+typedef enum {
+	TsServiceEnvelopeServiceIdTsCbor = 0x03,
+	TsServiceEnvelopeServiceIdZWave = 0x04,
+} TsServiceEnvelopeServiceId_t;
+
 // TODO - fix to one enum, and one mapping
 typedef enum {
 

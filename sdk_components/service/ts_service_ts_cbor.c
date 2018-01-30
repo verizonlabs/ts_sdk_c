@@ -71,22 +71,22 @@ static TsStatus_t ts_enqueue( TsServiceRef_t service, TsMessageRef_t sensor ) {
 	uint32_t mcu;
 	ts_connection_get_spec_mcu( service->_transport->_connection, &mcu);
 
-	// allocate data buffer
+	// allocate data buffer and encode data
 	uint8_t * buffer = (uint8_t*)ts_platform_malloc( mcu );
-	size_t buffer_size = (size_t)mcu;
-	ts_message_encode(message, TsEncoderTsCbor, buffer, &buffer_size);
+	size_t buffer_size = (size_t)(mcu - 4);
+	ts_message_encode(message, TsEncoderTsCbor, buffer + 4, &buffer_size);
 
-	// TODO - remove test code
-	TsMessageRef_t test;
-	ts_message_create( &test );
-	ts_message_decode( test, TsEncoderTsCbor, buffer, buffer_size );
-	ts_message_encode( test, TsEncoderDebug, NULL, 0 );
+	// encode envelope
+	buffer[ 0 ] = TsServiceEnvelopeVersionOne;
+	buffer[ 1 ] = TsServiceEnvelopeServiceIdTsCbor;
+	buffer[ 2 ] = (uint8_t)(buffer_size >> 8);
+	buffer[ 3 ] = (uint8_t)(buffer_size & 0xff);
 
 	// send data
 	size_t topic_size = 256;
 	char topic[ 256 ];
 	snprintf( topic, topic_size, "ThingSpace/%s/ElementToProvider", id );
-	ts_status_debug( "ts_service_enqueue: sending (%.*s) on (%s)\n", buffer_size, buffer, topic );
+
 	// TODO - check return codes - may have disconnected.
 	ts_transport_speak( service->_transport, (TsPath_t)topic, buffer, buffer_size );
 
@@ -168,9 +168,6 @@ static TsStatus_t handler_set( TsServiceRef_t service, TsMessageRef_t message ) 
 static TsStatus_t handler_activate( TsServiceRef_t service, TsMessageRef_t message ) {
 
 	ts_status_debug("ts_service_handler_activate\n");
-
-	// TODO - delegate
-
 	return TsStatusOk;
 }
 
@@ -182,24 +179,48 @@ static TsStatus_t handler_activate( TsServiceRef_t service, TsMessageRef_t messa
  * @param buffer_size
  * @return
  */
-static TsStatus_t handler( TsTransportRef_t transport, void * data, TsPath_t path, const uint8_t * buffer, size_t buffer_size ) {
+static TsStatus_t handler( TsTransportRef_t transport, void * state, TsPath_t path, const uint8_t * buffer, size_t buffer_size ) {
 
 	ts_status_debug("ts_service_handler\n");
 
 	ts_platform_assert( transport != NULL );
-	ts_platform_assert( data != NULL );
+	ts_platform_assert( state != NULL );
 
 	// cast data to service pointer (as set in the dequeue function above)
-	TsServiceRef_t service = (TsServiceRef_t)data;
+	TsServiceRef_t service = (TsServiceRef_t)state;
+
+	// decode envelope
+	uint8_t * data = (uint8_t*)buffer;
+	size_t data_size = buffer_size;
+	if( data_size < 4 ) {
+		ts_status_alarm( "ts_service_handler: envelope size too small, %d\n", data_size );
+		return TsStatusErrorBadRequest;
+	}
+	if( data[ 0 ] != TsServiceEnvelopeVersionOne ) {
+		ts_status_alarm( "ts_service_handler: envelope version not supported, %02x\n", data[0]);
+		return TsStatusErrorNotImplemented;
+	}
+	if( data[ 1 ] != TsServiceEnvelopeServiceIdTsCbor ) {
+		ts_status_alarm( "ts_service_handler: envelope service-id not supported, %02x\n", data[1]);
+		return TsStatusErrorNotImplemented;
+	}
+	size_t msb = data[ 2 ];
+	size_t lsb = data[ 3 ];
+	if( data_size - 4 != ( (msb << 8) | lsb) ) {
+		ts_status_debug( "ts_service_handler: envelope size mismatch, %d vs %d, ignoring,...\n", data_size - 4, (msb << 8) | lsb );
+	}
+	data = data + 4;
+	data_size = data_size - 4;
 
 	// TODO - forward solicited message to handler (or drop if no handler written)
 	// TODO - return response via handler message returned
+	// decode message
 	TsMessageRef_t message;
 	ts_message_create( &message );
-	TsStatus_t status = ts_message_decode( message, TsEncoderTsCbor, (uint8_t*)buffer, buffer_size );
+	TsStatus_t status = ts_message_decode( message, TsEncoderTsCbor, (uint8_t*)data, data_size );
 	if( status != TsStatusOk ) {
 
-		ts_status_alarm( "ts_service_handler: message muddled, '%.*s'\n", buffer_size, buffer );
+		ts_status_alarm( "ts_service_handler: message muddled, '%.*s'\n", data_size, data );
 
 	} else {
 
@@ -292,8 +313,17 @@ static TsStatus_t handler( TsTransportRef_t transport, void * data, TsPath_t pat
 
 	// allocate data buffer
 	uint8_t * response_buffer = (uint8_t*)ts_platform_malloc( mcu );
-	size_t response_buffer_size = (size_t)mcu;
-	ts_message_encode(message, TsEncoderTsCbor, response_buffer, &response_buffer_size);
+	size_t response_buffer_size = (size_t)(mcu - 4);
+
+	// encode response message
+	ts_message_encode(message, TsEncoderTsCbor, response_buffer + 4, &response_buffer_size);
+
+	// encode response envelop
+	response_buffer[ 0 ] = TsServiceEnvelopeVersionOne;
+	response_buffer[ 1 ] = TsServiceEnvelopeServiceIdTsCbor;
+	response_buffer[ 2 ] = (uint8_t)(response_buffer_size >> 8);
+	response_buffer[ 3 ] = (uint8_t)(response_buffer_size & 0xff);
+	response_buffer_size = response_buffer_size + 4;
 
 	// send data
 	size_t topic_size = 256;

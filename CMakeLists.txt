@@ -22,9 +22,9 @@ message( STATUS "## Build Type            (Debug|Release) : ${CMAKE_BUILD_TYPE}"
 add_subdirectory( sdk_dependencies )
 
 # component selection
-add_definitions( -DTS_SERVICE_TS_JSON )     # TS_JSON, TS_CBOR, NONE or CUSTOM
+add_definitions( -DTS_SERVICE_TS_JSON )     # TS_JSON, TS_CBOR or CUSTOM
 add_definitions( -DTS_TRANSPORT_MQTT )      # MQTT or CUSTOM only
-add_definitions( -DTS_SECURITY_MBED )       # MBED, MOCANA, NONE or CUSTOM
+add_definitions( -DTS_SECURITY_NONE )       # MBED, MOCANA, NONE or CUSTOM
 add_definitions( -DTS_CONTROLLER_NONE )     # MONARCH, NONE or CUSTOM
 
 # platform configuration

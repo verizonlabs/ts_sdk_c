@@ -76,6 +76,7 @@ static TsStatus_t ts_create( TsDriverRef_t * driver ) {
 }
 
 static TsStatus_t ts_destroy( TsDriverRef_t driver ) {
+
 	ts_status_trace( "ts_driver_destroy\n" );
 	ts_platform_assert( driver != NULL );
 
