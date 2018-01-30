@@ -271,7 +271,8 @@ at_wcmd_res at_wcmd(const at_cmd_desc *at_cmd)
 		return AT_WCMD_INV;
 	}
 
-	size_t cmd_len = strlen(at_cmd->cmd);
+	size_t cmd_len = at_cmd->cmd_len == 0 ? strlen(at_cmd->cmd)
+		: at_cmd->cmd_len;
 	if (at_dbg_en)
 		atdbg("%s:%d Issuing: %s\n", __func__, __LINE__, at_cmd->cmd);
 	if (!at_write(cmd_len, (const uint8_t *)at_cmd->cmd))

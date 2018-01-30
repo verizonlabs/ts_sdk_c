@@ -109,11 +109,14 @@ typedef struct {
  * be entered as a C format string which can then be used to populate the \ref
  * cmd field (say, using snprintf) before issuing it using \ref at_wcmd. The
  * error string accepts the same wildcards as the response string
- * (/ref at_resp_desc).
+ * (/ref at_resp_desc). In case the command string contains binary data, a
+ * command length parameter is provided to specify the actual length of the
+ * command.
  */
 typedef struct {
 	const char *cmd_fmt;		/**< printf style format string describing the command */
 	const char *cmd;		/**< AT command to be issued */
+	uint16_t cmd_len;		/**< Command length in bytes */
 	const char *err;		/**< Expected error format string */
 	at_resp_desc resp[MAX_RESP];	/**< Describes the response of the command */
 	uint32_t timeout;		/**< Timeout (in milliseconds) for the command */
