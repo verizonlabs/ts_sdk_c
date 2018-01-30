@@ -15,13 +15,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "ts_sdk.h"
 #include "rbuf.h"
-
-/**
- * \brief Enable debug output from the AT interface module.
- */
-#define DEBUG_AT_LIB
 
 /**
  * \brief Size of the buffer held by the AT command interpreter.
@@ -41,24 +35,6 @@
  * not include the time taken by the modem to respond.
  */
 #define TX_TIMEOUT_MS		5000
-
-/**
- * \brief Callback to be invoked on receiving bytes on the input port.
- *
- * \details By default, any bytes received on the input port are routed to the
- * AT command interpreter. However, in some modes of the modem such as online
- * data mode, the bytes represent data and must be handled outside the AT layer.
- * This callback allows direct access to those bytes as they arrive from the
- * modem. To enable / disable it, use \ref at_set_data_fwd. Bytes are still
- * stored in the internal AT buffer and must be flushed explicitly using /ref
- * at_read_bytes.
- *
- * \param[out] sz Number of bytes received.
- * \param[out] data Pointer to the buffer containing the actual data bytes.
- *
- * \warning This callback will likely be invoked from the interrupt context.
- */
-typedef void (*data_fwd_callback)(size_t sz, const uint8_t data[]);
 
 /**
  * \brief Callback that is invoked on receiving a matched response.
@@ -157,15 +133,12 @@ typedef enum {
 
 /**
  * \brief Initialize the AT command interpreter interface.
- * \param[in] t Pointer to the tick management interface.
  * \param[in] m Pointer to the modem's hardware interface.
- * \param[in] a Pointer to the alternative callback to process data (See \ref
- * data_fwd_callback). If unused, pass in NULL.
  * \retval true AT interpreter was successfully initialized.
  * \retval false Initialization failed.
  * \note This routine must be called once before all other routines in this module.
  */
-bool at_init(const tick_intfc_t *t, const modem_intfc_t *m, data_fwd_callback d);
+bool at_init(const modem_intfc_t *m);
 
 /**
  * \brief Register URC descriptors with the AT interface.
@@ -238,27 +211,11 @@ void at_clear_rxbuf(void);
 void at_set_echo(bool on);
 
 /**
- * \brief Inform the AT interface whether bytes from the modem's output port
- * should also be routed to a callback for processing.
- * \param[in] on Set to true to turn on forwarding, false to stop.
- */
-void at_set_data_fwd(bool on);
-
-/**
  * \brief Service the AT interface.
  * \details This routine must be called periodically to ensure the AT interface
  * processes all inputs and reacts to all URCs.
  */
 void at_intfc_service(void);
-
-/**
- * \brief Flush recently written bytes.
- * \detail Removes bytes from the end of the internal AT buffer.
- * \param[in] sz Number of bytes to remove. If this is larger than the number of
- * bytes available, all bytes are removed.
- * \warning This routine can be safely called only from the data forward callback.
- */
-void at_discard_end_bytes(size_t sz);
 
 /**
  * \brief Flush the first few bytes.

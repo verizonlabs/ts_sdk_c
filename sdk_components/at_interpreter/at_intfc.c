@@ -4,8 +4,6 @@
 #include "ts_platform.h"
 #include "ts_status.h"
 
-#include "ts_sdk.h"
-
 #define atdbg(...)		ts_status_debug(__VA_ARGS__)
 
 /*
@@ -35,9 +33,7 @@
  */
 #define IDLE_TIME_US		(5*TS_TIME_MSEC_TO_USEC)
 
-static const tick_intfc_t *tick;
 static const modem_intfc_t *modem;
-static data_fwd_callback altd_cb;
 
 struct {
 	size_t sz;
@@ -47,7 +43,6 @@ struct {
 static volatile bool tx_err;	/* Set on encountering an error in transmission. */
 static volatile size_t tx_sz;	/* Bytes written to the port so far. */
 static bool echo_en;		/* Set when echo is enabled on the modem. */
-static bool data_fwd_mode;	/* Set when this interface is in forwarding mode. */
 
 static rbuf r;			/* AT ring buffer. */
 static uint8_t atb[AT_BUF_SZ];	/* Underlying buffer to use. */
@@ -125,8 +120,6 @@ static inline bool attempt_proc_urc(void)
 static void rx_cb(size_t sz, const uint8_t data[])
 {
 	rbuf_wbs(&r, sz, data);
-	if (data_fwd_mode && altd_cb != NULL)
-		altd_cb(sz, data);
 }
 
 static void tx_cb(size_t sz, bool err)
@@ -135,11 +128,10 @@ static void tx_cb(size_t sz, bool err)
 	tx_err = err;
 }
 
-bool at_init(const tick_intfc_t *t, const modem_intfc_t *m, data_fwd_callback d)
+bool at_init(const modem_intfc_t *m)
 {
-	if (t == NULL || m == NULL)
+	if (m == NULL)
 		return false;
-	tick = t;
 	modem = m;
 	at_dbg_en = true;
 
@@ -151,7 +143,6 @@ bool at_init(const tick_intfc_t *t, const modem_intfc_t *m, data_fwd_callback d)
 
 	tx_err = false;
 	tx_sz = 0;
-	altd_cb = d;
 	atdbg("%s:%d Initializing modem communication port\n", __func__, __LINE__);
 	if (!modem->port.init(tx_cb, rx_cb)) {
 		atdbg("%s:%d Initialization failed\n", __func__, __LINE__);
@@ -408,22 +399,9 @@ void at_set_echo(bool on)
 	atdbg("%s:%d Echo %s\n", __func__, __LINE__, on ? "on" : "off");
 }
 
-void at_set_data_fwd(bool on)
-{
-	data_fwd_mode = on;
-}
-
 void at_intfc_service(void)
 {
 	attempt_proc_urc();
-}
-
-void at_discard_end_bytes(size_t sz)
-{
-	size_t unread = rbuf_unread(&r);
-	if (sz > unread)
-		sz = unread;
-	r.widx -= sz;
 }
 
 void at_discard_begin_bytes(size_t sz)
