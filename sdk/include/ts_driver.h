@@ -13,9 +13,12 @@ typedef struct TsDriver {
 
 	TsProfileRef_t  _profile;
 	TsAddress_t		_address;
+	TsDriverReader_t _reader;
+	void *          _reader_state;
 
 	// advertised driver specifications
 	uint32_t        _spec_budget;   // read/write timer budget in microseconds
+	// TODO - these values may not belong here - need to resolve all spec parameters at connection level?
 	uint32_t        _spec_mcu;      // maximum buffer size in bytes
 	uint8_t         _spec_id[TS_DRIVER_MAX_ID_SIZE]; // zero terminated device id
 

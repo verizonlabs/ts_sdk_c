@@ -63,7 +63,7 @@ TsStatus_t ts_connection_tick( TsConnectionRef_t connection, uint32_t budget ) {
 
 TsStatus_t ts_connection_get_security( TsConnectionRef_t connection, TsSecurityRef_t * security ) {
 
-	ts_status_trace( "ts_connection_get_spec_mcu\n" );
+	ts_status_trace( "ts_connection_get_security\n" );
 	ts_platform_assert( connection != NULL );
 	ts_platform_assert( security!= NULL );
 
@@ -74,10 +74,11 @@ TsStatus_t ts_connection_get_security( TsConnectionRef_t connection, TsSecurityR
 
 TsStatus_t ts_connection_get_profile( TsConnectionRef_t connection, TsProfileRef_t * profile ) {
 
-	ts_status_trace( "ts_connection_get_spec_mcu\n" );
+	ts_status_trace( "ts_connection_get_profile\n" );
 	ts_platform_assert( connection != NULL );
 	ts_platform_assert( profile != NULL );
 
+	// TODO - add all profiles together? return as one?
 	*profile = connection->_profile;
 
 	return TsStatusOk;
@@ -93,6 +94,7 @@ TsStatus_t ts_connection_get_spec_mcu( TsConnectionRef_t connection, uint32_t* m
 	ts_platform_assert( connection->_security->_controller->_driver != NULL );
 	ts_platform_assert( mcu != NULL );
 
+	// TODO - This should call the next link in pipeline, dont assume the driver knows (maybe the controller does)
 	*mcu = connection->_security->_controller->_driver->_spec_mcu;
 
 	return TsStatusOk;
@@ -109,6 +111,7 @@ TsStatus_t ts_connection_get_spec_id( TsConnectionRef_t connection, const uint8_
 	ts_platform_assert( id != NULL );
 	ts_platform_assert( id_size <= TS_DRIVER_MAX_ID_SIZE );
 
+	// TODO - This should call the next link in pipeline, dont assume the driver knows (maybe the controller does)
 	snprintf( (char *)id, id_size, "%s", (const char *)(connection->_security->_controller->_driver->_spec_id) );
 
 	return TsStatusOk;
@@ -124,6 +127,7 @@ TsStatus_t ts_connection_get_spec_budget( TsConnectionRef_t connection, uint32_t
 	ts_platform_assert( connection->_security->_controller->_driver != NULL );
 	ts_platform_assert( budget != NULL );
 
+	// TODO - This should call the next link in pipeline, dont assume the driver knows (maybe the controller does)
 	*budget = connection->_security->_controller->_driver->_spec_budget;
 
 	return TsStatusOk;

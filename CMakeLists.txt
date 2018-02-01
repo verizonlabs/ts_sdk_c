@@ -24,11 +24,12 @@ add_subdirectory( sdk_dependencies )
 # component selection
 add_definitions( -DTS_SERVICE_TS_JSON )     # TS_JSON, TS_CBOR or CUSTOM
 add_definitions( -DTS_TRANSPORT_MQTT )      # MQTT or CUSTOM only
-add_definitions( -DTS_SECURITY_NONE )       # MBED, MOCANA, NONE or CUSTOM
+add_definitions( -DTS_SECURITY_MBED )       # MBED, MOCANA, NONE or CUSTOM
 add_definitions( -DTS_CONTROLLER_NONE )     # MONARCH, NONE or CUSTOM
 
 # platform configuration
 add_definitions( -DTS_PLATFORM_UNIX )       # UNIX, THREADX, NONE or CUSTOM
+add_definitions( -DTS_DRIVER_SOCKET )       # SERIAL, SOCKET, UART or CUSTOM
 
 # platform OS and board configuration
 # unix, unix/raspberry_pi, threadX/renesas_s5_d9, none/freedom, none/nucleo
