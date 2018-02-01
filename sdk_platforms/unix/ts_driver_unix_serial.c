@@ -1,6 +1,9 @@
 // Copyright (C) 2017, 2018 Verizon, Inc. All rights reserved.
 #if defined(__unix__) || defined(__unix) || ( defined(__APPLE__) && defined(__MACH__))
-
+#if defined(__APPLE__) && defined(__MACH__)
+#include <sys/ioctl.h>
+#include <IOKit/serial/ioss.h>
+#endif
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -130,10 +133,24 @@ static TsStatus_t ts_connect( TsDriverRef_t driver, TsAddress_t address )  {
 		return TsStatusErrorInternalServerError;
 	}
 	struct termios tty = serial->_oldtty;
+#if defined(__APPLE__) && defined(__MACH__)
+	// The IOSSIOSPEED ioctl can be used to set arbitrary baud rates
+	// other than those specified by POSIX. The driver for the underlying serial hardware
+	// ultimately determines which baud rates can be used. This ioctl sets both the input
+	// and output speed.
 
+	speed_t speed = 921600;
+	if (ioctl(serial->_fd, IOSSIOSPEED, &speed) == -1) {
+		ts_status_alarm("ts_driver_connect: error calling ioctl, %s (%d)\n", strerror(errno), errno);
+		return TsStatusErrorInternalServerError;
+	}
+#else
 	int speed = B921600;
 	cfsetospeed(&tty, (speed_t)speed);
 	cfsetispeed(&tty, (speed_t)speed);
+#endif
+	ts_status_debug("ts_driver_connect: onput baud rate changed to %d\n", (int) cfgetispeed(&tty));
+	ts_status_debug("ts_driver_connect: output baud rate changed to %d\n", (int) cfgetospeed(&tty));
 
 	tty.c_cflag |= (CLOCAL | CREAD);    /* ignore modem controls */
 	tty.c_cflag &= ~CSIZE;
