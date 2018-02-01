@@ -15,7 +15,7 @@ typedef struct {
 
 static TsStatusIndexTuple_t _ts_status_index_map[] = {
 	{ TsStatusUnknown,                  500, "internal_error",  "status unknown" },
-	{ TsStatusOkEnqueue,                100, "trying",          "partial success, subsequent operation is expected (e.g., trying)" },
+	{ TsStatusOkTrying,                100, "trying",          "partial success, subsequent operation is expected (e.g., trying)" },
 	{ TsStatusOk,                       200, "ok",              "operation completed successfully" },
 	{ TsStatusOkReadPending,            200, "ok",              "read pending" },
 

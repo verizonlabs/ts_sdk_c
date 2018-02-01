@@ -6,8 +6,6 @@
 const TsServiceVtable_t *   ts_service = &(ts_service_ts_json);
 #elif defined(TS_SERVICE_TS_CBOR)
 const TsServiceVtable_t *   ts_service = &(ts_service_ts_cbor);
-#elif defined(TS_SERVICE_NONE)
-const TsServiceVtable_t *   ts_service = &(ts_service_none);
 #elif defined(TS_SERVICE_CUSTOM)
 // do nothing
 #else

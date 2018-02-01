@@ -44,13 +44,12 @@ static void ts_initialize() {
 static void ts_printf(const char * format, ...) {
     va_list argp;
 	va_start(argp, format);
-	ts_vprintf(format, argp);
+    vprintf(format, argp);
 	va_end(argp);
 }
 
 static void ts_vprintf(const char * format, va_list argp) {
     vprintf(format, argp);
-    fflush(stdout);
 }
 
 // TODO - does this work the same on linux vs mac? montonic increasing time?

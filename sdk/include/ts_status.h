@@ -8,7 +8,7 @@ typedef enum {
 	TsStatusUnknown = 0,                // status unknown
 
 	// Ok
-	TsStatusOkEnqueue,                  // partial success, subsequent operation is expected (e.g., trying)
+	TsStatusOkTrying,                  // partial success, subsequent tick operation is expected
 	TsStatusOk,                         // operation complete success
 
 	// NOTE - TsStatusOkReadPending has a very specific meaning, only return when the read
