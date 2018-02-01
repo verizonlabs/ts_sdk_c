@@ -149,7 +149,7 @@ static TsStatus_t ts_connect( TsDriverRef_t driver, TsAddress_t address )  {
 	cfsetospeed(&tty, (speed_t)speed);
 	cfsetispeed(&tty, (speed_t)speed);
 #endif
-	ts_status_debug("ts_driver_connect: onput baud rate changed to %d\n", (int) cfgetispeed(&tty));
+	ts_status_debug("ts_driver_connect: input baud rate changed to %d\n", (int) cfgetispeed(&tty));
 	ts_status_debug("ts_driver_connect: output baud rate changed to %d\n", (int) cfgetospeed(&tty));
 
 	tty.c_cflag |= (CLOCAL | CREAD);    /* ignore modem controls */
