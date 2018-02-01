@@ -11,7 +11,6 @@
 extern "C" {
 #endif
 
-extern TsServiceVtable_t    ts_service_none;
 extern TsServiceVtable_t    ts_service_ts_cbor;
 extern TsServiceVtable_t    ts_service_ts_json;
 

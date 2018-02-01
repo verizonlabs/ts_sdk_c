@@ -8,17 +8,20 @@ include_directories( ${CMAKE_SOURCE_DIR}/sdk_dependencies/cJSON )
 include_directories( ${CMAKE_SOURCE_DIR}/sdk_dependencies/tinycbor/src )
 include_directories( ${CMAKE_SOURCE_DIR}/sdk_dependencies/mbedtls/include )
 
+add_executable( test_driver test_driver.c)
+target_link_libraries( test_driver ts_sdk )
+
 add_executable( test_message test_message.c)
-target_link_libraries( test_message ts_sdk mbedtls pahomqtt )
+target_link_libraries( test_message ts_sdk )
 
 add_executable( test_socket test_socket.c)
-target_link_libraries( test_socket ts_sdk mbedtls pahomqtt )
+target_link_libraries( test_socket ts_sdk )
 
 add_executable( test_socket_tls test_socket_tls.c)
-target_link_libraries( test_socket_tls ts_sdk mbedtls pahomqtt )
+target_link_libraries( test_socket_tls ts_sdk )
 
 add_executable( test_transport_mqtt test_transport_mqtt.c)
-target_link_libraries( test_transport_mqtt ts_sdk mbedtls pahomqtt )
+target_link_libraries( test_transport_mqtt ts_sdk )
 
 add_executable( test_transport_mqtt_tls test_transport_mqtt_tls.c)
-target_link_libraries( test_transport_mqtt_tls ts_sdk mbedtls pahomqtt )
+target_link_libraries( test_transport_mqtt_tls ts_sdk )

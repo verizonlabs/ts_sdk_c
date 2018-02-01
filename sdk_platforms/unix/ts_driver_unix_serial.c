@@ -1,16 +1,13 @@
 // Copyright (C) 2017, 2018 Verizon, Inc. All rights reserved.
 #if defined(__unix__) || defined(__unix) || ( defined(__APPLE__) && defined(__MACH__))
 
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <netdb.h>
 #include <errno.h>
-#include <signal.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
+#include <termios.h>
+#include <unistd.h>
 
 #include "ts_platform.h"
 #include "ts_driver.h"
@@ -25,7 +22,7 @@ static TsStatus_t ts_read( TsDriverRef_t, const uint8_t *, size_t *, uint32_t );
 static TsStatus_t ts_reader(TsDriverRef_t, void*, TsDriverReader_t);
 static TsStatus_t ts_write( TsDriverRef_t, const uint8_t *, size_t *, uint32_t );
 
-TsDriverVtable_t ts_driver_unix_socket = {
+TsDriverVtable_t ts_driver_unix_serial = {
 	.create = ts_create,
 	.destroy = ts_destroy,
 	.tick = ts_tick,
@@ -37,8 +34,8 @@ TsDriverVtable_t ts_driver_unix_socket = {
 	.write = ts_write,
 };
 
-typedef struct TsDriverSocket * TsDriverSocketRef_t;
-typedef struct TsDriverSocket {
+typedef struct TsDriverSerial * TsDriverSerialRef_t;
+typedef struct TsDriverSerial {
 
 	// inheritance by encapsulation; must be the first
 	// attribute in order to treat this struct as a
@@ -46,32 +43,28 @@ typedef struct TsDriverSocket {
 	TsDriver_t _driver;
 
 	int _fd;
+	struct termios _oldtty;
+	struct termios _newtty;
 	uint64_t _last_read_timestamp;
 
-} TsDriverSocket_t;
+} TsDriverSerial_t;
 
 static TsStatus_t ts_create( TsDriverRef_t * driver ) {
 
-	ts_status_trace( "ts_driver_create: socket\n" );
-	ts_platform_assert( driver != NULL );
-
-	//sigignore(SIGHUP);
-	//sigignore(SIGINT);
-	//sigignore(SIGPIPE);
-	//sigignore(SIGALRM);
-
-	TsDriverSocketRef_t sock = (TsDriverSocketRef_t) ( ts_platform_malloc( sizeof( TsDriverSocket_t )));
-	sock->_driver._address = "";
-	sock->_driver._profile = NULL;
-	sock->_driver._spec_budget = 60 * TS_TIME_SEC_TO_USEC;
-	sock->_driver._spec_mcu = 2048;
+	TsDriverSerialRef_t serial = (TsDriverSerialRef_t) ( ts_platform_malloc( sizeof( TsDriverSerial_t )));
+	serial->_driver._address = "";
+	serial->_driver._profile = NULL;
+	serial->_driver._reader = NULL;
+	serial->_driver._reader_state = NULL;
+	serial->_driver._spec_budget = 60 * TS_TIME_SEC_TO_USEC;
+	serial->_driver._spec_mcu = 2048;
 	// TODO - should provide mac address here? probably not
 	// TODO - currently using my own mac-id - need to change this asap.
-	snprintf( (char *)(sock->_driver._spec_id), TS_DRIVER_MAX_ID_SIZE, "%s", "B827EBA15910" );
-	sock->_fd = -1;
+	snprintf( (char *)(serial->_driver._spec_id), TS_DRIVER_MAX_ID_SIZE, "%s", "B827EBA15910" );
+	serial->_fd = -1;
+	serial->_last_read_timestamp = 0;
 
-	*driver = (TsDriverRef_t) sock;
-
+	*driver = (TsDriverRef_t) serial;
 	return TsStatusOk;
 }
 
@@ -80,8 +73,8 @@ static TsStatus_t ts_destroy( TsDriverRef_t driver ) {
 	ts_status_trace( "ts_driver_destroy\n" );
 	ts_platform_assert( driver != NULL );
 
-	TsDriverSocketRef_t sock = (TsDriverSocketRef_t) ( driver );
-	ts_platform->free( sock, sizeof( TsDriverSocket_t ));
+	TsDriverSerialRef_t serial = (TsDriverSerialRef_t) ( driver );
+	ts_platform->free( serial, sizeof( TsDriverSerial_t ));
 
 	return TsStatusOk;
 }
@@ -91,117 +84,99 @@ static TsStatus_t ts_tick( TsDriverRef_t driver, uint32_t budget ) {
 	ts_status_trace( "ts_driver_tick\n" );
 	ts_platform_assert( driver != NULL );
 
-	// do nothing
+	TsDriverSerialRef_t serial = (TsDriverSerialRef_t) ( driver );
+	if( serial->_driver._reader != NULL ) {
 
+		uint8_t * buffer = (uint8_t*)ts_platform_malloc( serial->_driver._spec_mcu );
+		size_t buffer_size = serial->_driver._spec_mcu;
+		TsStatus_t status = ts_driver_read( driver, buffer, &buffer_size, budget );
+		switch( status ) {
+		case TsStatusOkReadPending:
+			// do nothing
+			break;
+
+		case TsStatusOk:
+			// callback
+			serial->_driver._reader( driver, serial->_driver._reader_state, buffer, buffer_size );
+			break;
+
+		default:
+			ts_status_alarm( "ts_driver_tick: reader failed, %s\n", ts_status_string( status ));
+			// do nothing, i.e., return ok
+			break;
+		}
+		ts_platform_free( buffer, buffer_size );
+	}
 	return TsStatusOk;
 }
 
-static TsStatus_t ts_connect( TsDriverRef_t driver, TsAddress_t address ) {
+static TsStatus_t ts_connect( TsDriverRef_t driver, TsAddress_t address )  {
 
 	ts_status_trace( "ts_driver_connect\n" );
 	ts_platform_assert( driver != NULL );
 
-	// TODO - init sockets?
-	// signal( SIGPIPE, SIG_IGN );
+	TsDriverSerialRef_t serial = (TsDriverSerialRef_t) ( driver );
 
-	// init address hints
-	struct addrinfo hints;
-	memset( &hints, 0x00, sizeof( struct addrinfo ));
-	hints.ai_family = AF_UNSPEC;
-	// TODO - allow UDP
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_protocol = IPPROTO_TCP;
+	serial->_fd = open( address, O_RDWR | O_NOCTTY | O_SYNC);
+	if (serial->_fd < 0) {
+		ts_status_alarm("ts_driver_connect: error opening %s: %s (%d)\n", address, strerror(errno), errno);
+		return TsStatusErrorBadRequest;
+	}
 
-	// decode and resolve address
-	char host[TS_ADDRESS_MAX_HOST_SIZE];
-	char port[TS_ADDRESS_MAX_PORT_SIZE];
-	if( ts_address_parse( address, host, port ) != TsStatusOk ) {
+	if (tcgetattr(serial->_fd, &(serial->_oldtty)) < 0) {
+		ts_status_alarm("ts_driver_connect: error from tcgetattr: %s\n", strerror(errno));
 		return TsStatusErrorInternalServerError;
 	}
-	struct addrinfo * address_list;
-	if( getaddrinfo( host, port, &hints, &address_list ) != 0 ) {
-		return TsStatusErrorNotFound;
-	}
+	struct termios tty = serial->_oldtty;
 
-	// find active listener
-	TsDriverSocketRef_t sock = (TsDriverSocketRef_t) ( driver );
-	TsStatus_t status = TsStatusErrorNotFound;
-	struct addrinfo * current;
-	for( current = address_list; current != NULL; current = current->ai_next ) {
+	int speed = 921600;
+	cfsetospeed(&tty, (speed_t)speed);
+	cfsetispeed(&tty, (speed_t)speed);
 
-		sock->_fd = (int) socket( current->ai_family, current->ai_socktype, current->ai_protocol );
-		if( sock->_fd < 0 ) {
-			status = TsStatusErrorNotFound;
-			continue;
-		}
-		if( connect( sock->_fd, current->ai_addr, current->ai_addrlen ) == 0 ) {
+	tty.c_cflag |= (CLOCAL | CREAD);    /* ignore modem controls */
+	tty.c_cflag &= ~CSIZE;
+	tty.c_cflag |= CS8;         /* 8-bit characters */
+	tty.c_cflag &= ~PARENB;     /* no parity bit */
+	tty.c_cflag &= ~CSTOPB;     /* only need 1 stop bit */
+	tty.c_cflag &= ~CRTSCTS;    /* no hardware flowcontrol */
 
-			if( fcntl( sock->_fd, F_SETFL, fcntl( sock->_fd, F_GETFL, 0 ) | O_NONBLOCK ) == -1 ) {
-				status = TsStatusErrorInternalServerError;
-				close( sock->_fd );
-				continue;
-			}
-			status = TsStatusOk;
-			break;
-		}
-		status = TsStatusErrorBadGateway;
-		ts_disconnect( driver );
-	}
-	freeaddrinfo( address_list );
-	return status;
-}
+	/* setup for non-canonical mode */
+	tty.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON);
+	tty.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
+	tty.c_oflag &= ~OPOST;
 
-static TsStatus_t ts_disconnect( TsDriverRef_t driver ) {
+	/* fetch bytes as they become available */
+	tty.c_cc[VMIN] = 0;
+	tty.c_cc[VTIME] = 5;
 
-	ts_status_trace( "ts_driver_disconnect\n" );
-	ts_platform_assert( driver != NULL );
-
-	TsDriverSocketRef_t sock = (TsDriverSocketRef_t) ( driver );
-	close( sock->_fd );
+	serial->_newtty = tty;
 
 	return TsStatusOk;
 }
 
-/**
- * Read from the socket driver (non-blocking). Note that we dont use select() in order to emulate
- * the other channels better, e.g., uart and usb.
- *
- * @note
- * TsStatusOkReadPending has a very specific meaning, only return when the read
- * has returned pending and there isn't data in the buffer, in all other cases
- * return a valid status with the contents of the current buffer.
- *
- * @param driver
- * [in] The socket state
- *
- * @param buffer
- * [in] The pre-allocated buffer memory
- *
- * @param buffer_size
- * [in] The pre-allocated buffer memory size
- * [out] The actual number of byte read
- *
- * @param budget
- * [in] Recommended allotment of time in microseconds allowed wait for received bytes.
- *
- * @return
- * TsStatusOk, *buffer_size > 0 - Return the given amount of read data
- * TsStatusOk, *buffer_size = 0 - Usually indicates and end-of-file condition
- * TsStatusOkPendingRead        - Indicates a blocking condition exists (and avoided),
- *                                note, *buffer_size is guaranteed to be zero when this condition occurs.
- *                                TODO - currently, we dont wait for the budget to be exhausted, this may change later
- * TsStatusErrorConnectionReset - Indicates that the driver was broken
- * TsStatusError*               - Indicates an error has occurred, see ts_status.h for more information.
- */
+static TsStatus_t ts_disconnect( TsDriverRef_t driver ) {
+
+	ts_status_trace( "ts_driver_connect\n" );
+	ts_platform_assert( driver != NULL );
+
+	TsDriverSerialRef_t serial = (TsDriverSerialRef_t) ( driver );
+	close( serial->_fd );
+
+	return TsStatusOk;
+}
+
 static TsStatus_t ts_read( TsDriverRef_t driver, const uint8_t * buffer, size_t * buffer_size, uint32_t budget ) {
 
 	ts_status_trace( "ts_driver_read\n" );
 	ts_platform_assert( driver != NULL );
-	ts_platform_assert( buffer != NULL );
-	ts_platform_assert( buffer_size != NULL );
-	ts_platform_assert( *buffer_size > 0 );
 
-	TsDriverSocketRef_t sock = (TsDriverSocketRef_t) ( driver );
+	TsDriverSerialRef_t serial = (TsDriverSerialRef_t) ( driver );
+
+	// setup tty
+	if (tcsetattr(serial->_fd, TCSANOW, &(serial->_newtty)) != 0) {
+		ts_status_alarm("ts_driver_read: error from tcsetattr: %s (%d)\n", strerror(errno), errno );
+		return TsStatusErrorInternalServerError;
+	}
 
 	// initialize timestamp for read timer budgeting
 	uint64_t timestamp = ts_platform_time();
@@ -209,11 +184,11 @@ static TsStatus_t ts_read( TsDriverRef_t driver, const uint8_t * buffer, size_t 
 	// limit read to 1MHz call bandwidth
 	// note that this doesnt limit the number of recv calls made below,
 	// just the number of reattempts by the caller,...
-	if( timestamp - sock->_last_read_timestamp == 0 ) {
+	if( timestamp - serial->_last_read_timestamp == 0 ) {
 		*buffer_size = 0;
 		return TsStatusOkReadPending;
 	}
-	sock->_last_read_timestamp = timestamp;
+	serial->_last_read_timestamp = timestamp;
 
 	// perform read
 	int flags = 0x00;
@@ -223,7 +198,7 @@ static TsStatus_t ts_read( TsDriverRef_t driver, const uint8_t * buffer, size_t 
 	do {
 
 		// read from the socket
-		ssize_t size = recv( sock->_fd, (void *) ( buffer + index ), ( *buffer_size ) - index, flags );
+		ssize_t size = read( serial->_fd, (void*)(buffer + index), (*buffer_size) - index );
 		if( size < 0 ) {
 
 			// recv has indicated either non-block status
@@ -242,7 +217,7 @@ static TsStatus_t ts_read( TsDriverRef_t driver, const uint8_t * buffer, size_t 
 			} else if( errno == EPIPE || errno == ECONNRESET ) {
 				status = TsStatusErrorConnectionReset;
 			} else if( errno != 0 ) {
-				ts_status_debug( "ts_driver_read: ignoring error, %d\n", errno);
+				ts_status_debug( "ts_driver_read: ignoring error, %s (%d)\n", strerror(errno), errno );
 				status = TsStatusErrorInternalServerError;
 			}
 
@@ -276,24 +251,41 @@ static TsStatus_t ts_read( TsDriverRef_t driver, const uint8_t * buffer, size_t 
 
 	} while( reading );
 
+	// restore tty
+	if (tcsetattr(serial->_fd, TCSANOW, &(serial->_oldtty)) != 0) {
+		ts_status_alarm("ts_driver_read: error from tcsetattr: %s (%d)\n", strerror(errno), errno );
+		return TsStatusErrorInternalServerError;
+	}
+
 	// update read buffer size and return
 	*buffer_size = (size_t) index;
 	return status;
 }
 
-static TsStatus_t ts_reader(TsDriverRef_t driver, void* data, TsDriverReader_t reader ) {
-	return TsStatusErrorNotImplemented;
+static TsStatus_t ts_reader(TsDriverRef_t driver, void* state, TsDriverReader_t reader ) {
+
+	ts_status_trace( "ts_driver_reader\n" );
+	ts_platform_assert( driver != NULL );
+
+	TsDriverSerialRef_t serial = (TsDriverSerialRef_t) ( driver );
+	serial->_driver._reader = reader;
+	serial->_driver._reader_state = state;
+
+	return TsStatusOk;
 }
 
 static TsStatus_t ts_write( TsDriverRef_t driver, const uint8_t * buffer, size_t * buffer_size, uint32_t budget ) {
 
 	ts_status_trace( "ts_driver_write\n" );
 	ts_platform_assert( driver != NULL );
-	ts_platform_assert( buffer != NULL );
-	ts_platform_assert( buffer_size != NULL );
-	ts_platform_assert( *buffer_size > 0 );
 
-	TsDriverSocketRef_t sock = (TsDriverSocketRef_t) ( driver );
+	TsDriverSerialRef_t serial = (TsDriverSerialRef_t) ( driver );
+
+	// setup tty
+	if (tcsetattr(serial->_fd, TCSANOW, &(serial->_newtty)) != 0) {
+		ts_status_alarm("ts_driver_read: error from tcsetattr: %s (%d)\n", strerror(errno), errno );
+		return TsStatusErrorInternalServerError;
+	}
 
 	// initialize timestamp for write timer budgeting
 	uint64_t timestamp = ts_platform_time();
@@ -306,7 +298,7 @@ static TsStatus_t ts_write( TsDriverRef_t driver, const uint8_t * buffer, size_t
 	do {
 
 		// write to the socket
-		ssize_t size = send( sock->_fd, buffer + index, *buffer_size - index, flags );
+		ssize_t size = write( serial->_fd, buffer + index, *buffer_size - index );
 		if( size < 0 ) {
 
 			// send has indicated either non-block status
@@ -324,7 +316,7 @@ static TsStatus_t ts_write( TsDriverRef_t driver, const uint8_t * buffer, size_t
 			} else if( errno == EPIPE || errno == ECONNRESET ) {
 				status = TsStatusErrorConnectionReset;
 			} else if( errno != 0 ) {
-				ts_status_debug( "ts_driver_write: ignoring error, %d\n", errno);
+				ts_status_debug( "ts_driver_write: ignoring error, %s (%d)\n", strerror(errno), errno );
 				status = TsStatusErrorInternalServerError;
 			}
 
@@ -342,7 +334,7 @@ static TsStatus_t ts_write( TsDriverRef_t driver, const uint8_t * buffer, size_t
 		} else if( ts_platform_time() - timestamp > budget ) {
 
 			// there is more to write, but dont give control back to the caller
-			ts_status_debug( "ts_driver_write: ignoring timer budget exceeded\n" );
+			ts_status_debug( "ts_driver_write: ignoring timer budget exceeded\n");
 		}
 
 		index = index + size;
@@ -356,8 +348,15 @@ static TsStatus_t ts_write( TsDriverRef_t driver, const uint8_t * buffer, size_t
 
 	} while( writing );
 
+	// restore tty
+	if (tcsetattr(serial->_fd, TCSANOW, &(serial->_oldtty)) != 0) {
+		ts_status_alarm("ts_driver_read: error from tcsetattr: %s\n", strerror(errno));
+		return TsStatusErrorInternalServerError;
+	}
+
 	// update write buffer size and return
 	*buffer_size = (size_t) index;
 	return status;
 }
+
 #endif // __unix__
