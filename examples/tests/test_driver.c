@@ -39,7 +39,7 @@ int main() {
 		return 0;
 	}
 
-	status = ts_driver_connect( driver, "tty.usbserial-DM00B1YLgit" );
+	status = ts_driver_connect( driver, "/dev/ttyAMA0" );
 	if( status != TsStatusOk ) {
 		ts_status_debug( "** connect failed, %s\n", ts_status_string(status) );
 		return 0;
@@ -47,7 +47,7 @@ int main() {
 
 	int ch;
 	int index = 0;
-	uint32_t budget = 5 * TS_TIME_SEC_TO_USEC;
+	uint32_t budget = 100 * TS_TIME_MSEC_TO_USEC;
 	uint8_t wbuffer[ 2048 ];
 	uint8_t rbuffer[ 2048 ];
 	size_t buffer_size;
@@ -55,16 +55,19 @@ int main() {
 	do {
 
 		ch = getchar();
-		while(( ch != EOF) && ( index < 2048 )) {
+		while(( ch != EOF) && ( index < 2048 ) && (ch != '\n')) {
 
 			wbuffer[ index ] = (uint8_t) ch;
 			index = index + 1;
-			ts_status_debug( "** write, %02x\n", ch );
 			ch = getchar();
 		}
+		wbuffer[ index ] = '\n';
+		index = index + 1;
+
 		if( index > 0 ) {
 
 			buffer_size = (size_t) index;
+			ts_status_debug( "** write, '%.*s'\n", buffer_size, wbuffer );
 			status = ts_driver_write( driver, wbuffer, &buffer_size, budget );
 			if( status > TsStatusOk ) {
 				ts_status_debug( "** write failed, %s\n", ts_status_string( status ));
@@ -76,15 +79,30 @@ int main() {
 			}
 			index = 0;
 		}
-		if( echoing ) {
+		bool reading = true;
+		while( echoing && reading ) {
 
 			buffer_size = 2048;
 			status = ts_driver_read( driver, rbuffer, &buffer_size, budget );
-			if( status > TsStatusOk ) {
+			switch( status ) {
+			case TsStatusOk:
+				if( buffer_size > 0 ) {
+					ts_status_debug( "** read, '%.*s'\n", buffer_size, rbuffer );
+					reading = false;
+				}
+				break;
+			case TsStatusOkReadPending:
+				// do nothing
+				if( buffer_size > 0 ) {
+					ts_status_debug( "** pending, '%.*s'\n", buffer_size, rbuffer );
+					reading = false;
+				}
+				break;
+			default:
 				ts_status_debug( "** read failed, %s\n", ts_status_string( status ));
 				echoing = false;
+				break;
 			}
-			ts_status_debug( "%.*s", buffer_size, rbuffer );
 		}
 	} while( echoing );
 
