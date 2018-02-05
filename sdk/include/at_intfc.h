@@ -16,6 +16,7 @@
 #include <stdint.h>
 
 #include "rbuf.h"
+#include "ts_driver.h"
 
 /**
  * \brief Size of the buffer held by the AT command interpreter.
@@ -136,12 +137,12 @@ typedef enum {
 
 /**
  * \brief Initialize the AT command interpreter interface.
- * \param[in] m Pointer to the modem's hardware interface.
+ * \param[in] driver Pointer to the modem's driver.
  * \retval true AT interpreter was successfully initialized.
  * \retval false Initialization failed.
  * \note This routine must be called once before all other routines in this module.
  */
-bool at_init(const modem_intfc_t *m);
+bool at_init(TsDriverRef_t driver);
 
 /**
  * \brief Register URC descriptors with the AT interface.
