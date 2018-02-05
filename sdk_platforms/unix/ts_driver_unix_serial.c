@@ -122,12 +122,17 @@ static TsStatus_t ts_connect( TsDriverRef_t driver, TsAddress_t address )  {
 
 	TsDriverSerialRef_t serial = (TsDriverSerialRef_t) ( driver );
 
-	serial->_fd = open( address, O_RDWR | O_NOCTTY | O_SYNC);
+	serial->_fd = open( address, O_RDWR | O_NOCTTY | O_NONBLOCK );
 	if (serial->_fd < 0) {
 		ts_status_alarm("ts_driver_connect: error opening %s: %s (%d)\n", address, strerror(errno), errno);
 		return TsStatusErrorBadRequest;
 	}
-
+	// Now that the device is open, clear the O_NONBLOCK flag so
+	// subsequent I/O will block.
+	if ( fcntl(serial->_fd , F_SETFL, 0) < 0 ) {
+		ts_status_alarm("ts_driver_connect: error clearing non-block: %s\n", strerror(errno));
+		return TsStatusErrorInternalServerError;
+	}
 	if (tcgetattr(serial->_fd, &(serial->_oldtty)) < 0) {
 		ts_status_alarm("ts_driver_connect: error from tcgetattr: %s\n", strerror(errno));
 		return TsStatusErrorInternalServerError;
@@ -138,7 +143,7 @@ static TsStatus_t ts_connect( TsDriverRef_t driver, TsAddress_t address )  {
 	// other than those specified by POSIX. The driver for the underlying serial hardware
 	// ultimately determines which baud rates can be used. This ioctl sets both the input
 	// and output speed.
-
+	cfsetspeed( &tty, B230400 );
 	speed_t speed = 921600;
 	if (ioctl(serial->_fd, IOSSIOSPEED, &speed) == -1) {
 		ts_status_alarm("ts_driver_connect: error calling ioctl, %s (%d)\n", strerror(errno), errno);
@@ -148,9 +153,9 @@ static TsStatus_t ts_connect( TsDriverRef_t driver, TsAddress_t address )  {
 	int speed = B921600;
 	cfsetospeed(&tty, (speed_t)speed);
 	cfsetispeed(&tty, (speed_t)speed);
-#endif
 	ts_status_debug("ts_driver_connect: input baud rate changed to %d\n", (int) cfgetispeed(&tty));
 	ts_status_debug("ts_driver_connect: output baud rate changed to %d\n", (int) cfgetospeed(&tty));
+#endif
 
 	tty.c_cflag |= (CLOCAL | CREAD);    /* ignore modem controls */
 	tty.c_cflag &= ~CSIZE;
@@ -292,12 +297,12 @@ static TsStatus_t ts_write( TsDriverRef_t driver, const uint8_t * buffer, size_t
 
 		// write to the socket
 		if (tcsetattr(serial->_fd, TCSANOW, &(serial->_newtty)) != 0) {
-			ts_status_alarm("ts_driver_read: error from tcsetattr: %s (%d)\n", strerror(errno), errno );
+			ts_status_alarm("ts_driver_write: error from tcsetattr: %s (%d)\n", strerror(errno), errno );
 		}
 		ssize_t size = write( serial->_fd, buffer + index, *buffer_size - index );
-		tcdrain( serial->_fd );
+		//tcdrain( serial->_fd );
 		if (tcsetattr(serial->_fd, TCSANOW, &(serial->_oldtty)) != 0) {
-			ts_status_alarm("ts_driver_read: error from tcsetattr: %s (%d)\n", strerror(errno), errno );
+			ts_status_alarm("ts_driver_write: error from tcsetattr: %s (%d)\n", strerror(errno), errno );
 		}
 		if( size < 0 ) {
 
