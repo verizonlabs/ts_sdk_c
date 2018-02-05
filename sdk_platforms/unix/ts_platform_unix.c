@@ -54,7 +54,7 @@ static void ts_vprintf(const char * format, va_list argp) {
     fflush(stdout);
 }
 
-// TODO - does this work the same on linux vs mac? montonic increasing time?
+// TODO - does this work the same on linux vs mac? monotonic increasing time?
 static uint64_t ts_time() {
     uint64_t microseconds;
 #if _POSIX_C_SOURCE >= 200809L
