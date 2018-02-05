@@ -13,3 +13,9 @@
 [submodule "sdk_dependencies/mocana_ssl"]
 	path = sdk_dependencies/mocana_ssl
 	url = https://github.com/verizonlabs/mocana_ssl.git
+[submodule "examples/platforms/ts_sdk_c_platforms_unix"]
+	path = examples/platforms/ts_sdk_c_platforms_unix
+	url = https://github.com/verizonlabs/ts_sdk_c_platforms_unix.git
+[submodule "examples/platforms/ts_sdk_c_platforms_unix_raspberry-pi3"]
+	path = examples/platforms/ts_sdk_c_platforms_unix_raspberry-pi3
+	url = https://github.com/verizonlabs/ts_sdk_c_platforms_unix_raspberry-pi3.git
