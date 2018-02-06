@@ -42,6 +42,7 @@ typedef struct TsDriverVtable {
 	 * passing the given void* in the same function (e.g., controller pointer) */
 	TsStatus_t (*reader)(TsDriverRef_t, void*, TsDriverReader_t);
 	TsStatus_t (*write)(TsDriverRef_t, const uint8_t *, size_t *, uint32_t);
+	void       (*reset)(TsDriverRef_t);
 
 } TsDriverVtable_t;
 
