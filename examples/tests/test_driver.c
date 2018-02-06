@@ -29,9 +29,6 @@ int main() {
 	TsStatus_t status;
 	ts_status_set_level( TsStatusLevelDebug );
 
-	// force driver implementation to serial
-	ts_driver = &(ts_driver_unix_serial);
-
 	TsDriverRef_t driver;
 	status = ts_driver_create( &driver );
 	if( status != TsStatusOk ) {
