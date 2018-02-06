@@ -23,27 +23,42 @@ add_subdirectory( sdk_dependencies )
 
 # component selection
 add_definitions( -DTS_SERVICE_TS_JSON )     # TS_JSON, TS_CBOR or CUSTOM
-add_definitions( -DTS_TRANSPORT_MQTT )      # MQTT or CUSTOM only
+add_definitions( -DTS_TRANSPORT_MQTT )      # MQTT or CUSTOM
 add_definitions( -DTS_SECURITY_MBED )       # MBED, MOCANA, NONE or CUSTOM
 add_definitions( -DTS_CONTROLLER_NONE )     # MONARCH, NONE or CUSTOM
 
-# platform configuration
-add_definitions( -DTS_PLATFORM_UNIX )       # UNIX, THREADX, NONE or CUSTOM
-add_definitions( -DTS_DRIVER_SOCKET )       # SERIAL, SOCKET, UART or CUSTOM
-
-# platform OS and board configuration
-# unix, unix/raspberry_pi, threadX/renesas_s5_d9, none/freedom, none/nucleo
-set( TS_BOARD unix CACHE STRING "rtos and board" FORCE )
-
 # build object libraries
 add_subdirectory( sdk_components )
-add_subdirectory( sdk_platforms )
 add_subdirectory( sdk )
 
 # build common static library
 # (depends on components and dependencies)
-add_library( ts_sdk STATIC $<TARGET_OBJECTS:ts_sdk_apis> $<TARGET_OBJECTS:ts_sdk_components> $<TARGET_OBJECTS:ts_sdk_platforms> )
+add_library( ts_sdk STATIC $<TARGET_OBJECTS:ts_sdk_apis> $<TARGET_OBJECTS:ts_sdk_components> )
 target_link_libraries( ts_sdk tinycbor cjson mbedtls pahomqtt )
 
-# build example executables
-add_subdirectory( examples )
+# build optional examples
+option( BUILD_EXAMPLES "Compile example platforms and applications" OFF )
+message( STATUS "## Build Examples               (ON|OFF) : ${BUILD_EXAMPLES}" )
+if( BUILD_EXAMPLES )
+
+    # platform kernal and board configuration
+    #
+    #   unix                    Linux and Unix variants
+    #   unix_raspberry-pi3      Raspberry Pi3 Linux and Unix variants
+    #   threadx_synergy-s5d9    ThreadX Renesas Synergy S5D9
+    #   none_freedom-k82f       Bare-metal NXP Freedom K82F
+    #   none_nucleo-f401re      Bare-metal STMicro Nucleo F401RE
+    #   none_nucleo-l476        Bare-metal STMicro Nucleo L476
+    #   windows                 Microsoft Windows variants
+    set( TS_PLATFORM unix CACHE STRING "RTOS and Hardware Platform" FORCE )
+
+    # platform driver configuration
+    add_definitions( -DTS_DRIVER_SOCKET )   # SERIAL, SOCKET, UART or CUSTOM
+    add_definitions( -DTS_PLATFORM_UNIX )   # TODO, remove,...
+
+    # build example executables
+    add_subdirectory( examples )
+
+endif()
+
+
