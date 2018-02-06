@@ -1,5 +1,6 @@
 #include <string.h>
 #include <ctype.h>
+
 #include "at_intfc.h"
 #include "ts_platform.h"
 #include "ts_status.h"
@@ -14,7 +15,7 @@
 /*#define DEBUG_AT_WRITE*/
 
 /* Minimum wait time after processing a response from the modem (3GPP standard). */
-#define MAX_RESP_INTERVAL_US	(100*TS_TIME_MSEC_TO_USEC)
+#define MAX_RESP_INTERVAL_MS	100
 
 /* Maximum number of bytes to dump from the ring buffer in case of an error. */
 #define MAX_DUMP_SZ		30
@@ -31,17 +32,15 @@
  * systems which are running on an OS, this idle time can be allotted to other
  * tasks.
  */
-#define IDLE_TIME_US		(5*TS_TIME_MSEC_TO_USEC)
+#define IDLE_TIME_MS		5
 
-static const modem_intfc_t *modem;
+static TsDriverRef_t driver;
 
 struct {
 	size_t sz;
 	at_urc_desc *urcs;
 } urc_list;
 
-static volatile bool tx_err;	/* Set on encountering an error in transmission. */
-static volatile size_t tx_sz;	/* Bytes written to the port so far. */
 static bool echo_en;		/* Set when echo is enabled on the modem. */
 
 static rbuf r;			/* AT ring buffer. */
@@ -52,6 +51,10 @@ void at_toggle_cmd_echo(bool on)
 {
 	at_dbg_en = on;
 }
+
+#define ts_platform_time_ms()	(ts_platform_time() / TS_TIME_MSEC_TO_USEC)
+#define ts_platform_sleep_ms(t)	ts_platform_sleep((t) * TS_TIME_MSEC_TO_USEC)
+#define MSEC2USEC(t)		((t) * TS_TIME_MSEC_TO_USEC)
 
 /*
  * Read sz bytes from the ring buffer and dump it into buf. If sz bytes are not
@@ -112,27 +115,22 @@ static inline bool attempt_proc_urc(void)
 			urc_detected = true;
 		else if (res == MATCH_FAIL)
 			break;
-		ts_platform_sleep(IDLE_TIME_US);
+		ts_platform_sleep_ms(IDLE_TIME_MS);
 	}
 	return urc_detected;
 }
 
-static void rx_cb(size_t sz, const uint8_t data[])
+static TsStatus_t rx_cb(TsDriverRef_t driver, void *reader_state, const uint8_t *data, size_t sz)
 {
 	rbuf_wbs(&r, sz, data);
+	return TsStatusOk;
 }
 
-static void tx_cb(size_t sz, bool err)
+bool at_init(TsDriverRef_t d)
 {
-	tx_sz += sz;
-	tx_err = err;
-}
-
-bool at_init(const modem_intfc_t *m)
-{
-	if (m == NULL)
+	if (d == NULL)
 		return false;
-	modem = m;
+	driver = d;
 	at_dbg_en = true;
 
 	atdbg("%s:%d Initializing modem receive buffer\n", __func__, __LINE__);
@@ -141,10 +139,8 @@ bool at_init(const modem_intfc_t *m)
 		return false;
 	}
 
-	tx_err = false;
-	tx_sz = 0;
-	atdbg("%s:%d Initializing modem communication port\n", __func__, __LINE__);
-	if (!modem->port.init(tx_cb, rx_cb)) {
+	atdbg("%s:%d Setting modem communication port callback\n", __func__, __LINE__);
+	if (ts_driver_reader(driver, NULL, rx_cb)) {
 		atdbg("%s:%d Initialization failed\n", __func__, __LINE__);
 		return false;
 	}
@@ -220,10 +216,10 @@ static bool eat_echo(const at_cmd_desc *cmd, uint32_t timeout)
 	match_fmt_t cmd_match;
 	rbuf_reset_fmt_desc(&cmd_match);
 	cmd_match.fmt = cmd->cmd;
-	uint32_t start = ts_platform_time();
+	uint32_t start = ts_platform_time_ms();
 	size_t sz = 0;
 	while (1) {
-		if (ts_platform_time() - start > timeout)
+		if (ts_platform_time_ms() - start > timeout)
 			return false;
 		match_res_t mres = rbuf_matchf(&r, &cmd_match, &sz);
 		if (mres == MATCH_OK) {
@@ -231,7 +227,7 @@ static bool eat_echo(const at_cmd_desc *cmd, uint32_t timeout)
 			rbuf_rbs(&r, sz, buf);
 			return true;
 		} else {
-			ts_platform_sleep(IDLE_TIME_US);
+			ts_platform_sleep_ms(IDLE_TIME_MS);
 		}
 	}
 	return false;
@@ -297,9 +293,9 @@ at_wcmd_res at_wcmd(const at_cmd_desc *at_cmd)
 		match_res_t m_res = MATCH_FAIL;
 		load_resp_err_fmts(i, at_cmd, &m_list[RSP], &m_list[ERR]);
 
-		uint32_t start = ts_platform_time();
+		uint32_t start = ts_platform_time_ms();
 		while (1) {	/* Wait for response / error or timeout. */
-			if (ts_platform_time() - start > at_cmd->timeout) {
+			if (ts_platform_time_ms() - start > at_cmd->timeout) {
 				res = AT_WCMD_TO;
 				break;
 			}
@@ -314,7 +310,7 @@ at_wcmd_res at_wcmd(const at_cmd_desc *at_cmd)
 					goto check_urc;
 				}
 			} else {
-				ts_platform_sleep(IDLE_TIME_US);
+				ts_platform_sleep_ms(IDLE_TIME_MS);
 			}
 		}
 
@@ -340,9 +336,9 @@ at_wcmd_res at_wcmd(const at_cmd_desc *at_cmd)
 
 check_urc:
 	/* Recommended wait time after a response / URC is received. */
-	ts_platform_sleep(MAX_RESP_INTERVAL_US);
+	ts_platform_sleep_ms(MAX_RESP_INTERVAL_MS);
 	if (attempt_proc_urc())
-		ts_platform_sleep(MAX_RESP_INTERVAL_US);
+		ts_platform_sleep_ms(MAX_RESP_INTERVAL_MS);
 exit_wcmd:
 	print_at_wcmd_result(__func__, res);
 	return res;
@@ -352,7 +348,6 @@ bool at_write(size_t sz, const uint8_t data[])
 {
 	if (data == NULL)
 		return false;
-	tx_sz = 0;
 
 #ifdef DEBUG_AT_WRITE
 	atdbg("%s:%d Writing %"PRIu16" bytes\n", __func__, __LINE__, sz);
@@ -362,14 +357,9 @@ bool at_write(size_t sz, const uint8_t data[])
 	atdbg("}\n");
 #endif
 
-	modem->port.tx(sz, data);
-	uint32_t start = ts_platform_time();
-	while (tx_sz != sz) {
-		if (ts_platform_time() - start > TX_TIMEOUT_MS) {
-			atdbg("%s:%d Timed out for write\n", __func__, __LINE__);
-			return false;
-		}
-		ts_platform_sleep(IDLE_TIME_US);
+	if (ts_driver_write(driver, data, &sz, MSEC2USEC(TX_TIMEOUT_MS)) != TsStatusOk) {
+		atdbg("%s:%d Timed out / error while writing write\n", __func__, __LINE__);
+		return false;
 	}
 	return true;
 }
