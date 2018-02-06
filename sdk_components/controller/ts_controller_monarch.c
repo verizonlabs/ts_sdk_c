@@ -331,8 +331,8 @@ static TsStatus_t ts_destroy( TsControllerRef_t controller ) {
 	ts_platform_assert( ts_driver != NULL );
 	ts_platform_assert( controller != NULL );
 
-	TsControllerMonarchRef_t m = (TsControllerMonarchRef_t)controller;
-	m->being_used = false;
+	TsControllerMonarchRef_t controller_monarch = (TsControllerMonarchRef_t)controller;
+	controller_monarch->being_used = false;
 	ts_driver_destroy( controller->_driver );
 	return TsStatusOk;
 }
@@ -349,10 +349,32 @@ static TsStatus_t ts_tick( TsControllerRef_t controller, uint32_t budget ) {
 	return TsStatusOk;
 }
 
+#define MAX_TCP_HOST_PORT_NAME	(TS_ADDRESS_MAX_HOST_SIZE + TS_ADDRESS_MAX_PORT_SIZE + 30)
 static TsStatus_t ts_connect( TsControllerRef_t controller, TsAddress_t address ) {
 	ts_status_trace( "ts_controller_connect\n" );
 	ts_platform_assert( ts_driver != NULL );
 	ts_platform_assert( controller != NULL );
+
+	TsControllerMonarchRef_t controller_monarch = (TsControllerMonarchRef_t)controller;
+	char host[TS_ADDRESS_MAX_HOST_SIZE];
+	char port[TS_ADDRESS_MAX_PORT_SIZE];
+	if (ts_address_parse(address, host, port) != TsStatusOk)
+		return TsStatusErrorInternalServerError;
+
+	if (controller_monarch->tcp_connected)
+		return TsStatusErrorNoResourceAvailable;
+
+	char cmd[MAX_TCP_HOST_PORT_NAME];
+	at_cmd_desc *tcp_conn = &tcp_cmd_list[SOCK_DIAL];
+	snprintf(cmd, sizeof(cmd), tcp_conn->cmd_fmt, port, host);
+	tcp_conn->cmd = cmd;
+	if (at_wcmd(tcp_conn) != AT_WCMD_OK)
+		return TsStatusErrorInternalServerError;
+
+	controller_monarch->tcp_connected = true;
+	controller_monarch->tcp_peer_close = false;
+
+	mdbg("%s:%d TCP connection established\n", __func__, __LINE__);
 
 	return TsStatusOk;
 }

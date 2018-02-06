@@ -277,7 +277,7 @@ static at_cmd_desc tcp_cmd_list[NUM_TCP_CMDS] = {
 		.timeout = 5000
 	},
 	[SOCK_DIAL] = {
-		.cmd_fmt = "at+sqnsd="MODEM_SOCK_ID",0,%u,\"%s\",0,0,1\r",
+		.cmd_fmt = "at+sqnsd="MODEM_SOCK_ID",0,%s,\"%s\",0,0,1\r",
 		.err = err_str,
 		.resp = {
 			{
