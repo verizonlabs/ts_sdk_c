@@ -61,6 +61,7 @@ extern const TsDriverVtable_t * ts_driver;
 #define ts_driver_read		ts_driver->read
 #define ts_driver_reader    ts_driver->reader
 #define ts_driver_write		ts_driver->write
+#define ts_driver_reset		ts_driver->reset
 
 #ifdef __cplusplus
 }
