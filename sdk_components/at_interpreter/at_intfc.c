@@ -1,3 +1,4 @@
+/* Copyright (c) 2017, 2018 Verizon. All rights reserved. */
 #include <string.h>
 #include <ctype.h>
 

@@ -1,6 +1,6 @@
 /**
  * \file rbuf.h
- * \copyright Copyright (C) 2017 Verizon. All rights reserved.
+ * \copyright Copyright (C) 2017, 2018 Verizon. All rights reserved.
  * \brief Single producer, single consumer ring buffer API.
  * \details Usually, the writer is an interrupt and the consumer is the
  * execution thread. In addition to reading from and writing to the ring buffer,
