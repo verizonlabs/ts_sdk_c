@@ -5,7 +5,7 @@
 
 #define BUILD			0
 
-#if BUILD
+#if 0
 #include <stm32l4xx_hal.h>
 #if defined(FREE_RTOS)
 #include <cmsis_os.h>
@@ -51,7 +51,7 @@ TsPlatformVtable_t ts_platform_none = {
 	.assertion = ts_assertion,
 };
 
-#if BUILD
+#if 0
 static struct {
 	uint32_t base_tick;
 	uint64_t accu_tick;
@@ -68,7 +68,7 @@ __attribute__((used)) ssize_t _write(int fd, const void *buf, size_t count)
 {
 	if (buf == NULL || count == 0)
 		return 0;
-#if BUILD
+#if 0
 	HAL_StatusTypeDef s = HAL_UART_Transmit(&platform_state.debug_uart, (uint8_t *)buf, count, TIMEOUT_MS);
 	return (s == HAL_OK) ? count : -1;
 #else
@@ -76,7 +76,7 @@ __attribute__((used)) ssize_t _write(int fd, const void *buf, size_t count)
 #endif
 }
 
-#if BUILD
+#if 0
 static void uart_pin_init(void)
 {
 	GPIO_InitTypeDef uart_gpio;
@@ -212,7 +212,7 @@ static bool hwrng_module_init(void)
 
 static void ts_initialize(void)
 {
-#if BUILD
+#if 0
 	HAL_Init();
 	SystemClock_Config();
 	debug_port_init();
@@ -236,7 +236,7 @@ static void ts_vprintf(const char * format, va_list argp)
 static uint64_t ts_time(void)
 {
 	uint32_t cur_ts = 0;
-#if BUILD
+#if 0
 #if defined(FREE_RTOS)
 	cur_ts = osKernelSysTick();
 #else
@@ -258,7 +258,7 @@ static uint64_t ts_time(void)
 
 static void ts_sleep(uint32_t microseconds)
 {
-#if BUILD
+#if 0
 #if defined(FREE_RTOS)
 	osDelay(microseconds / TS_TIME_MSEC_TO_USEC);
 #else
@@ -270,7 +270,7 @@ static void ts_sleep(uint32_t microseconds)
 // XXX: Bring back FIPS 140-2 check for non-equal adjacent random numbers?
 static void ts_random(uint32_t * number)
 {
-#if BUILD
+#if 0
 	HAL_RNG_GenerateRandomNumber(&hwrng_handle, number)
 #endif
 }
@@ -288,7 +288,7 @@ static void ts_free(void *pointer, size_t size)
 static void ts_assertion(const char *msg, const char *file, int line)
 {
 	printf("assertion failed, '%s' at %s:%d\n", msg, file, line);
-#if BUILD
+#if 0
 	raise_err();
 #else
 	while (1)
@@ -299,7 +299,7 @@ static void ts_assertion(const char *msg, const char *file, int line)
 /* Increments the SysTick value. */
 void SysTick_Handler(void)
 {
-#if BUILD
+#if 0
 #if defined(FREE_RTOS)
 	osSystickHandler();
 #else
@@ -314,28 +314,28 @@ void SysTick_Handler(void)
  */
 void HardFault_Handler(void)
 {
-#if BUILD
+#if 0
 	raise_err();
 #endif
 }
 
 void MemManage_Handler(void)
 {
-#if BUILD
+#if 0
 	raise_err();
 #endif
 }
 
 void BusFault_Handler(void)
 {
-#if BUILD
+#if 0
 	raise_err();
 #endif
 }
 
 void UsageFault_Handler(void)
 {
-#if BUILD
+#if 0
 	raise_err();
 #endif
 }
