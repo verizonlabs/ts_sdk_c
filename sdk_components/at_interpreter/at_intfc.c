@@ -141,7 +141,7 @@ bool at_init(TsDriverRef_t d)
 	}
 
 	atdbg("%s:%d Setting modem communication port callback\n", __func__, __LINE__);
-	if (ts_driver_reader(driver, NULL, rx_cb)) {
+	if (ts_driver_reader(driver, NULL, rx_cb) != TsStatusOk) {
 		atdbg("%s:%d Initialization failed\n", __func__, __LINE__);
 		return false;
 	}
