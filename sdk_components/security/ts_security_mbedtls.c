@@ -53,6 +53,10 @@ static TsStatus_t ts_write(TsSecurityRef_t, const uint8_t *, size_t *, uint32_t)
 static int mbedtls_tcp_send(void *, const unsigned char *, size_t);
 static int mbedtls_tcp_recv(void *, unsigned char *, size_t);
 static void mbedtls_debug(void *, int, const char *, int, const char *);
+// TODO - should replace with device id instead (e.g., mac or imei)
+const char * mbedtls_secret = "my-little-secret";
+
+int mbedtls_hardware_poll(void *, unsigned char *, size_t, size_t *);
 
 TsSecurityVtable_t ts_security_mbedtls = {
 	.create = ts_create,
@@ -126,10 +130,16 @@ static TsStatus_t ts_create(TsSecurityRef_t *security) {
 	mbedtls_ctr_drbg_init(&(mbed->_ctr_drbg));
 	mbedtls_entropy_init(&(mbed->_entropy));
 
+	// initialize entropy source
+	size_t threshold = 1;
+	int is_strong = 0;
+	mbedtls_entropy_add_source(&(mbed->_entropy), mbedtls_hardware_poll, NULL, threshold, is_strong );
+
 	// initialize entropy
 	{
-		int error = mbedtls_ctr_drbg_seed(&(mbed->_ctr_drbg), mbedtls_entropy_func, &(mbed->_entropy), NULL, 0);
+		int error = mbedtls_ctr_drbg_seed(&(mbed->_ctr_drbg), mbedtls_entropy_func, &(mbed->_entropy), (const unsigned char *)mbedtls_secret, strlen(mbedtls_secret));
 		if (error != 0) {
+			ts_status_debug("ts_security_create: mbedtls_ctr_drbg_seed failed, %d\n", error );
 			ts_platform_free(mbed, sizeof(TsSecurityEmbed_t));
 			return TsStatusErrorPreconditionFailed;
 		}
@@ -144,6 +154,7 @@ static TsStatus_t ts_create(TsSecurityRef_t *security) {
 			MBEDTLS_SSL_TRANSPORT_STREAM,
 			MBEDTLS_SSL_PRESET_DEFAULT);
 		if (error != 0) {
+			ts_status_debug("ts_security_create: mbedtls_ssl_config_defaults failed, %d\n", error );
 			ts_platform_free(mbed, sizeof(TsSecurityEmbed_t));
 			return TsStatusErrorPreconditionFailed;
 		}
@@ -612,7 +623,6 @@ static int mbedtls_tcp_recv(void *context, unsigned char *buffer, size_t buffer_
 	bool reading = true;
 	uint64_t timestamp = ts_platform_time();
 	TsSecurityRef_t security = (TsSecurityRef_t)(context);
-	TsSecurityEmbedRef_t mbed = (TsSecurityEmbedRef_t) (security);
 	do {
 
 		size_t xbuffer_size = buffer_size - index;
@@ -678,7 +688,6 @@ static int mbedtls_tcp_send(void *context, const unsigned char *buffer, size_t b
 	bool writing = true;
 	uint64_t timestamp = ts_platform_time();
 	TsSecurityRef_t security = (TsSecurityRef_t)(context);
-	TsSecurityEmbedRef_t mbed = (TsSecurityEmbedRef_t) (security);
 	do {
 
 		size_t xbuffer_size = buffer_size - index;

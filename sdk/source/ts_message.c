@@ -560,7 +560,8 @@ TsStatus_t ts_message_decode( TsMessageRef_t message, TsEncoder_t encoder, uint8
 
 		CborParser parser;
 		CborValue cbor;
-		CborError error = cbor_parser_init( buffer, buffer_size, 0, &parser, &cbor );
+		// TODO - check return value for possible error
+		cbor_parser_init( buffer, buffer_size, 0, &parser, &cbor );
 		TsStatus_t status = _ts_message_decode_ts_cbor( message, 0, &cbor );
 
 		return status;

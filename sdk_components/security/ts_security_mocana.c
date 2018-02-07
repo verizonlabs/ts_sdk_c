@@ -5,7 +5,6 @@
 static TsStatus_t ts_create(TsSecurityRef_t *);
 static TsStatus_t ts_destroy(TsSecurityRef_t);
 static TsStatus_t ts_tick(TsSecurityRef_t, uint32_t);
-static TsStatus_t ts_report(TsSecurityRef_t);
 
 static TsStatus_t ts_set_server_cert_hostname(TsSecurityRef_t, const char *);
 static TsStatus_t ts_set_server_cert(TsSecurityRef_t, const uint8_t *, size_t);
