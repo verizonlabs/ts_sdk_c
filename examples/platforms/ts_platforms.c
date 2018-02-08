@@ -9,8 +9,8 @@ const TsDriverVtable_t *    ts_driver = &(ts_driver_unix_serial);
 #else
 const TsDriverVtable_t *    ts_driver = &(ts_driver_unix_socket);
 #endif
-#elif defined(TS_PLATFORM_NONE)
-const TsPlatformVtable_t * ts_platform = &(ts_platform_none);
+#elif defined(TS_PLATFORM_NONE)	// TODO: Make decision based on board
+const TsPlatformVtable_t * ts_platform = &(ts_platform_nucleo_none);
 #if defined(TS_DRIVER_UART)
 const TsDriverVtable_t * ts_driver = &(ts_driver_none_uart);
 #endif
