@@ -59,7 +59,7 @@ static TsStatus_t ts_enqueue( TsServiceRef_t service, TsMessageRef_t sensor ) {
 	ts_connection_get_spec_id( service->_transport->_connection, id, TS_DRIVER_MAX_ID_SIZE );
 
 	// create message content
-	TsMessageRef_t message, sensors, characteristics;
+	TsMessageRef_t message;
 	ts_message_create(&message);
 	ts_message_set_string( message, "kind", "ts.event" );
 	ts_message_set_string( message, "action", "update" );
@@ -124,7 +124,7 @@ static TsStatus_t handler_get( TsServiceRef_t service, TsMessageRef_t message ) 
 	if( service_handler != NULL ) {
 
 		// prep
-		TsMessageRef_t fields, content;
+		TsMessageRef_t fields;
 		ts_message_get_message(message, "fields", &fields );
 
 		// delegate
@@ -163,12 +163,6 @@ static TsStatus_t handler_set( TsServiceRef_t service, TsMessageRef_t message ) 
 
 	// return status
 	return status;
-}
-
-static TsStatus_t handler_activate( TsServiceRef_t service, TsMessageRef_t message ) {
-
-	ts_status_debug("ts_service_handler_activate\n");
-	return TsStatusOk;
 }
 
 /**

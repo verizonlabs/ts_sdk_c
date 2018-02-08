@@ -4,15 +4,9 @@
 # #############################################################################
 # library, mbedTLS
 
-# TODO - run( cd mbedtls; ./vz_configure_mbedtls no-net )
-set( TARGETS mbedtls )
 set( ENABLE_PROGRAMS OFF CACHE BOOL "Disable mbedtls program compilation" FORCE )
 set( ENABLE_TESTING OFF CACHE BOOL "Disable mbedtls testing compilation" FORCE )
-
 add_subdirectory( mbedtls )
-target_include_directories( mbedtls PRIVATE mbedtls/include/mbedtls )
-target_compile_definitions( mbedtls PRIVATE MBEDTLS_CONFIG_FILE="${CMAKE_SOURCE_DIR}/sdk_dependencies/mbedtls_config.h" )
-# TODO - rerun toolchain?
 
 # #############################################################################
 # library, TINY-CBOR
@@ -30,7 +24,7 @@ set( TARGETS cjson )
 file( GLOB SOURCES cJSON/cJSON.[ch] )
 
 add_library( cjson STATIC ${SOURCES} )
-target_compile_definitions( tinycbor PRIVATE ENABLE_CJSON_TEST=OFF )
+target_compile_definitions( cjson PRIVATE ENABLE_CJSON_TEST=OFF )
 
 # #############################################################################
 # library, PAHO-MQTT

@@ -19,6 +19,7 @@ project( ts_sdk_c C CXX ASM )
 message( STATUS "## Build Type            (Debug|Release) : ${CMAKE_BUILD_TYPE}" )
 
 # build vendor libraries
+add_definitions( -D__GLIBC__ )              # TODO, remove tinyCBOR HACK
 add_subdirectory( sdk_dependencies )
 
 # component selection
