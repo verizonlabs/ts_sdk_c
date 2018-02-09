@@ -25,3 +25,6 @@
 [submodule "examples/platforms/ts_sdk_c_platforms_none_nucleo-l476"]
 	path = examples/platforms/ts_sdk_c_platforms_none_nucleo-l476
 	url = https://github.com/verizonlabs/ts_sdk_c_platforms_none_nucleo-l476.git
+[submodule "sdk_dependencies/mbedtls_custom"]
+	path = sdk_dependencies/mbedtls_custom
+	url = https://github.com/verizonlabs/mbedtls_custom.git

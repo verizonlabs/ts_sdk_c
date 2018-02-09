@@ -6,7 +6,7 @@
 
 set( ENABLE_PROGRAMS OFF CACHE BOOL "Disable mbedtls program compilation" FORCE )
 set( ENABLE_TESTING OFF CACHE BOOL "Disable mbedtls testing compilation" FORCE )
-add_subdirectory( mbedtls )
+add_subdirectory( mbedtls_custom )
 
 # #############################################################################
 # library, TINY-CBOR

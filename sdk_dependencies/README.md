@@ -12,5 +12,6 @@ $ git submodule add https://github.com/verizonlabs/cJSON.git
 $ git submodule add https://github.com/verizonlabs/paho.mqtt.embedded-c.git
 $ git submodule add https://github.com/verizonlabs/mbedtls.git
 $ git submodule add https://github.com/verizonlabs/mocana_ssl.git
+$ git submodule add https://github.com/verizonlabs/mbedtls_custom.git
 ```
 
