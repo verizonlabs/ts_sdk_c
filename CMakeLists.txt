@@ -51,11 +51,11 @@ if( BUILD_EXAMPLES )
     #   none_nucleo-f401re      Bare-metal STMicro Nucleo F401RE
     #   none_nucleo-l476        Bare-metal STMicro Nucleo L476
     #   windows                 Microsoft Windows variants
-    set( TS_PLATFORM unix CACHE STRING "RTOS and Hardware Platform" FORCE )
+    set( TS_PLATFORM none_nucleo-l476 CACHE STRING "RTOS and Hardware Platform" FORCE )
 
     # platform driver configuration
-    add_definitions( -DTS_DRIVER_SOCKET )   # SERIAL, SOCKET, UART or CUSTOM
-    add_definitions( -DTS_PLATFORM_UNIX )   # TODO, remove,...
+    add_definitions( -DTS_DRIVER_UART )   # SERIAL, SOCKET, UART or CUSTOM
+    add_definitions( -DTS_PLATFORM_NONE )   # TODO, remove,...
 
     # build example executables
     add_subdirectory( examples )
