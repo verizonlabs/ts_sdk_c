@@ -326,6 +326,8 @@ static TsStatus_t ts_connect(TsSecurityRef_t security, TsAddress_t address) {
 	do  {
 
 		int error = mbedtls_ssl_handshake(ssl);
+		/* XXX: Modem's (controller's) tick needs to be advanced. */
+		ts_controller_tick(security->_controller, 0);
 		switch (error) {
 		case MBEDTLS_ERR_SSL_WANT_READ:
 		case MBEDTLS_ERR_SSL_WANT_WRITE:

@@ -226,8 +226,10 @@ static TsStatus_t ts_dial( TsTransportRef_t transport, TsAddress_t address ) {
 
 	TsStatus_t status = ts_connection_connect( mqtt->_transport._connection, address );
 	if( status != TsStatusOk ) {
+		ts_status_debug("TLS handshake failed\n");
 		return status;
 	}
+	ts_status_debug("Connected to server through TLS\n");
 
 	mqtt->_network._last_status = TsStatusOk;
 	int code = MQTTConnect( &( mqtt->_client ), &( mqtt->_connection ));
