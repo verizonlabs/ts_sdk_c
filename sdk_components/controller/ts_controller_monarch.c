@@ -208,6 +208,7 @@ static void tcp_conn_closed(size_t sz, const char urc_text[])
 {
 	monarch.tcp_connected = false;
 	monarch.tcp_peer_close = true;
+	mdbg("Peer closed connection\n");
 }
 
 static void tcp_recv_bytes(size_t sz, const char urc_text[])
@@ -226,8 +227,7 @@ static bool wait_for_net_reg(TsControllerMonarchRef_t m, uint32_t timeout_ms)
 	uint32_t start = ts_platform_time_ms();
 	while (m->reg_to_net != MODEM_ATTACHED) {
 		if (ts_platform_time_ms() - start > timeout_ms) {
-			mdbg("%s:%d Timed out waiting for network attach\n",
-					__func__, __LINE__);
+			mdbg("Timed out waiting for network attach\n");
 			return false;
 		}
 		at_intfc_service();
@@ -254,8 +254,7 @@ static bool process_startup_urcs(TsControllerMonarchRef_t m)
 	uint32_t start = ts_platform_time_ms();
 	while (!m->modem_started) {
 		if (ts_platform_time_ms() - start > STARTUP_TIMEOUT_MS) {
-			mdbg("%s:%d Timed out waiting for modem to start\n",
-					__func__, __LINE__);
+			mdbg("Timed out waiting for modem to start\n");
 			return false;
 		}
 		at_intfc_service();
@@ -321,7 +320,7 @@ static TsStatus_t ts_create( TsControllerRef_t * controller ) {
 		return false;
 	}
 
-	mdbg("%s:%d Modem initialized\n", __func__, __LINE__);
+	mdbg("Modem initialized\n");
 	return TsStatusOk;
 }
 
@@ -342,9 +341,11 @@ static TsStatus_t ts_tick( TsControllerRef_t controller, uint32_t budget ) {
 	ts_platform_assert( ts_driver != NULL );
 	ts_platform_assert( controller != NULL );
 
+	/* If budget is 0, run the tick at least once. */
 	uint32_t start = ts_platform_time_ms();
-	while (ts_platform_time_ms() - start <= MSEC2USEC(budget))
+	do {
 		at_intfc_service();
+	} while (ts_platform_time_ms() - start <= MSEC2USEC(budget));
 
 	return TsStatusOk;
 }
@@ -374,7 +375,7 @@ static TsStatus_t ts_connect( TsControllerRef_t controller, TsAddress_t address 
 	controller_monarch->tcp_connected = true;
 	controller_monarch->tcp_peer_close = false;
 
-	mdbg("%s:%d TCP connection established\n", __func__, __LINE__);
+	mdbg("TCP connection established\n");
 
 	return TsStatusOk;
 }
@@ -386,13 +387,13 @@ static TsStatus_t ts_disconnect( TsControllerRef_t controller ) {
 
 	TsControllerMonarchRef_t controller_monarch = (TsControllerMonarchRef_t)controller;
 	if (!controller_monarch->tcp_connected) {
-		mdbg("%s:%d TCP connection already closed\n", __func__, __LINE__);
+		mdbg("TCP connection already closed\n");
 		return TsStatusErrorNoResourceAvailable;
 	}
 
-	mdbg("%s:%d Closing TCP connection\n", __func__, __LINE__);
+	mdbg("Closing TCP connection\n");
 	if (at_wcmd(&tcp_cmd_list[SOCK_CLOSE]) != AT_WCMD_OK) {
-		mdbg("%s:%d Failed to close TCP connection\n", __func__, __LINE__);
+		mdbg("Failed to close TCP connection\n");
 		return TsStatusErrorInternalServerError;
 	}
 	controller_monarch->tcp_connected = false;
@@ -401,6 +402,7 @@ static TsStatus_t ts_disconnect( TsControllerRef_t controller ) {
 	return TsStatusOk;
 }
 
+#define MAX_TCP_DATA_LEN			1500
 #define MAX_TCP_RECV_CMD_LEN			32
 static TsStatus_t ts_read( TsControllerRef_t controller, const uint8_t * buffer, size_t * buffer_size, uint32_t budget ) {
 	ts_status_trace( "ts_controller_read\n" );
@@ -412,6 +414,9 @@ static TsStatus_t ts_read( TsControllerRef_t controller, const uint8_t * buffer,
 	TsControllerMonarchRef_t controller_monarch = (TsControllerMonarchRef_t)controller;
 	if (controller_monarch->unread_tcp == 0)
 		return TsStatusOkReadPending;
+
+	if (*buffer_size > MAX_TCP_DATA_LEN)
+		*buffer_size = MAX_TCP_DATA_LEN;
 
 	if (*buffer_size > AT_BUF_SZ)
 		*buffer_size = AT_BUF_SZ;
@@ -427,12 +432,12 @@ static TsStatus_t ts_read( TsControllerRef_t controller, const uint8_t * buffer,
 	tcp_recv->resp[0].pvt_data = &bytes;
 
 	if (at_wcmd(tcp_recv) != AT_WCMD_OK) {
-		mdbg("%s:%d TCP read error\n", __func__, __LINE__);
+		mdbg("TCP read error\n");
 		return TsStatusErrorInternalServerError;
 	}
 
 	if (bytes.sz == 0) {
-		mdbg("%s:%d TCP read error\n", __func__, __LINE__);
+		mdbg("TCP read error\n");
 		return TsStatusErrorInternalServerError;
 	}
 
@@ -451,7 +456,7 @@ static TsStatus_t ts_write( TsControllerRef_t controller, const uint8_t * buffer
 	TsControllerMonarchRef_t controller_monarch = (TsControllerMonarchRef_t)controller;
 
 	if (!controller_monarch->tcp_connected) {
-		mdbg("%s:%d Unable to send, TCP not connected\n", __func__, __LINE__);
+		mdbg("Unable to send, TCP not connected\n");
 		if (!controller_monarch->tcp_peer_close)
 			ts_platform_assert(false);
 		else
@@ -466,7 +471,7 @@ static TsStatus_t ts_write( TsControllerRef_t controller, const uint8_t * buffer
 	snprintf(cmd, sizeof(cmd), tcp_write->cmd_fmt, *buffer_size);
 	tcp_write->cmd = cmd;
 	if (at_wcmd(tcp_write) != AT_WCMD_OK) {
-		mdbg("%s:%d TCP write failed\n", __func__, __LINE__);
+		mdbg("TCP write failed\n");
 		return TsStatusErrorInternalServerError;
 	}
 
@@ -475,14 +480,14 @@ static TsStatus_t ts_write( TsControllerRef_t controller, const uint8_t * buffer
 	tcp_write->cmd_len = *buffer_size;
 	//at_toggle_cmd_echo(false);
 	if (at_wcmd(tcp_write) != AT_WCMD_OK) {
-		mdbg("%s:%d TCP write failed\n", __func__, __LINE__);
+		mdbg("TCP write failed\n");
 		//at_toggle_cmd_echo(true);
 		return TsStatusErrorInternalServerError;
 	}
 	//at_toggle_cmd_echo(true);
 
 	if (!controller_monarch->tcp_connected || !controller_monarch->reg_to_net) {
-		mdbg("%s:%d TCP dropped in middle of write\n", __func__, __LINE__);
+		mdbg("TCP dropped in middle of write\n");
 		return TsStatusErrorConnectionReset;
 	}
 
