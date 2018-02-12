@@ -134,15 +134,15 @@ bool at_init(TsDriverRef_t d)
 	driver = d;
 	at_dbg_en = true;
 
-	atdbg("%s:%d Initializing modem receive buffer\n", __func__, __LINE__);
+	atdbg("Initializing modem receive buffer\n");
 	if (!rbuf_init(&r, sizeof(atb), atb)) {
-		atdbg("%s:%d Initialization failed\n", __func__, __LINE__);
+		atdbg("Initialization failed\n");
 		return false;
 	}
 
-	atdbg("%s:%d Setting modem communication port callback\n", __func__, __LINE__);
+	atdbg("Setting modem communication port callback\n");
 	if (ts_driver_reader(driver, NULL, rx_cb) != TsStatusOk) {
-		atdbg("%s:%d Initialization failed\n", __func__, __LINE__);
+		atdbg("Initialization failed\n");
 		return false;
 	}
 
@@ -153,7 +153,7 @@ void at_reg_urcs(size_t sz, at_urc_desc urcs[])
 {
 	if (urcs == NULL || sz == 0)
 		return;
-	atdbg("%s:%d Registering %u new URC(s)\n", __func__, __LINE__, sz);
+	atdbg("Registering %u new URC(s)\n", sz);
 	urc_list.sz = sz;
 	urc_list.urcs = urcs;
 	for (size_t i = 0; i < sz; i++) {
@@ -264,20 +264,20 @@ at_wcmd_res at_wcmd(const at_cmd_desc *at_cmd)
 
 	at_wcmd_res res = AT_WCMD_OK;
 	if (at_cmd == NULL || at_cmd->cmd == NULL || strlen(at_cmd->cmd) == 0) {
-		atdbg("%s:%d Invalid parameters\n", __func__, __LINE__);
+		atdbg("Invalid parameters\n");
 		return AT_WCMD_INV;
 	}
 
 	size_t cmd_len = at_cmd->cmd_len == 0 ? strlen(at_cmd->cmd)
 		: at_cmd->cmd_len;
-	if (at_dbg_en)
-		atdbg("%s:%d Issuing: %s\n", __func__, __LINE__, at_cmd->cmd);
+	if (at_dbg_en && at_cmd->cmd_len == 0)
+		atdbg("Issuing: %s\n", at_cmd->cmd);
 	if (!at_write(cmd_len, (const uint8_t *)at_cmd->cmd))
 		return AT_WCMD_TX_ERR;
 
 	/* If echo is enabled, command will repeat before response. */
 	if (echo_en && !eat_echo(at_cmd, ECHO_TMO_MS)) {
-		atdbg("%s:%d Expected echo of command\n", __func__, __LINE__);
+		atdbg("Expected echo of command\n");
 		return AT_WCMD_TX_ERR;
 	}
 
@@ -351,7 +351,7 @@ bool at_write(size_t sz, const uint8_t data[])
 		return false;
 
 #ifdef DEBUG_AT_WRITE
-	atdbg("%s:%d Writing %"PRIu16" bytes\n", __func__, __LINE__, sz);
+	atdbg("Writing %"PRIu16" bytes\n", sz);
 	atdbg("{%02x", data[0]);
 	for (size_t i = 1; i < sz; i++)
 		atdbg(", %02x", data[i]);
@@ -359,7 +359,7 @@ bool at_write(size_t sz, const uint8_t data[])
 #endif
 
 	if (ts_driver_write(driver, data, &sz, MSEC2USEC(TX_TIMEOUT_MS)) != TsStatusOk) {
-		atdbg("%s:%d Timed out / error while writing write\n", __func__, __LINE__);
+		atdbg("Timed out / error while writing write\n");
 		return false;
 	}
 	return true;
@@ -388,7 +388,7 @@ void at_clear_rxbuf(void)
 void at_set_echo(bool on)
 {
 	echo_en = on;
-	atdbg("%s:%d Echo %s\n", __func__, __LINE__, on ? "on" : "off");
+	atdbg("Echo %s\n", on ? "on" : "off");
 }
 
 void at_intfc_service(void)

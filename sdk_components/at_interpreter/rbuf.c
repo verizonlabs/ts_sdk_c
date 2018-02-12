@@ -112,11 +112,13 @@ match_res_t rbuf_matchf(const rbuf * const r, match_fmt_t *m, size_t *sz)
 			if (!set_match_func(m))
 				return MATCH_ERR;
 
+		size_t ridx = i % r->sz;		/* Adjust read index into buffer */
 		if (m->m_func == NULL) {		/* Literal comparison */
-			if (m->fmt[m->cidx++] != r->data[i++])
+			if (m->fmt[m->cidx++] != r->data[ridx])
 				return MATCH_FAIL;
+			i++;
 		} else {				/* Wildcard comparison */
-			if (m->m_func(r->data[i]) == 0) {
+			if (m->m_func(r->data[ridx]) == 0) {
 				if (!fut_match_opt)
 					return MATCH_FAIL;
 				m->m_func = NULL;
