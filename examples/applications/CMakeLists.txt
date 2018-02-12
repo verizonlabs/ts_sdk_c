@@ -18,3 +18,5 @@ target_link_libraries( example_custom_transport ts_sdk )
 add_executable( example_custom_security custom_security/main.c $<TARGET_OBJECTS:ts_sdk_platforms> )
 target_link_libraries( example_custom_security ts_sdk )
 
+set( STM32_LINKER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/STM32L476RGTx.ld" )
+STM32_SET_TARGET_PROPERTIES(example_simple)

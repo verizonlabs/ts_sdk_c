@@ -26,7 +26,7 @@ add_subdirectory( sdk_dependencies )
 add_definitions( -DTS_SERVICE_TS_JSON )     # TS_JSON, TS_CBOR or CUSTOM
 add_definitions( -DTS_TRANSPORT_MQTT )      # MQTT or CUSTOM
 add_definitions( -DTS_SECURITY_MBED )       # MBED, MOCANA, NONE or CUSTOM
-add_definitions( -DTS_CONTROLLER_NONE )     # MONARCH, NONE or CUSTOM
+add_definitions( -DTS_CONTROLLER_MONARCH )     # MONARCH, NONE or CUSTOM
 
 # build object libraries
 add_subdirectory( sdk_components )
