@@ -25,6 +25,17 @@ typedef struct TsControllerVtable {
 	TsStatus_t (*read)(TsControllerRef_t, const uint8_t *, size_t *, uint32_t);
 	TsStatus_t (*write)(TsControllerRef_t, const uint8_t *, size_t *, uint32_t);
 
+	/* Diagnostics API */
+	TsStatus_t (*get_id)(TsControllerRef_t, char *);
+	TsStatus_t (*get_sig_str)(TsControllerRef_t, uint8_t *);
+	TsStatus_t (*get_ip)(TsControllerRef_t, char *);
+	TsStatus_t (*get_iccid)(TsControllerRef_t, char *);
+	TsStatus_t (*get_ttz)(TsControllerRef_t, char *);
+	TsStatus_t (*get_imsi)(TsControllerRef_t, char *);
+	TsStatus_t (*get_man_info)(TsControllerRef_t, char *);
+	TsStatus_t (*get_mod_info)(TsControllerRef_t, char *);
+	TsStatus_t (*get_fwver)(TsControllerRef_t, char *);
+
 } TsControllerVtable_t;
 
 #ifdef __cplusplus
@@ -42,6 +53,16 @@ extern const TsControllerVtable_t *ts_controller;
 #define ts_controller_disconnect		ts_controller->disconnect
 #define ts_controller_read				ts_controller->read
 #define ts_controller_write				ts_controller->write
+
+#define ts_controller_get_id			ts_controller->get_id
+#define ts_controller_get_sig_str		ts_controller->get_sig_str
+#define ts_controller_get_ip			ts_controller->get_ip
+#define ts_controller_get_iccid			ts_controller->get_iccid
+#define ts_controller_get_ttz			ts_controller->get_ttz
+#define ts_controller_get_imsi			ts_controller->get_imsi
+#define ts_controller_get_man_info		ts_controller->get_man_info
+#define ts_controller_get_mod_info		ts_controller->get_mod_info
+#define ts_controller_get_fwver			ts_controller->get_fwver
 
 #ifdef __cplusplus
 }
