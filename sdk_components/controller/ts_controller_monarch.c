@@ -490,11 +490,7 @@ static TsStatus_t ts_tick( TsControllerRef_t controller, uint32_t budget ) {
 	ts_platform_assert( ts_driver != NULL );
 	ts_platform_assert( controller != NULL );
 
-	/* If budget is 0, run the tick at least once. */
-	uint32_t start = ts_platform_time_ms();
-	do {
-		at_intfc_service();
-	} while (ts_platform_time_ms() - start <= MSEC2USEC(budget));
+	at_intfc_service();
 
 	return TsStatusOk;
 }
