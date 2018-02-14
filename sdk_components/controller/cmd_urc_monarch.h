@@ -17,14 +17,14 @@ enum modem_core_cmds {
 
 enum modem_info_cmds {
 	QUERY_IMEI,
-	QUERY_SIG_STR,
-	QUERY_IP_ADDR,
+	QUERY_RSSI,
+	QUERY_IPV4_ADDR,
 	QUERY_ICCID,
-	QUERY_TTZ,
+	QUERY_DATE_AND_TIME,
 	QUERY_IMSI,
-	QUERY_MOD_INFO,
-	QUERY_MAN_INFO,
-	QUERY_FW_VER,
+	QUERY_MODULE_NAME,
+	QUERY_MANUFACTURER,
+	QUERY_FIRMWARE_VERSION,
 	NUM_MODEM_INFO_CMDS
 };
 
@@ -51,14 +51,14 @@ enum tcp_cmds {
 /* Response Callbacks */
 static void parse_tcp_data(size_t sz, const char resp[], void *pvt_data);
 static void parse_imei(size_t sz, const char resp[], void *pvt_data);
-static void parse_sig_str(size_t sz, const char resp[], void *pvt_data);
-static void parse_ip_addr(size_t sz, const char resp[], void *pvt_data);
+static void parse_rssi(size_t sz, const char resp[], void *pvt_data);
+static void parse_ipv4_addr(size_t sz, const char resp[], void *pvt_data);
 static void parse_iccid(size_t sz, const char resp[], void *pvt_data);
-static void parse_ttz(size_t sz, const char resp[], void *pvt_data);
+static void parse_date_and_time(size_t sz, const char resp[], void *pvt_data);
 static void parse_imsi(size_t sz, const char resp[], void *pvt_data);
-static void parse_mod_info(size_t sz, const char resp[], void *pvt_data);
-static void parse_man_info(size_t sz, const char resp[], void *pvt_data);
-static void parse_fw_ver(size_t sz, const char resp[], void *pvt_data);
+static void parse_module_name(size_t sz, const char resp[], void *pvt_data);
+static void parse_manufacturer(size_t sz, const char resp[], void *pvt_data);
+static void parse_firmware_version(size_t sz, const char resp[], void *pvt_data);
 
 static const char err_str[] = "\r\nERROR\r\n";
 
@@ -126,13 +126,13 @@ static at_cmd_desc query_cmd_list[NUM_MODEM_INFO_CMDS] = {
 		},
 		.timeout = 100
 	},
-	[QUERY_SIG_STR] = {
+	[QUERY_RSSI] = {
 		.cmd = "at+csq\r",
 		.err = err_str,
 		.resp = {
 			{
 				.exp_resp = "\r\n+CSQ: %u,%u\r\n",
-				.resp_cb = parse_sig_str
+				.resp_cb = parse_rssi
 			},
 			{
 				.exp_resp = "\r\nOK\r\n"
@@ -140,7 +140,7 @@ static at_cmd_desc query_cmd_list[NUM_MODEM_INFO_CMDS] = {
 		},
 		.timeout = 500
 	},
-	[QUERY_IP_ADDR] = {
+	[QUERY_IPV4_ADDR] = {
 		.cmd = "at+cgpaddr="MODEM_PDP_CTX"\r",
 		.err = err_str,
 		.resp = {
@@ -151,7 +151,7 @@ static at_cmd_desc query_cmd_list[NUM_MODEM_INFO_CMDS] = {
 					     "%u.%u.%u.%u." \
 					     "%u.%u.%u.%u." \
 					     "%u.%u.%u.%u\"\r\n",
-				.resp_cb = parse_ip_addr
+				.resp_cb = parse_ipv4_addr
 			},
 			{
 				.exp_resp = "\r\nOK\r\n"
@@ -173,13 +173,13 @@ static at_cmd_desc query_cmd_list[NUM_MODEM_INFO_CMDS] = {
 		},
 		.timeout = 500
 	},
-	[QUERY_TTZ] = {
+	[QUERY_DATE_AND_TIME] = {
 		.cmd = "at+cclk?\r",
 		.err = err_str,
 		.resp = {
 			{
 				.exp_resp = "\r\n+CCLK: \"%u/%u/%u,%u:%u:%u-%u\"\r\n",
-				.resp_cb = parse_ttz
+				.resp_cb = parse_date_and_time
 			},
 			{
 				.exp_resp = "\r\nOK\r\n"
@@ -201,13 +201,13 @@ static at_cmd_desc query_cmd_list[NUM_MODEM_INFO_CMDS] = {
 		},
 		.timeout = 500
 	},
-	[QUERY_MOD_INFO] = {
+	[QUERY_MODULE_NAME] = {
 		.cmd = "at+cgmm\r",
 		.err = err_str,
 		.resp = {
 			{
 				.exp_resp = "\r\n%s\r\n",
-				.resp_cb = parse_mod_info
+				.resp_cb = parse_module_name
 			},
 			{
 				.exp_resp = "\r\nOK\r\n"
@@ -215,13 +215,13 @@ static at_cmd_desc query_cmd_list[NUM_MODEM_INFO_CMDS] = {
 		},
 		.timeout = 500
 	},
-	[QUERY_MAN_INFO] = {
+	[QUERY_MANUFACTURER] = {
 		.cmd = "at+cgmi\r",
 		.err = err_str,
 		.resp = {
 			{
 				.exp_resp = "\r\n%s %s\r\n",
-				.resp_cb = parse_man_info
+				.resp_cb = parse_manufacturer
 			},
 			{
 				.exp_resp = "\r\nOK\r\n"
@@ -229,13 +229,13 @@ static at_cmd_desc query_cmd_list[NUM_MODEM_INFO_CMDS] = {
 		},
 		.timeout = 500
 	},
-	[QUERY_FW_VER] = {
+	[QUERY_FIRMWARE_VERSION] = {
 		.cmd = "at+cgmr\r",
 		.err = err_str,
 		.resp = {
 			{
 				.exp_resp = "\r\n%s.%u.%u.%u%s\r\n",
-				.resp_cb = parse_fw_ver
+				.resp_cb = parse_firmware_version
 			},
 			{
 				.exp_resp = "\r\nOK\r\n"

@@ -27,14 +27,14 @@ typedef struct TsControllerVtable {
 
 	/* Diagnostics API */
 	TsStatus_t (*get_id)(TsControllerRef_t, char *);
-	TsStatus_t (*get_sig_str)(TsControllerRef_t, uint8_t *);
-	TsStatus_t (*get_ip)(TsControllerRef_t, char *);
+	TsStatus_t (*get_rssi)(TsControllerRef_t, char *);
+	TsStatus_t (*get_ipv4_addr)(TsControllerRef_t, char *);
 	TsStatus_t (*get_iccid)(TsControllerRef_t, char *);
-	TsStatus_t (*get_ttz)(TsControllerRef_t, char *);
+	TsStatus_t (*get_date_and_time)(TsControllerRef_t, char *);
 	TsStatus_t (*get_imsi)(TsControllerRef_t, char *);
-	TsStatus_t (*get_man_info)(TsControllerRef_t, char *);
-	TsStatus_t (*get_mod_info)(TsControllerRef_t, char *);
-	TsStatus_t (*get_fwver)(TsControllerRef_t, char *);
+	TsStatus_t (*get_manufacturer)(TsControllerRef_t, char *);
+	TsStatus_t (*get_module_name)(TsControllerRef_t, char *);
+	TsStatus_t (*get_firmware_version)(TsControllerRef_t, char *);
 
 } TsControllerVtable_t;
 
@@ -55,14 +55,14 @@ extern const TsControllerVtable_t *ts_controller;
 #define ts_controller_write				ts_controller->write
 
 #define ts_controller_get_id			ts_controller->get_id
-#define ts_controller_get_sig_str		ts_controller->get_sig_str
-#define ts_controller_get_ip			ts_controller->get_ip
+#define ts_controller_get_rssi			ts_controller->get_rssi
+#define ts_controller_get_ipv4_addr		ts_controller->get_ipv4_addr
 #define ts_controller_get_iccid			ts_controller->get_iccid
-#define ts_controller_get_ttz			ts_controller->get_ttz
+#define ts_controller_get_date_and_time		ts_controller->get_date_and_time
 #define ts_controller_get_imsi			ts_controller->get_imsi
-#define ts_controller_get_man_info		ts_controller->get_man_info
-#define ts_controller_get_mod_info		ts_controller->get_mod_info
-#define ts_controller_get_fwver			ts_controller->get_fwver
+#define ts_controller_get_manufacturer		ts_controller->get_manufacturer
+#define ts_controller_get_module_name		ts_controller->get_module_name
+#define ts_controller_get_firmware_version	ts_controller->get_firmware_version
 
 #ifdef __cplusplus
 }

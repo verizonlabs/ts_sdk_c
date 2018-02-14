@@ -24,15 +24,15 @@ static TsStatus_t ts_disconnect( TsControllerRef_t );
 static TsStatus_t ts_read( TsControllerRef_t, const uint8_t *, size_t *, uint32_t );
 static TsStatus_t ts_write( TsControllerRef_t, const uint8_t *, size_t *, uint32_t );
 
-static TsStatus_t ts_get_id(TsControllerRef_t, char *id);
-static TsStatus_t ts_get_sig_str(TsControllerRef_t, uint8_t *rssi);
-static TsStatus_t ts_get_ip(TsControllerRef_t, char *ipv4_addr);
-static TsStatus_t ts_get_iccid(TsControllerRef_t, char *iccid);
-static TsStatus_t ts_get_ttz(TsControllerRef_t, char *ttz);
-static TsStatus_t ts_get_imsi(TsControllerRef_t, char *imsi);
-static TsStatus_t ts_get_man_info(TsControllerRef_t, char *man);
-static TsStatus_t ts_get_mod_info(TsControllerRef_t, char *mod);
-static TsStatus_t ts_get_fwver(TsControllerRef_t, char *ver);
+static TsStatus_t ts_get_id(TsControllerRef_t, char *);
+static TsStatus_t ts_get_rssi(TsControllerRef_t, char *);
+static TsStatus_t ts_get_ipv4_addr(TsControllerRef_t, char *);
+static TsStatus_t ts_get_iccid(TsControllerRef_t, char *);
+static TsStatus_t ts_get_date_and_time(TsControllerRef_t, char *);
+static TsStatus_t ts_get_imsi(TsControllerRef_t, char *);
+static TsStatus_t ts_get_manufacturer(TsControllerRef_t, char *);
+static TsStatus_t ts_get_module_name(TsControllerRef_t, char *);
+static TsStatus_t ts_get_firmware_version(TsControllerRef_t, char *);
 
 TsControllerVtable_t ts_controller_monarch = {
 	.create = ts_create,
@@ -45,14 +45,14 @@ TsControllerVtable_t ts_controller_monarch = {
 	.write = ts_write,
 
 	.get_id = ts_get_id,
-	.get_sig_str = ts_get_sig_str,
-	.get_ip = ts_get_ip,
+	.get_rssi = ts_get_rssi,
+	.get_ipv4_addr = ts_get_ipv4_addr,
 	.get_iccid = ts_get_iccid,
-	.get_ttz = ts_get_ttz,
+	.get_date_and_time = ts_get_date_and_time,
 	.get_imsi = ts_get_imsi,
-	.get_man_info = ts_get_man_info,
-	.get_mod_info = ts_get_mod_info,
-	.get_fwver = ts_get_fwver
+	.get_manufacturer = ts_get_manufacturer,
+	.get_module_name = ts_get_module_name,
+	.get_firmware_version = ts_get_firmware_version
 };
 
 /**
@@ -72,8 +72,9 @@ typedef struct {
 #define SIZEOF_IMEI			15
 #define SIZEOF_IMSI			15
 #define SIZEOF_ICCID			20
-#define SIZEOF_TTZ			20
+#define SIZEOF_DATE_AND_TIME		20
 #define SIZEOF_IPV4			15
+#define SIZEOF_RSSI			2
 #define SIZEOF_TEXT_INFO		30
 
 typedef struct TsControllerMonarch * TsControllerMonarchRef_t;
@@ -88,14 +89,14 @@ typedef struct TsControllerMonarch {
 
 	/* Diagnostics information */
 	char imei[SIZEOF_IMEI + 1];
-	uint8_t rssi;
+	char rssi[SIZEOF_RSSI + 1];
 	char ipv4_addr[SIZEOF_IPV4 + 1];
 	char iccid[SIZEOF_ICCID + 1];
-	char ttz[SIZEOF_TTZ + 1];
+	char date_and_time[SIZEOF_DATE_AND_TIME + 1];
 	char imsi[SIZEOF_IMSI + 1];
-	char man_info[SIZEOF_TEXT_INFO + 1];
-	char mod_info[SIZEOF_TEXT_INFO + 1];
-	char fwver[SIZEOF_TEXT_INFO + 1];
+	char manufacturer[SIZEOF_TEXT_INFO + 1];
+	char module_name[SIZEOF_TEXT_INFO + 1];
+	char firmware_version[SIZEOF_TEXT_INFO + 1];
 
 } TsControllerMonarch_t;
 
@@ -114,17 +115,17 @@ static void parse_imei(size_t sz, const char resp[], void *pvt_data)
 	memcpy(pvt_data, resp + imei_idx, SIZEOF_IMEI);
 }
 
-static void parse_sig_str(size_t sz, const char resp[], void *pvt_data)
+static void parse_rssi(size_t sz, const char resp[], void *pvt_data)
 {
 	const uint8_t rssi_idx = 8;
 	uint8_t i = rssi_idx;
-	uint8_t *rssi = pvt_data;
-	*rssi = 0;
+	array_t *rssi = pvt_data;
+	rssi->sz = 0;
 	while (i < sz && resp[i] != ',')
-		*rssi = *rssi * 10 + resp[i++] - '0';
+		rssi->data[(rssi->sz)++] = resp[i++];
 }
 
-static void parse_ip_addr(size_t sz, const char resp[], void *pvt_data)
+static void parse_ipv4_addr(size_t sz, const char resp[], void *pvt_data)
 {
 	const uint8_t ipv4_idx = 15;
 	uint8_t i = ipv4_idx;
@@ -140,10 +141,10 @@ static void parse_iccid(size_t sz, const char resp[], void *pvt_data)
 	memcpy(pvt_data, resp + iccid_idx, SIZEOF_ICCID);
 }
 
-static void parse_ttz(size_t sz, const char resp[], void *pvt_data)
+static void parse_date_and_time(size_t sz, const char resp[], void *pvt_data)
 {
-	const uint8_t ttz_idx = 10;
-	memcpy(pvt_data, resp + ttz_idx, SIZEOF_TTZ);
+	const uint8_t date_and_time_idx = 10;
+	memcpy(pvt_data, resp + date_and_time_idx, SIZEOF_DATE_AND_TIME);
 }
 
 static void parse_imsi(size_t sz, const char resp[], void *pvt_data)
@@ -152,7 +153,7 @@ static void parse_imsi(size_t sz, const char resp[], void *pvt_data)
 	memcpy(pvt_data, resp + imsi_idx, SIZEOF_IMSI);
 }
 
-static void parse_mod_info(size_t sz, const char resp[], void *pvt_data)
+static void parse_module_name(size_t sz, const char resp[], void *pvt_data)
 {
 	const uint8_t mod_idx = 2;
 	uint8_t i = mod_idx;
@@ -162,7 +163,7 @@ static void parse_mod_info(size_t sz, const char resp[], void *pvt_data)
 		mod->data[(mod->sz)++] = resp[i++];
 }
 
-static void parse_man_info(size_t sz, const char resp[], void *pvt_data)
+static void parse_manufacturer(size_t sz, const char resp[], void *pvt_data)
 {
 	const uint8_t man_idx = 2;
 	uint8_t i = man_idx;
@@ -172,7 +173,7 @@ static void parse_man_info(size_t sz, const char resp[], void *pvt_data)
 		man->data[(man->sz)++] = resp[i++];
 }
 
-static void parse_fw_ver(size_t sz, const char resp[], void *pvt_data)
+static void parse_firmware_version(size_t sz, const char resp[], void *pvt_data)
 {
 	const uint8_t fw_idx = 2;
 	uint8_t i = fw_idx;
@@ -250,19 +251,21 @@ static bool modem_get_imei(TsControllerMonarchRef_t modem)
 	return true;
 }
 
-static bool modem_get_sig_str(TsControllerMonarchRef_t modem)
+static bool modem_get_rssi(TsControllerMonarchRef_t modem)
 {
-	query_cmd_list[QUERY_SIG_STR].resp[0].pvt_data = &modem->rssi;
-	if (at_wcmd(&query_cmd_list[QUERY_SIG_STR]) != AT_WCMD_OK)
+	array_t rssi_data = {0, modem->rssi};
+	query_cmd_list[QUERY_RSSI].resp[0].pvt_data = &rssi_data;
+	if (at_wcmd(&query_cmd_list[QUERY_RSSI]) != AT_WCMD_OK)
 		return false;
+	modem->rssi[rssi_data.sz] = '\0';
 	return true;
 }
 
-static bool modem_get_ip_addr(TsControllerMonarchRef_t modem)
+static bool modem_get_ipv4_addr(TsControllerMonarchRef_t modem)
 {
 	array_t ip_data = {0, modem->ipv4_addr};
-	query_cmd_list[QUERY_IP_ADDR].resp[0].pvt_data = &ip_data;
-	if (at_wcmd(&query_cmd_list[QUERY_IP_ADDR]) != AT_WCMD_OK)
+	query_cmd_list[QUERY_IPV4_ADDR].resp[0].pvt_data = &ip_data;
+	if (at_wcmd(&query_cmd_list[QUERY_IPV4_ADDR]) != AT_WCMD_OK)
 		return false;
 	modem->ipv4_addr[ip_data.sz] = '\0';
 	return true;
@@ -277,16 +280,16 @@ static bool modem_get_iccid(TsControllerMonarchRef_t modem)
 	return true;
 }
 
-bool modem_get_ttz(TsControllerMonarchRef_t modem)
+static bool modem_get_date_and_time(TsControllerMonarchRef_t modem)
 {
-	query_cmd_list[QUERY_TTZ].resp[0].pvt_data = modem->ttz;
-	if (at_wcmd(&query_cmd_list[QUERY_TTZ]) != AT_WCMD_OK)
+	query_cmd_list[QUERY_DATE_AND_TIME].resp[0].pvt_data = modem->date_and_time;
+	if (at_wcmd(&query_cmd_list[QUERY_DATE_AND_TIME]) != AT_WCMD_OK)
 		return false;
-	modem->ttz[SIZEOF_TTZ] = '\0';
+	modem->date_and_time[SIZEOF_DATE_AND_TIME] = '\0';
 	return true;
 }
 
-bool modem_get_imsi(TsControllerMonarchRef_t modem)
+static bool modem_get_imsi(TsControllerMonarchRef_t modem)
 {
 	query_cmd_list[QUERY_IMSI].resp[0].pvt_data = modem->imsi;
 	if (at_wcmd(&query_cmd_list[QUERY_IMSI]) != AT_WCMD_OK)
@@ -295,33 +298,33 @@ bool modem_get_imsi(TsControllerMonarchRef_t modem)
 	return true;
 }
 
-bool modem_get_man_info(TsControllerMonarchRef_t modem)
+static bool modem_get_manufacturer(TsControllerMonarchRef_t modem)
 {
-	array_t man_data = {0, modem->man_info};
-	query_cmd_list[QUERY_MAN_INFO].resp[0].pvt_data = &man_data;
-	if (at_wcmd(&query_cmd_list[QUERY_MAN_INFO]) != AT_WCMD_OK)
+	array_t man_data = {0, modem->manufacturer};
+	query_cmd_list[QUERY_MANUFACTURER].resp[0].pvt_data = &man_data;
+	if (at_wcmd(&query_cmd_list[QUERY_MANUFACTURER]) != AT_WCMD_OK)
 		return false;
-	modem->man_info[man_data.sz] = '\0';
+	modem->manufacturer[man_data.sz] = '\0';
 	return true;
 }
 
-bool modem_get_mod_info(TsControllerMonarchRef_t modem)
+static bool modem_get_module_name(TsControllerMonarchRef_t modem)
 {
-	array_t mod_data = {0, modem->mod_info};
-	query_cmd_list[QUERY_MOD_INFO].resp[0].pvt_data = &mod_data;
-	if (at_wcmd(&query_cmd_list[QUERY_MOD_INFO]) != AT_WCMD_OK)
+	array_t mod_data = {0, modem->module_name};
+	query_cmd_list[QUERY_MODULE_NAME].resp[0].pvt_data = &mod_data;
+	if (at_wcmd(&query_cmd_list[QUERY_MODULE_NAME]) != AT_WCMD_OK)
 		return false;
-	modem->mod_info[mod_data.sz] = '\0';
+	modem->module_name[mod_data.sz] = '\0';
 	return true;
 }
 
-bool modem_get_fwver(TsControllerMonarchRef_t modem)
+static bool modem_get_firmware_version(TsControllerMonarchRef_t modem)
 {
-	array_t fwver_data = {0, modem->fwver};
-	query_cmd_list[QUERY_FW_VER].resp[0].pvt_data = &fwver_data;
-	if (at_wcmd(&query_cmd_list[QUERY_FW_VER]) != AT_WCMD_OK)
+	array_t fwver_data = {0, modem->firmware_version};
+	query_cmd_list[QUERY_FIRMWARE_VERSION].resp[0].pvt_data = &fwver_data;
+	if (at_wcmd(&query_cmd_list[QUERY_FIRMWARE_VERSION]) != AT_WCMD_OK)
 		return false;
-	modem->fwver[fwver_data.sz] = '\0';
+	modem->firmware_version[fwver_data.sz] = '\0';
 	return true;
 }
 
@@ -366,7 +369,7 @@ static bool process_startup_urcs(TsControllerMonarchRef_t m)
 	return true;
 }
 
-static bool modem_hw_reset(TsControllerMonarchRef_t m)
+static bool modem_hardware_reset(TsControllerMonarchRef_t m)
 {
 	m->modem_started = false;
 	at_clear_rxbuf();
@@ -378,21 +381,21 @@ static bool initialize_diag_table(TsControllerMonarchRef_t modem)
 {
 	if (!modem_get_imei(modem))
 		return false;
-	if (!modem_get_sig_str(modem))
+	if (!modem_get_rssi(modem))
 		return false;
-	if (!modem_get_ip_addr(modem))
+	if (!modem_get_ipv4_addr(modem))
 		return false;
 	if (!modem_get_iccid(modem))
 		return false;
-	if (!modem_get_ttz(modem))
+	if (!modem_get_date_and_time(modem))
 		return false;
 	if (!modem_get_imsi(modem))
 		return false;
-	if (!modem_get_man_info(modem))
+	if (!modem_get_manufacturer(modem))
 		return false;
-	if (!modem_get_mod_info(modem))
+	if (!modem_get_module_name(modem))
 		return false;
-	if (!modem_get_fwver(modem))
+	if (!modem_get_firmware_version(modem))
 		return false;
 	return true;
 }
@@ -400,14 +403,14 @@ static bool initialize_diag_table(TsControllerMonarchRef_t modem)
 void debug_diag(TsControllerMonarchRef_t modem)
 {
 	mdbg("IMEI: %s\n", modem->imei);
-	mdbg("RSSI: %u\n", modem->rssi);
+	mdbg("RSSI: %s\n", modem->rssi);
 	mdbg("IPV4: %s\n", modem->ipv4_addr);
 	mdbg("ICCID: %s\n", modem->iccid);
-	mdbg("Time & Timezone: %s\n", modem->ttz);
+	mdbg("Time & Timezone: %s\n", modem->date_and_time);
 	mdbg("IMSI: %s\n", modem->imsi);
-	mdbg("Manufacturer: %s\n", modem->man_info);
-	mdbg("Module: %s\n", modem->mod_info);
-	mdbg("Modem firmware version: %s\n", modem->fwver);
+	mdbg("Manufacturer: %s\n", modem->manufacturer);
+	mdbg("Module: %s\n", modem->module_name);
+	mdbg("Modem firmware version: %s\n", modem->firmware_version);
 }
 
 static TsStatus_t ts_create( TsControllerRef_t * controller ) {
@@ -438,7 +441,7 @@ static TsStatus_t ts_create( TsControllerRef_t * controller ) {
 	at_reg_urcs(NUM_URCS, urc_list);
 
 	mdbg("Reset the modem hardware\n");
-	modem_hw_reset(controller_monarch);
+	modem_hardware_reset(controller_monarch);
 
 	if (at_wcmd(&core_cmd_list[EPS_URC_SET]) != AT_WCMD_OK)
 		return TsStatusErrorInternalServerError;
@@ -646,19 +649,19 @@ static TsStatus_t ts_get_id(TsControllerRef_t controller, char *id)
 	return TsStatusOk;
 }
 
-static TsStatus_t ts_get_sig_str(TsControllerRef_t controller, uint8_t *rssi)
+static TsStatus_t ts_get_rssi(TsControllerRef_t controller, char *rssi)
 {
 	TsControllerMonarchRef_t modem = (TsControllerMonarchRef_t)controller;
-	if (!modem_get_sig_str(modem))
+	if (!modem_get_rssi(modem))
 		return TsStatusErrorInternalServerError;
-	*rssi = modem->rssi;
+	strncpy(rssi, modem->rssi, SIZEOF_RSSI);
 	return TsStatusOk;
 }
 
-static TsStatus_t ts_get_ip(TsControllerRef_t controller, char *ipv4_addr)
+static TsStatus_t ts_get_ipv4_addr(TsControllerRef_t controller, char *ipv4_addr)
 {
 	TsControllerMonarchRef_t modem = (TsControllerMonarchRef_t)controller;
-	if (!modem_get_ip_addr(modem))
+	if (!modem_get_ipv4_addr(modem))
 		return TsStatusErrorInternalServerError;
 	strncpy(ipv4_addr, modem->ipv4_addr, SIZEOF_IPV4);
 	return TsStatusOk;
@@ -671,12 +674,12 @@ static TsStatus_t ts_get_iccid(TsControllerRef_t controller, char *iccid)
 	return TsStatusOk;
 }
 
-static TsStatus_t ts_get_ttz(TsControllerRef_t controller, char *ttz)
+static TsStatus_t ts_get_date_and_time(TsControllerRef_t controller, char *date_and_time)
 {
 	TsControllerMonarchRef_t modem = (TsControllerMonarchRef_t)controller;
-	if (!modem_get_ttz(modem))
+	if (!modem_get_date_and_time(modem))
 		return TsStatusErrorInternalServerError;
-	strncpy(ttz, modem->ttz, SIZEOF_TTZ);
+	strncpy(date_and_time, modem->date_and_time, SIZEOF_DATE_AND_TIME);
 	return TsStatusOk;
 }
 
@@ -687,23 +690,23 @@ static TsStatus_t ts_get_imsi(TsControllerRef_t controller, char *imsi)
 	return TsStatusOk;
 }
 
-static TsStatus_t ts_get_man_info(TsControllerRef_t controller, char *man)
+static TsStatus_t ts_get_manufacturer(TsControllerRef_t controller, char *manufacturer)
 {
 	TsControllerMonarchRef_t modem = (TsControllerMonarchRef_t)controller;
-	strncpy(man, modem->man_info, SIZEOF_TEXT_INFO);
+	strncpy(manufacturer, modem->manufacturer, SIZEOF_TEXT_INFO);
 	return TsStatusOk;
 }
 
-static TsStatus_t ts_get_mod_info(TsControllerRef_t controller, char *mod)
+static TsStatus_t ts_get_module_name(TsControllerRef_t controller, char *module_name)
 {
 	TsControllerMonarchRef_t modem = (TsControllerMonarchRef_t)controller;
-	strncpy(mod, modem->mod_info, SIZEOF_TEXT_INFO);
+	strncpy(module_name, modem->module_name, SIZEOF_TEXT_INFO);
 	return TsStatusOk;
 }
 
-static TsStatus_t ts_get_fwver(TsControllerRef_t controller, char *ver)
+static TsStatus_t ts_get_firmware_version(TsControllerRef_t controller, char *firmware_version)
 {
 	TsControllerMonarchRef_t modem = (TsControllerMonarchRef_t)controller;
-	strncpy(ver, modem->fwver, SIZEOF_TEXT_INFO);
+	strncpy(firmware_version, modem->firmware_version, SIZEOF_TEXT_INFO);
 	return TsStatusOk;
 }
