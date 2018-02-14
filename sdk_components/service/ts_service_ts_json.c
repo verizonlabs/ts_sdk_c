@@ -55,6 +55,7 @@ static TsStatus_t ts_enqueue( TsServiceRef_t service, TsMessageRef_t sensor ) {
 
 	ts_status_trace("ts_service_enqueue\n");
 
+	// TODO - remove hardcoded values
 	const char * unit_name = "unit-name";
 	const char * unit_serial_number = "unit-serial-number";
 
@@ -68,25 +69,29 @@ static TsStatus_t ts_enqueue( TsServiceRef_t service, TsMessageRef_t sensor ) {
 	ts_message_set_string(message, "unitName", (char*)unit_name);
 	ts_message_set_string(message, "unitMacId", (char*)id );
 	ts_message_set_string(message, "unitSerialNo", (char*)unit_serial_number);
-	ts_message_create_message(message, "sensor", &sensors);
-	ts_message_create_array(sensors, "characteristics", &characteristics);
 
-	// for each field of the message,...
-	for (int i = 0; i < TS_MESSAGE_MAX_BRANCHES; i++) {
+	if( sensor->value._xfields[0] != NULL ) {
 
-		// the "for-each" behavior terminates on a NULL or max-size
-		TsMessageRef_t branch = sensor->value._xfields[i];
-		if (branch == NULL) {
-			break;
+		ts_message_create_message(message, "sensor", &sensors);
+		ts_message_create_array(sensors, "characteristics", &characteristics);
+
+		// for each field of the message,...
+		for (int i = 0; i < TS_MESSAGE_MAX_BRANCHES; i++) {
+
+			// the "for-each" behavior terminates on a NULL or max-size
+			TsMessageRef_t branch = sensor->value._xfields[i];
+			if (branch == NULL) {
+				break;
+			}
+
+			/* transform into the form expected by the server */
+			TsMessageRef_t characteristic;
+			ts_message_create(&characteristic);
+			ts_message_set_string(characteristic, "characteristicsName", branch->name);
+			ts_message_set(characteristic, "currentValue", branch);
+			ts_message_set_message_at(characteristics, (size_t)i, characteristic);
+			ts_message_destroy(characteristic);
 		}
-
-		/* transform into the form expected by the server */
-		TsMessageRef_t characteristic;
-		ts_message_create(&characteristic);
-		ts_message_set_string(characteristic, "characteristicsName", branch->name);
-		ts_message_set(characteristic, "currentValue", branch);
-		ts_message_set_message_at(characteristics, (size_t)i, characteristic);
-		ts_message_destroy(characteristic);
 	}
 
 	// encode copy to send buffer
@@ -197,9 +202,15 @@ static TsStatus_t handler_activate( TsServiceRef_t service, TsMessageRef_t messa
 
 	ts_status_trace("ts_service_handler_activate\n");
 
-	// TODO - delegate
+	TsMessageRef_t payload;
+	ts_message_create( &payload );
 
-	return TsStatusOk;
+	TsServiceHandler_t service_handler = service->_handlers[ TsServiceActionActivateIndex ];
+	if( service_handler != NULL ) {
+
+		service_handler( service, TsServiceActionActivate, payload );
+	}
+	return ts_enqueue( service, payload );
 }
 
 /**
@@ -267,8 +278,8 @@ static TsStatus_t handler( TsTransportRef_t transport, void * data, TsPath_t pat
 
 			// onboard, note that the message will be modified 'in-place'
 			// and must be returned with the correct status
-			status = handler_activate( service, message );
-			break;
+			ts_message_destroy( message );
+			return handler_activate( service, message );
 
 		default:
 
@@ -280,7 +291,7 @@ static TsStatus_t handler( TsTransportRef_t transport, void * data, TsPath_t pat
 	}
 
 	// attempt to respond
-	char * command_uuid;
+	char * command_uuid = NULL;
 	ts_message_get_string( message, "commandUUID", &command_uuid );
 	if( command_uuid != NULL && strlen(command_uuid) > 0 ) {
 
