@@ -560,8 +560,13 @@ static TsStatus_t ts_read( TsControllerRef_t controller, const uint8_t * buffer,
 	ts_platform_assert( *buffer_size > 0 );
 
 	TsControllerMonarchRef_t controller_monarch = (TsControllerMonarchRef_t)controller;
-	if (controller_monarch->unread_tcp == 0)
-		return TsStatusOkReadPending;
+
+	if (controller_monarch->unread_tcp == 0) {
+		if (controller_monarch->tcp_connected && controller_monarch->reg_to_net)
+			return TsStatusOkReadPending;
+		mdbg("Attempting to read when not connected to TCP\n");
+		return TsStatusErrorConnectionReset;
+	}
 
 	if (*buffer_size > MAX_TCP_DATA_LEN)
 		*buffer_size = MAX_TCP_DATA_LEN;
@@ -603,8 +608,8 @@ static TsStatus_t ts_write( TsControllerRef_t controller, const uint8_t * buffer
 
 	TsControllerMonarchRef_t controller_monarch = (TsControllerMonarchRef_t)controller;
 
-	if (!controller_monarch->tcp_connected) {
-		mdbg("Unable to send, TCP not connected\n");
+	if (!controller_monarch->tcp_connected || !controller_monarch->reg_to_net) {
+		mdbg("Attempting to send bytes when not connected to TCP\n");
 		if (!controller_monarch->tcp_peer_close)
 			ts_platform_assert(false);
 		else
@@ -626,17 +631,9 @@ static TsStatus_t ts_write( TsControllerRef_t controller, const uint8_t * buffer
 	tcp_write = &tcp_cmd_list[SOCK_SEND_DATA];
 	tcp_write->cmd = (const char *)buffer;
 	tcp_write->cmd_len = *buffer_size;
-	//at_toggle_cmd_echo(false);
 	if (at_wcmd(tcp_write) != AT_WCMD_OK) {
 		mdbg("TCP write failed\n");
-		//at_toggle_cmd_echo(true);
 		return TsStatusErrorInternalServerError;
-	}
-	//at_toggle_cmd_echo(true);
-
-	if (!controller_monarch->tcp_connected || !controller_monarch->reg_to_net) {
-		mdbg("TCP dropped in middle of write\n");
-		return TsStatusErrorConnectionReset;
 	}
 
 	return TsStatusOk;
