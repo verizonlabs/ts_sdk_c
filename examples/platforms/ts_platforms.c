@@ -1,5 +1,6 @@
 // Copyright (C) 2017, 2018 Verizon, Inc. All rights reserved.
 #include "ts_platforms.h"
+#include "ts_mutex.h"
 
 // platform binding
 #if defined(TS_PLATFORM_UNIX)

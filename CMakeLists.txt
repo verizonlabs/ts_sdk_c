@@ -18,15 +18,15 @@ endif()
 project( ts_sdk_c C CXX ASM )
 message( STATUS "## Build Type            (Debug|Release) : ${CMAKE_BUILD_TYPE}" )
 
-# build vendor libraries
-add_definitions( -D__GLIBC__ )              # TODO, remove tinyCBOR HACK
-add_subdirectory( sdk_dependencies )
-
 # component selection
 add_definitions( -DTS_SERVICE_TS_JSON )     # TS_JSON, TS_CBOR or CUSTOM
 add_definitions( -DTS_TRANSPORT_MQTT )      # MQTT or CUSTOM
 add_definitions( -DTS_SECURITY_MBED )       # MBED, MOCANA, NONE or CUSTOM
 add_definitions( -DTS_CONTROLLER_NONE )     # MONARCH, NONE or CUSTOM
+
+# build vendor libraries
+add_definitions( -D__GLIBC__ )              # TODO, remove tinyCBOR HACK
+add_subdirectory( sdk_dependencies )
 
 # build object libraries
 add_subdirectory( sdk_components )
@@ -35,7 +35,17 @@ add_subdirectory( sdk )
 # build common static library
 # (depends on components and dependencies)
 add_library( ts_sdk STATIC $<TARGET_OBJECTS:ts_sdk_apis> $<TARGET_OBJECTS:ts_sdk_components> )
-target_link_libraries( ts_sdk tinycbor cjson mbedtls pahomqtt )
+target_link_libraries( ts_sdk tinycbor cjson pahomqtt )
+
+# link only one version from the security dependencies
+get_directory_property( DEFINITIONS COMPILE_DEFINITIONS )
+if( DEFINITIONS MATCHES TS_SECURITY_MBED )
+    target_link_libraries( ts_sdk mbedtls )
+
+elseif( DEFINITIONS MATCHES TS_SECURITY_MOCANA )
+    target_link_libraries( ts_sdk mocana )
+
+endif()
 
 # build optional examples
 option( BUILD_EXAMPLES "Compile example platforms and applications" OFF )
@@ -51,7 +61,7 @@ if( BUILD_EXAMPLES )
     #   none_nucleo-f401re      Bare-metal STMicro Nucleo F401RE
     #   none_nucleo-l476        Bare-metal STMicro Nucleo L476
     #   windows                 Microsoft Windows variants
-    set( TS_PLATFORM unix CACHE STRING "RTOS and Hardware Platform" FORCE )
+    set( TS_PLATFORM unix_raspberry-pi3 CACHE STRING "RTOS and Hardware Platform" FORCE )
 
     # platform driver configuration
     add_definitions( -DTS_DRIVER_SOCKET )   # SERIAL, SOCKET, UART or CUSTOM

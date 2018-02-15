@@ -18,4 +18,12 @@ target_include_directories( ts_sdk_components PRIVATE
     ${CMAKE_SOURCE_DIR}/sdk_dependencies/tinycbor/src
     ${CMAKE_SOURCE_DIR}/sdk_dependencies/mbedtls/include
     ${CMAKE_SOURCE_DIR}/sdk_dependencies/paho.mqtt.embedded-c/MQTTPacket/src
-    ${CMAKE_SOURCE_DIR}/sdk_dependencies/paho.mqtt.embedded-c/MQTTClient-C/src )
+    ${CMAKE_SOURCE_DIR}/sdk_dependencies/paho.mqtt.embedded-c/MQTTClient-C/src
+    ${CMAKE_SOURCE_DIR}/sdk_dependencies/mocana/src )
+
+# note - mocana specific defines
+target_compile_definitions( ts_sdk_components PRIVATE
+    __RTOS_TSSDK__
+    __ENABLE_MOCANA_SSL_CLIENT__
+    __ENABLE_MOCANA_SSL_ASYNC_CLIENT_API__
+    __ENABLE_MOCANA_SSL_DUAL_MODE_API__ )

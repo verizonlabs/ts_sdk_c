@@ -1,4 +1,5 @@
 // Copyright (C) 2017, 2018 Verizon, Inc. All rights reserved.
+#if defined( TS_SECURITY_MBED )
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -753,3 +754,4 @@ int mbedtls_hardware_poll(void *data, unsigned char *output, size_t len, size_t 
 	*olen = len;
 	return 0;
 }
+#endif // TS_SECURITY_MBED
