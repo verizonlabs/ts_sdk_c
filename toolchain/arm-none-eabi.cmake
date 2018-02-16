@@ -75,10 +75,11 @@ set( CMAKE_CXX_FLAGS_DEBUG "-std=c++11 -O0 -g" CACHE INTERNAL "c++ compiler debu
 set( CMAKE_ASM_FLAGS_DEBUG "-g" CACHE INTERNAL "assembler debug flags" )
 set( CMAKE_EXE_LINKER_FLAGS_DEBUG "" CACHE INTERNAL "linker debug flags" )
 
-set( CMAKE_C_FLAGS_RELEASE "-std=c99 -O2 -flto" CACHE INTERNAL "c compiler release flags" )
-set( CMAKE_CXX_FLAGS_RELEASE "-std=c++11 -O2 -flto" CACHE INTERNAL "c++ compiler release flags" )
+# TODO: Get LTO working. Alternatively, try using Cmake's INTERPROCEDURAL_OPTIMIZATION.
+set( CMAKE_C_FLAGS_RELEASE "-std=c99 -O2" CACHE INTERNAL "c compiler release flags" )
+set( CMAKE_CXX_FLAGS_RELEASE "-std=c++11 -O2" CACHE INTERNAL "c++ compiler release flags" )
 set( CMAKE_ASM_FLAGS_RELEASE "" CACHE INTERNAL "assembler release flags" )
-set( CMAKE_EXE_LINKER_FLAGS_RELEASE "-flto" CACHE INTERNAL "linker release flags" )
+set( CMAKE_EXE_LINKER_FLAGS_RELEASE "" CACHE INTERNAL "linker release flags" )
 
 set( CMAKE_FIND_ROOT_PATH ${TOOLCHAIN_PREFIX}/${TARGET_TRIPLET} )
 set( CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER )
