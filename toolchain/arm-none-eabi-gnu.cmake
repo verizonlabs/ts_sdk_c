@@ -39,11 +39,11 @@ set( CMAKE_OBJDUMP "${TOOLCHAIN_BIN_DIR}/${OBJDUMP}" CACHE INTERNAL "objdump too
 set( CMAKE_SIZE "${TOOLCHAIN_BIN_DIR}/${SIZE}" CACHE INTERNAL "size tool" )
 set( CMAKE_CPPFILT "${TOOLCHAIN_BIN_DIR}/${CPPFILT}" CACHE INTERNAL "c++filt" )
 
-execute_process( COMMAND ${CMAKE_C_COMPILER} --print-file-name=liblto_plugin.so OUTPUT_VARIABLE lto_plugin )
+execute_process( COMMAND ${CMAKE_C_COMPILER} --print-file-name=liblto_plugin.so OUTPUT_VARIABLE LTO_PLUGIN OUTPUT_STRIP_TRAILING_WHITESPACE )
 
 if( CMAKE_BUILD_TYPE STREQUAL "Release" )
-	set( CMAKE_C_ARCHIVE_CREATE "<CMAKE_AR> qc --plugin ${lto_plugin} <TARGET> <LINK_FLAGS> <OBJECTS>" )
-	set( CMAKE_C_ARCHIVE_FINISH "<CMAKE_RANLIB> <TARGET>" )
+	set( CMAKE_C_ARCHIVE_CREATE "<CMAKE_AR> qc --plugin ${LTO_PLUGIN} <TARGET> <LINK_FLAGS> <OBJECTS>" )
+	set( CMAKE_C_ARCHIVE_FINISH "<CMAKE_RANLIB> --plugin ${LTO_PLUGIN} <TARGET>" )
 endif()
 
 # By default, turn on the floating point unit hardware. Most Cortex-M4s seem to have it.
@@ -92,7 +92,6 @@ set( CMAKE_CXX_FLAGS_DEBUG "-std=c++11 -O0 -g" CACHE INTERNAL "c++ compiler debu
 set( CMAKE_ASM_FLAGS_DEBUG "-g" CACHE INTERNAL "assembler debug flags" )
 set( CMAKE_EXE_LINKER_FLAGS_DEBUG "" CACHE INTERNAL "linker debug flags" )
 
-# TODO: Get LTO working. Alternatively, try using Cmake's INTERPROCEDURAL_OPTIMIZATION.
 set( CMAKE_C_FLAGS_RELEASE "-std=c99 -O2 -flto" CACHE INTERNAL "c compiler release flags" )
 set( CMAKE_CXX_FLAGS_RELEASE "-std=c++11 -O2 -flto" CACHE INTERNAL "c++ compiler release flags" )
 set( CMAKE_ASM_FLAGS_RELEASE "" CACHE INTERNAL "assembler release flags" )
