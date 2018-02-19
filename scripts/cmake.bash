@@ -20,7 +20,7 @@
 cmake . -B./cmake-build-debug \
 	-DCMAKE_BUILD_TYPE=Debug \
 	-DTOOLCHAIN_PREFIX=/Users/v768213/work/cortexm/gcc-arm-none-eabi-7-2017-q4-major \
-	-DCMAKE_TOOLCHAIN_FILE=/Users/v768213/work/ts_sdk_c/toolchain/arm-none-eabi.cmake
+	-DCMAKE_TOOLCHAIN_FILE=/Users/v768213/work/ts_sdk_c/toolchain/arm-none-eabi-gnu.cmake
 
 # Build the SDK as a library and the examples as well. Notice how MCU_HAL is required in this case.
 cmake . -B./cmake-build-debug \
@@ -28,4 +28,4 @@ cmake . -B./cmake-build-debug \
 	-DCMAKE_BUILD_TYPE=Debug \
 	-DTOOLCHAIN_PREFIX=/Users/v768213/work/cortexm/gcc-arm-none-eabi-7-2017-q4-major \
 	-DMCU_HAL=/Users/v768213/work/cortexm/STM32Cube_FW_L4_V1.11.0 \
-	-DCMAKE_TOOLCHAIN_FILE=/Users/v768213/work/ts_sdk_c/toolchain/arm-none-eabi.cmake
+	-DCMAKE_TOOLCHAIN_FILE=/Users/v768213/work/ts_sdk_c/toolchain/arm-none-eabi-gnu.cmake
