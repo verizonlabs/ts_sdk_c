@@ -5,18 +5,12 @@
 # device certificate and device private key and installs them at the relative provided path
 # All the parameters are mandatory and script must be run from the root of the repository
 
-SCRIPT_NAME=`basename "$0"`
-SCRIPT="scripts/$SCRIPT_NAME"
-
-if ! [ -f $SCRIPT ]; then
-	echo "Script must be run from the root of the repository"
-	exit 1
-fi
-
 if [ $# -lt 4 ]; then
   echo "This script takes 4 params"
   echo
-  echo "$0 <ca cert> <client certificate> <client private key> <relative install path>"
+  echo "$0 <path to ca cert> <path to client certificate> <path to client private key> <path to install directory>"
+  echo "Example (assuming script is being executed from the top level of the project):"
+  echo "$0 ~/Downloads/thingspaceserver.pem ~/Downloads/357353080059530.cert.pem ~/Downloads/357353080059530.private.key ./examples/applications/simple/include"
   echo
   exit 1
 fi
