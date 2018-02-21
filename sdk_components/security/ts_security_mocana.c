@@ -80,12 +80,6 @@ static TsStatus_t ts_create(TsSecurityRef_t * security) {
 		return TsStatusErrorInternalServerError;
 	}
 
-	// initialize NanoSSL certificate store
-	certStorePtr cert_store;
-	mstatus = CERT_STORE_createStore( &cert_store );
-	if( mstatus != OK ) {
-		return TsStatusErrorInternalServerError;
-	}
 
 	// first, allocate and initialize controller memory
 	TsControllerRef_t controller;
@@ -101,7 +95,7 @@ static TsStatus_t ts_create(TsSecurityRef_t * security) {
 	(*security)->_profile = NULL;
 
 	// mocana specific attributes
-	mocana->_cert_store = cert_store;
+	mocana->_cert_store = NULL;
 	mocana->_clcert = NULL;
 	mocana->_clkey = NULL;
 	mocana->_cacert_hostname = NULL;
@@ -160,8 +154,14 @@ static TsStatus_t ts_set_server_cert(TsSecurityRef_t security, const uint8_t * c
 	ts_platform_assert(security != NULL);
 
 	TsSecurityMocanaRef_t mocana = (TsSecurityMocanaRef_t) (security);
-	MSTATUS status = CERT_STORE_addTrustPoint( mocana->_cert_store, cacert, (ubyte4)cacert_size );
-	if( status != OK ) {
+	if( mocana->_cert_store == NULL ) {
+		MSTATUS mstatus = CERT_STORE_createStore( &(mocana->_cert_store) );
+		if( mstatus < OK ) {
+			return TsStatusErrorInternalServerError;
+		}
+	}
+	MSTATUS mstatus = CERT_STORE_addTrustPoint( mocana->_cert_store, cacert, (ubyte4)cacert_size );
+	if( mstatus != OK ) {
 		return TsStatusErrorInternalServerError;
 	}
 
@@ -174,6 +174,12 @@ static TsStatus_t ts_set_client_cert(TsSecurityRef_t security, const uint8_t * c
 	ts_platform_assert(security != NULL);
 
 	TsSecurityMocanaRef_t mocana = (TsSecurityMocanaRef_t) (security);
+	if( mocana->_cert_store == NULL ) {
+		MSTATUS mstatus = CERT_STORE_createStore( &(mocana->_cert_store) );
+		if( mstatus < OK ) {
+			return TsStatusErrorInternalServerError;
+		}
+	}
 	mocana->_clcert = clcert;
 	mocana->_clcert_size = clcert_size;
 	if( mocana->_clkey != NULL && mocana->_clkey_size != 0 ) {
@@ -192,6 +198,12 @@ static TsStatus_t ts_set_client_key(TsSecurityRef_t security, const uint8_t * cl
 	ts_platform_assert(security != NULL);
 
 	TsSecurityMocanaRef_t mocana = (TsSecurityMocanaRef_t) (security);
+	if( mocana->_cert_store == NULL ) {
+		MSTATUS mstatus = CERT_STORE_createStore( &(mocana->_cert_store) );
+		if( mstatus < OK ) {
+			return TsStatusErrorInternalServerError;
+		}
+	}
 	mocana->_clkey = clkey;
 	mocana->_clkey_size = clkey_size;
 	if( mocana->_clcert != NULL && mocana->_clcert_size != 0 ) {
