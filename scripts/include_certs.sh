@@ -5,7 +5,7 @@
 # device certificate and device private key and installs them at the relative provided path
 # All the parameters are mandatory and script must be run from the root of the repository
 
-# Must have a recent (2017) version of openssl installed
+# Must have GNU sed installed
 
 if [ $# -lt 4 ]; then
   echo "This script takes 4 params"
@@ -28,13 +28,25 @@ check_success()
 	fi
 }
 
+cpu="/proc/cpuinfo"
+rpi_id=$( [[ -e $cpu ]] && grep Hardware $cpu | cut -d ":" -f 2 | tr -d ' ')
+
+cert_prefix=""
+if [[ "$rpi_id" == "BCM2835" ]]; then
+	echo "Running on the Raspberry Pi 3"
+	cert_prefix="the"
+else
+	echo "Running on regular unix"
+	cert_prefix="XXX"
+fi
+
 #parse ca cert pem formated file
-openssl x509 -C -in $1 -out cacert.temp
+openssl x509 -C -in $1 >cacert.temp
 check_success "openssl command failed"
 
-sed -n '/the_certificate/,/}/ w cacert' cacert.temp
+sed -n "/${cert_prefix}_certificate/,/}/ w cacert" cacert.temp
 check_success "sed command failed"
-sed -i 's/unsigned char the_certificate/static const unsigned char cacert_buf/' cacert
+sed -i "s/unsigned char ${cert_prefix}_certificate/static const unsigned char cacert_buf/" cacert
 check_success "sed command to generate cacert failed"
 echo '#define VERIZON_CA_H' | cat - cacert > temp && mv temp cacert
 echo '#ifndef VERIZON_CA_H' | cat - cacert > temp && mv temp cacert
@@ -47,9 +59,9 @@ rm -rf cacert.temp
 #parse client certificate
 openssl x509 -C -in $2 >clcert.temp
 check_success "openssl command failed for parsig client certificate"
-sed -n '/the_certificate/,/}/ w clcert' clcert.temp
+sed -n "/${cert_prefix}_certificate/,/}/ w clcert" clcert.temp
 check_success "sed command failed"
-sed -i 's/unsigned char the_certificate/static const unsigned char client_cert/' clcert
+sed -i "s/unsigned char ${cert_prefix}_certificate/static const unsigned char client_cert/" clcert
 check_success "sed command to generate cacert failed"
 echo '#define VERIZON_CL_H' | cat - clcert > temp && mv temp clcert
 echo '#ifndef VERIZON_CL_H' | cat - clcert > temp && mv temp clcert
