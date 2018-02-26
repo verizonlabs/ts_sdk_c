@@ -41,6 +41,8 @@ set( CMAKE_CPPFILT "${TOOLCHAIN_BIN_DIR}/${CPPFILT}" CACHE INTERNAL "c++filt" )
 
 execute_process( COMMAND ${CMAKE_C_COMPILER} --print-file-name=liblto_plugin.so OUTPUT_VARIABLE LTO_PLUGIN OUTPUT_STRIP_TRAILING_WHITESPACE )
 
+# In order to use Link Time Optimization (LTO), we need to use a GCC plugin. Currently, LTO works with GCC v4.9.3 and not with GCC v7.2.1 at
+# least for the embedded toolchain case.
 if( CMAKE_BUILD_TYPE STREQUAL "Release" )
 	set( CMAKE_C_ARCHIVE_CREATE "<CMAKE_AR> qc --plugin ${LTO_PLUGIN} <TARGET> <LINK_FLAGS> <OBJECTS>" )
 	set( CMAKE_C_ARCHIVE_FINISH "<CMAKE_RANLIB> --plugin ${LTO_PLUGIN} <TARGET>" )
@@ -77,6 +79,7 @@ set( ARCHFLAGS "-mthumb ${CPU_TYPE_FLAG} ${FP_FLAG} -mfpu=fpv4-sp-d16" CACHE INT
 # TODO: Do we want to set "-Wcast-align" here?
 set( COMMON_COMPILER_FLAGS "${ARCHFLAGS} -Wall -fdata-sections -ffunction-sections" CACHE INTERNAL "Common compiler flags" )
 
+# Make sure to remove unused functions and unused data.
 # nano.specs and nosys.specs links to the Newlib-nano library and eliminates dependencies on system functions
 # typically not present on embedded systems. This includes routines such as exit, write, sbrk etc.
 # Also enable floats to work with the (s|v|sn)*printf family of functions.
@@ -87,15 +90,15 @@ set( CMAKE_CXX_FLAGS "${COMMON_COMPILER_FLAGS}" CACHE INTERNAL "c++ compiler fla
 set( CMAKE_ASM_FLAGS "${ARCHFLAGS}" CACHE INTERNAL "assembler flags" )
 set( CMAKE_EXE_LINKER_FLAGS "${COMMON_LINKER_FLAGS}" CACHE INTERNAL "linker flags" )
 
-set( CMAKE_C_FLAGS_DEBUG "-std=c99 -O0 -g" CACHE INTERNAL "c compiler debug flags" )
-set( CMAKE_CXX_FLAGS_DEBUG "-std=c++11 -O0 -g" CACHE INTERNAL "c++ compiler debug flags" )
-set( CMAKE_ASM_FLAGS_DEBUG "-g" CACHE INTERNAL "assembler debug flags" )
+set( CMAKE_C_FLAGS_DEBUG "-std=c99 -O0 -g3" CACHE INTERNAL "c compiler debug flags" )
+set( CMAKE_CXX_FLAGS_DEBUG "-std=c++11 -O0 -g3" CACHE INTERNAL "c++ compiler debug flags" )
+set( CMAKE_ASM_FLAGS_DEBUG "-g3" CACHE INTERNAL "assembler debug flags" )
 set( CMAKE_EXE_LINKER_FLAGS_DEBUG "" CACHE INTERNAL "linker debug flags" )
 
-set( CMAKE_C_FLAGS_RELEASE "-std=c99 -O2 -flto" CACHE INTERNAL "c compiler release flags" )
+set( CMAKE_C_FLAGS_RELEASE "-std=gnu11 -Os -flto" CACHE INTERNAL "c compiler release flags" )
 set( CMAKE_CXX_FLAGS_RELEASE "-std=c++11 -O2 -flto" CACHE INTERNAL "c++ compiler release flags" )
 set( CMAKE_ASM_FLAGS_RELEASE "" CACHE INTERNAL "assembler release flags" )
-set( CMAKE_EXE_LINKER_FLAGS_RELEASE "-flto" CACHE INTERNAL "linker release flags" )
+set( CMAKE_EXE_LINKER_FLAGS_RELEASE "-Os" CACHE INTERNAL "linker release flags" )
 
 set( CMAKE_FIND_ROOT_PATH ${TOOLCHAIN_PREFIX}/${TARGET_TRIPLET} )
 set( CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER )
