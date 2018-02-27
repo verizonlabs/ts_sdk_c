@@ -9,16 +9,30 @@
 extern "C" {
 #endif
 
-//extern TsPlatformVtable_t ts_platform_unix;
+// TODO: Use the development board along with the platform name to make a decision
+// about what platform implementation to use.
+
 //extern TsPlatformVtable_t ts_platform_windows;
-//extern TsPlatformVtable_t ts_platform_unix_raspberry_pi3;
 //extern TsPlatformVtable_t ts_platform_none_freedom;
-extern TsPlatformVtable_t ts_platform_none_nucleo;
 //extern TsPlatformVtable_t ts_platform_threadX_renasas_s5;
 
-//extern TsDriverVtable_t ts_driver_unix_socket;
-//extern TsDriverVtable_t ts_driver_unix_serial;
+#if defined(TS_PLATFORM_UNIX)
+extern TsPlatformVtable_t ts_platform_unix;
+#if defined(TS_DRIVER_SERIAL)
+extern TsDriverVtable_t ts_driver_unix_serial;
+#else
+extern TsDriverVtable_t ts_driver_unix_socket;
+#endif
+#elif defined(TS_PLATFORM_NONE)
+extern TsPlatformVtable_t ts_platform_none_nucleo;
+#if defined(TS_DRIVER_UART)
 extern TsDriverVtable_t ts_driver_none_uart;
+#endif
+#elif defined(TS_PLATFORM_CUSTOM)
+// Do nothing
+#else
+#warning "TS_PLATFORM_<TYPE> not defined, options include UNIX, NONE or CUSTOM"
+#endif
 
 #ifdef __cplusplus
 }
