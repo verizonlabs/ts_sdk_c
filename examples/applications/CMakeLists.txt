@@ -8,6 +8,9 @@ include_directories( ${CMAKE_SOURCE_DIR}/sdk_dependencies/tinycbor/src )
 
 function (load_link_time_settings target_dest target_platform)
 	get_target_property(ldscript ${target_platform} LINK_FLAGS)
+	if ( NOT ${ldscript} )
+		return ()
+	endif()
 	set_target_properties( ${target_dest} PROPERTIES LINK_FLAGS ${ldscript} )
 endfunction()
 
