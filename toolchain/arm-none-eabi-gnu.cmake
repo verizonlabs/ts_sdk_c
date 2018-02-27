@@ -96,7 +96,7 @@ set( CMAKE_ASM_FLAGS_DEBUG "-g3" CACHE INTERNAL "assembler debug flags" )
 set( CMAKE_EXE_LINKER_FLAGS_DEBUG "" CACHE INTERNAL "linker debug flags" )
 
 set( CMAKE_C_FLAGS_RELEASE "-std=gnu11 -Os -flto" CACHE INTERNAL "c compiler release flags" )
-set( CMAKE_CXX_FLAGS_RELEASE "-std=c++11 -O2 -flto" CACHE INTERNAL "c++ compiler release flags" )
+set( CMAKE_CXX_FLAGS_RELEASE "-std=c++11 -Os -flto" CACHE INTERNAL "c++ compiler release flags" )
 set( CMAKE_ASM_FLAGS_RELEASE "" CACHE INTERNAL "assembler release flags" )
 set( CMAKE_EXE_LINKER_FLAGS_RELEASE "-Os" CACHE INTERNAL "linker release flags" )
 
