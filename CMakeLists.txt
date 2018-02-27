@@ -30,7 +30,7 @@ add_subdirectory( sdk_dependencies )
 add_definitions( -DTS_SERVICE_TS_JSON )     # TS_JSON, TS_CBOR or CUSTOM
 add_definitions( -DTS_TRANSPORT_MQTT )      # MQTT or CUSTOM
 add_definitions( -DTS_SECURITY_MBED )       # MBED, MOCANA, NONE or CUSTOM
-add_definitions( -DTS_CONTROLLER_MONARCH )     # MONARCH, NONE or CUSTOM
+add_definitions( -DTS_CONTROLLER_NONE )     # MONARCH, NONE or CUSTOM
 
 # build object libraries
 add_subdirectory( sdk_components )
@@ -55,11 +55,11 @@ if( BUILD_EXAMPLES )
     #   none_nucleo-f401re      Bare-metal STMicro Nucleo F401RE
     #   none_nucleo-l476        Bare-metal STMicro Nucleo L476
     #   windows                 Microsoft Windows variants
-    set( TS_PLATFORM none_nucleo-l476 CACHE STRING "RTOS and Hardware Platform" FORCE )
+    set( TS_PLATFORM unix_raspberry-pi3 CACHE STRING "RTOS and Hardware Platform" FORCE )
 
     # platform driver configuration
-    add_definitions( -DTS_DRIVER_UART )   # SERIAL, SOCKET, UART or CUSTOM
-    add_definitions( -DTS_PLATFORM_NONE )   # TODO, remove,...
+    add_definitions( -DTS_DRIVER_SOCKET )   # SERIAL, SOCKET, UART or CUSTOM
+    add_definitions( -DTS_PLATFORM_UNIX )   # TODO, remove,...
 
     # build example executables
     add_subdirectory( examples )
