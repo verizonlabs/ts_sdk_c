@@ -104,7 +104,7 @@ void ts_status_printf( TsStatusLevel_t level, const char * file, int line, const
 		snprintf( htick, sizeof(htick), "%d:%02d:%02d.%06d", hours, minutes, seconds, useconds );
 
 		// output status message
-		ts_platform->printf( "%-5s : [%-21s][%-27s][%-12s] : ", hlevel, htick, hfile, func );
+		ts_platform->printf( "%-5s : [%-19s][%-24s][%-12s] : ", hlevel, htick, hfile, func );
 		ts_platform->vprintf( format, argp );
 		va_end( argp );
 	}

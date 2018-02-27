@@ -1,12 +1,23 @@
 # Copyright (C) 2017, Verizon, Inc. All rights reserved.
 # ThingSpace Dependencies
 
-# #############################################################################
-# library, mbedTLS
+# get current compiler directives
+get_directory_property( DEFINITIONS COMPILE_DEFINITIONS )
 
-set( ENABLE_PROGRAMS OFF CACHE BOOL "Disable mbedtls program compilation" FORCE )
-set( ENABLE_TESTING OFF CACHE BOOL "Disable mbedtls testing compilation" FORCE )
-add_subdirectory( mbedtls_custom )
+# #############################################################################
+# optional library, mocana
+if( DEFINITIONS MATCHES TS_SECURITY_MOCANA )
+    add_subdirectory( mocana )
+endif()
+
+# #############################################################################
+# optional library, mbedTLS
+
+if( DEFINITIONS MATCHES TS_SECURITY_MBED )
+    set( ENABLE_PROGRAMS OFF CACHE BOOL "Disable mbedtls program compilation" FORCE )
+    set( ENABLE_TESTING OFF CACHE BOOL "Disable mbedtls testing compilation" FORCE )
+    add_subdirectory( mbedtls_custom )
+endif()
 
 # #############################################################################
 # library, TINY-CBOR

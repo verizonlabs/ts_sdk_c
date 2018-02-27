@@ -28,3 +28,6 @@
 [submodule "sdk_dependencies/mbedtls_custom"]
 	path = sdk_dependencies/mbedtls_custom
 	url = https://github.com/verizonlabs/mbedtls_custom.git
+[submodule "sdk_dependencies/mocana"]
+	path = sdk_dependencies/mocana
+	url = https://github.com/verizonlabs/mocana.git
