@@ -15,19 +15,15 @@
 static TsMessageRef_t sensors;
 
 // forward references
-static TsStatus_t initialize( TsServiceRef_t* );
+//static TsStatus_t initialize( TsServiceRef_t* );
 static TsStatus_t handler( TsServiceRef_t, TsServiceAction_t, TsMessageRef_t );
 static TsStatus_t usage(int argc, char *argv[], char ** hostname_and_port, char ** host, char ** port );
 
 int main(int argc, char *argv[]) {
 
 	// initialize platform (see ts_platform.h)
-	// TODO - waiting for ts_platform.h clean-up,...
-	//TsStatus_t status = ts_platform_initialize();
-	//if( status != TsStatusOk ) {
-	//	ts_status_debug( "failed to initialize platform, %s\n", ts_status_string(status) );
-	//	return 0;
-	//}
+	ts_platform_initialize();
+
 	// initialize status reporting level (see ts_status.h)
 	ts_status_set_level( TsStatusLevelDebug );
 	ts_status_debug( "simple: initializing,...\n");
@@ -61,7 +57,7 @@ int main(int argc, char *argv[]) {
 	TsStatus_t status = ts_service_dial( service, hostname_and_port );
 	if( status != TsStatusOk ) {
 		ts_status_debug("simple: failed to dial, %s\n", ts_status_string(status));
-		return status;
+		ts_platform_assert(0);
 	}
 
 	//  subscribe to field gets and sets
@@ -69,7 +65,7 @@ int main(int argc, char *argv[]) {
 	status = ts_service_dequeue( service, TsServiceActionMaskAll, handler );
 	if( status != TsStatusOk ) {
 		ts_status_debug("simple: failed to dial, %s\n", ts_status_string(status));
-		return status;
+		ts_platform_assert(0);
 	}
 
 	// enter run loop,...
@@ -109,7 +105,7 @@ int main(int argc, char *argv[]) {
 	ts_service_destroy( service );
 	ts_message_destroy( sensors );
 
-	return 0;
+	ts_platform_assert(0);
 }
 
 static TsStatus_t handler( TsServiceRef_t service, TsServiceAction_t action, TsMessageRef_t message ) {

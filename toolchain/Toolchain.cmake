@@ -84,8 +84,8 @@ else()
     set( CMAKE_C_STANDARD 99 )
     set( CMAKE_MACOSX_RPATH 0 )
 
-    cmake_force_c_compiler( /usr/bin/gcc GNU )
-    cmake_force_cxx_compiler( /usr/bin/g++ GNU )
+    set( CMAKE_C_COMPILER /usr/bin/gcc )
+    set( CMAKE_CXX_COMPILER /usr/bin/g++ )
 
 endif()
 message( STATUS "## C-Compiler                            : ${CMAKE_C_COMPILER}" )

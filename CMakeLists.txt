@@ -6,16 +6,20 @@ include( ${CMAKE_SOURCE_DIR}/toolchain/PreventInSourceBuilds.cmake )
 
 # force cmake build type
 if( NOT CMAKE_BUILD_TYPE )
-    set( CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build, Debug or Release." FORCE )
-endif()
-
-# (optional) toolchain
-if( NOT CMAKE_TOOLCHAIN_FILE )
-    include( ${CMAKE_SOURCE_DIR}/toolchain/Toolchain.cmake )
+	set( CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build, Debug or Release." FORCE )
 endif()
 
 # project definition
 project( ts_sdk_c C CXX ASM )
+
+# (optional) toolchain
+if( CMAKE_TOOLCHAIN_FILE )
+	message( STATUS "## Toolchain file chosen		: ${CMAKE_TOOLCHAIN_FILE}" )
+	message( STATUS "## Target triplet			: ${TARGET_TRIPLET}" )
+	message( STATUS "## Floating point hardware		: ${FP_HARD}" )
+	message( STATUS "## CPU chosen			: ${CPU_TYPE}" )
+endif()
+
 message( STATUS "## Build Type            (Debug|Release) : ${CMAKE_BUILD_TYPE}" )
 
 # component selection

@@ -6,6 +6,7 @@ set( TARGETS ts_sdk_components )
 file( GLOB SOURCES
     "*.c"
     "service/*.c"
+    "at_interpreter/*.c"
     "transport/*.c"
     "security/*.c"
     "controller/*.c" )
@@ -16,7 +17,7 @@ target_include_directories( ts_sdk_components PRIVATE
     ${CMAKE_SOURCE_DIR}/sdk/include
     ${CMAKE_SOURCE_DIR}/sdk_dependencies/cJSON
     ${CMAKE_SOURCE_DIR}/sdk_dependencies/tinycbor/src
-    ${CMAKE_SOURCE_DIR}/sdk_dependencies/mbedtls/include
+    ${CMAKE_SOURCE_DIR}/sdk_dependencies/mbedtls_custom/include
     ${CMAKE_SOURCE_DIR}/sdk_dependencies/paho.mqtt.embedded-c/MQTTPacket/src
     ${CMAKE_SOURCE_DIR}/sdk_dependencies/paho.mqtt.embedded-c/MQTTClient-C/src
     ${CMAKE_SOURCE_DIR}/sdk_dependencies/mocana/src )
