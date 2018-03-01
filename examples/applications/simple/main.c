@@ -19,7 +19,7 @@ static TsMessageRef_t sensors;
 static TsStatus_t handler( TsServiceRef_t, TsServiceAction_t, TsMessageRef_t );
 static TsStatus_t usage(int argc, char *argv[], char ** hostname_and_port, char ** host, char ** port );
 
-int main(int argc, char *argv[]) {
+int main( int argc, char *argv[] ) {
 
 	// initialize platform (see ts_platform.h)
 	ts_platform_initialize();
@@ -29,13 +29,15 @@ int main(int argc, char *argv[]) {
 	ts_status_debug( "simple: initializing,...\n");
 
 	// initialize hostname
-	char * hostname_and_port;
-	char * host;
-	char * port;
+	char * hostname_and_port = "simpm.thingspace.verizon.com:8883";
+	char * host = "simpm.thingspace.verizon.com";
+	char * port = "8883";
+#if defined(TS_PLATFORM_UNIX)
 	if( usage( argc, argv, &hostname_and_port, &host, &port ) != TsStatusOk ) {
 		ts_status_debug( "simple: failed to parse host and port\n" );
 		ts_platform_assert(0);
 	}
+#endif
 	ts_status_debug( "simple: hostname(%s), host(%s), port(%s)\n", hostname_and_port, host, port );
 
 	// initialize sensor cache (usually set from hardware)
