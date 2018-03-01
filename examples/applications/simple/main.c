@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
 	char * host;
 	char * port;
 	if( usage( argc, argv, &hostname_and_port, &host, &port ) != TsStatusOk ) {
-		exit(0);
+		ts_platform_assert(0);
 	}
 	ts_status_debug( "simple: hostname(%s), host(%s), port(%s)\n", hostname_and_port, host, port );
 
@@ -165,6 +165,7 @@ static char xhost[256], xport[6];
 static TsStatus_t usage(int argc, char *argv[], char ** hostname_and_port, char ** host, char ** port ) {
 
 	switch( argc ) {
+	default:
 	case 2:
 		*hostname_and_port = argv[ 1 ];
 		break;
@@ -174,9 +175,6 @@ static TsStatus_t usage(int argc, char *argv[], char ** hostname_and_port, char 
 		*hostname_and_port = xhostname_and_port;
 		break;
 #endif
-	default:
-		ts_status_alarm("usage: example_simple [hostname_and_port]\n");
-		return TsStatusError;
 	}
 
 	if( ts_address_parse( *hostname_and_port, xhost, xport ) != TsStatusOk ) {
