@@ -165,16 +165,21 @@ static char xhost[256], xport[6];
 static TsStatus_t usage(int argc, char *argv[], char ** hostname_and_port, char ** host, char ** port ) {
 
 	switch( argc ) {
+#if defined(TS_SERVICE_TS_CBOR)
 	default:
-	case 2:
-		*hostname_and_port = argv[ 1 ];
-		break;
-#if defined(TS_SERVICE_TS_JSON)
+		ts_status_alarm("usage: example_simple [hostname_and_port]\n");
+		return TsStatusError;
+#else
 	case 1:
 		// allow default production if ts-json being tested (not ts-cbor)
 		*hostname_and_port = xhostname_and_port;
 		break;
+	default:
+		// fallthrough
 #endif
+	case 2:
+		*hostname_and_port = argv[ 1 ];
+		break;
 	}
 
 	if( ts_address_parse( *hostname_and_port, xhost, xport ) != TsStatusOk ) {
