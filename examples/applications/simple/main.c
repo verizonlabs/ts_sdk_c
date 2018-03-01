@@ -17,8 +17,9 @@ static TsMessageRef_t sensors;
 // forward references
 static TsStatus_t initialize( TsServiceRef_t* );
 static TsStatus_t handler( TsServiceRef_t, TsServiceAction_t, TsMessageRef_t );
+static TsStatus_t usage(int argc, char *argv[], char ** hostname_and_port, char ** host, char ** port );
 
-int main() {
+int main(int argc, char *argv[]) {
 
 	// initialize platform (see ts_platform.h)
 	// TODO - waiting for ts_platform.h clean-up,...
@@ -27,10 +28,18 @@ int main() {
 	//	ts_status_debug( "failed to initialize platform, %s\n", ts_status_string(status) );
 	//	return 0;
 	//}
-
 	// initialize status reporting level (see ts_status.h)
 	ts_status_set_level( TsStatusLevelDebug );
 	ts_status_debug( "simple: initializing,...\n");
+
+	// initialize hostname
+	char * hostname_and_port;
+	char * host;
+	char * port;
+	if( usage( argc, argv, &hostname_and_port, &host, &port ) != TsStatusOk ) {
+		exit(0);
+	}
+	ts_status_debug( "simple: hostname(%s), host(%s), port(%s)\n", hostname_and_port, host, port );
 
 	// initialize sensor cache (usually set from hardware)
 	ts_message_create( &sensors );
@@ -42,14 +51,14 @@ int main() {
 
 	// security initialization
 	ts_status_debug( "simple: initializing certificates,...\n");
-	ts_service_set_server_cert_hostname( service, "simpm.thingspace.verizon.com" );
+	ts_service_set_server_cert_hostname( service, (const char *)host );
 	ts_service_set_server_cert( service, cacert_buf, sizeof( cacert_buf ) );
 	ts_service_set_client_cert( service, client_cert, sizeof( client_cert ) );
 	ts_service_set_client_key( service, client_key, sizeof( client_key ) );
 
 	// connect to thingspace server
 	ts_status_debug( "simple: initializing connection,...\n");
-	TsStatus_t status = ts_service_dial( service, "simpm.thingspace.verizon.com:8883" );
+	TsStatus_t status = ts_service_dial( service, hostname_and_port );
 	if( status != TsStatusOk ) {
 		ts_status_debug("simple: failed to dial, %s\n", ts_status_string(status));
 		return status;
@@ -155,6 +164,35 @@ static TsStatus_t handler( TsServiceRef_t service, TsServiceAction_t action, TsM
 	return TsStatusOk;
 }
 
+static char * xhostname_and_port = "simpm.thingspace.verizon.com:8883";
+static char xhost[256], xport[6];
+static TsStatus_t usage(int argc, char *argv[], char ** hostname_and_port, char ** host, char ** port ) {
+
+	switch( argc ) {
+	case 2:
+		*hostname_and_port = argv[ 1 ];
+		break;
+#if defined(TS_SERVICE_TS_JSON)
+	case 1:
+		// allow default production if ts-json being tested (not ts-cbor)
+		*hostname_and_port = xhostname_and_port;
+		break;
+#endif
+	default:
+		ts_status_alarm("usage: example_simple [hostname_and_port]\n");
+		return TsStatusError;
+	}
+
+	if( ts_address_parse( *hostname_and_port, xhost, xport ) != TsStatusOk ) {
+		ts_status_alarm("failed to parse given address, %s\n", hostname_and_port);
+		return TsStatusError;
+	}
+
+	*host = xhost;
+	*port = xport;
+
+	return TsStatusOk;
+}
 #else
 
 int main() {
