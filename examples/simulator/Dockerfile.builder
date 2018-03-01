@@ -1,4 +1,4 @@
-# docker build -t simulator .
+# docker build -t simulator-builder -f Dockerfile.build .
 FROM ubuntu:16.04
 
 # setup ubuntu
@@ -24,13 +24,6 @@ RUN wget https://cmake.org/files/v3.9/cmake-3.9.6.tar.gz \
     && cd .. \
     && rm -rf cmake-3.9.6 \
     && rm -f cmake-3.9.6.tar.gz
-
-# download and setup ts-sdk 
-RUN mkdir /source \
-    && cd /source \
-    && git clone https://github.com/verizonlabs/ts_sdk_c.git \
-    && cd ts_sdk_c \
-    && git submodule update --init --recursive
 
 # update path
 ENV PATH "/usr/local/bin:${PATH}"
