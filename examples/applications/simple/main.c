@@ -33,6 +33,7 @@ int main(int argc, char *argv[]) {
 	char * host;
 	char * port;
 	if( usage( argc, argv, &hostname_and_port, &host, &port ) != TsStatusOk ) {
+		ts_status_debug( "simple: failed to parse host and port\n" );
 		ts_platform_assert(0);
 	}
 	ts_status_debug( "simple: hostname(%s), host(%s), port(%s)\n", hostname_and_port, host, port );
