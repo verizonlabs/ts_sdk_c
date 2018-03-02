@@ -70,6 +70,7 @@ if( BUILD_EXAMPLES )
     # platform driver configuration
     add_definitions( -DTS_DRIVER_SOCKET )   # SERIAL, SOCKET, UART or CUSTOM
     add_definitions( -DTS_PLATFORM_UNIX )   # TODO, remove,...
+    # add_definitions( -DTS_UNIX_SIMPLE_SOCKET ) # Use simplified socket connection (required for mocana)
 
     # build example executables
     add_subdirectory( examples )

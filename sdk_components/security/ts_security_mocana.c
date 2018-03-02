@@ -68,6 +68,12 @@ typedef struct TsSecurityMocana {
 
 } TsSecurityMocana_t;
 
+static MSTATUS myCertStatusCallback(sbyte4 connectionInstance,
+	struct certChain* pCertChain,
+	MSTATUS validationstatus) {
+	return 0;
+}
+
 static TsStatus_t ts_create(TsSecurityRef_t * security) {
 
 	ts_status_trace("ts_security_create: mocana\n");
@@ -239,6 +245,9 @@ static TsStatus_t ts_connect(TsSecurityRef_t security, TsAddress_t address) {
 	// TODO - watch rollover
 	next_socket = ( next_socket + 1 ) % TS_TCP_SOCKET_MAX;
 
+	// custom check of the server certificate
+	// OCSB (online-certificate protocol) related, SSL_sslSettings()->funcPtrCertStatusCallback = myCertStatusCallback;
+
 	// connect using mocana's ssl-connection on top of our tcp connection
 	mocana->_connection_instance = SSL_connect(
 		mocana->_socket,        // should be the TCP_SOCKET
@@ -252,14 +261,20 @@ static TsStatus_t ts_connect(TsSecurityRef_t security, TsAddress_t address) {
 		return TsStatusErrorInternalServerError;
 	}
 
+	// turn-off server certificate validation
+	if( OK > SSL_setCertAndStatusCallback( mocana->_connection_instance, myCertStatusCallback ) ) {
+		ts_status_debug("ts_security_connect: SSL_setCertAndStatusCallback failed, ignoring,...\n " );
+	}
+
 	// perform handshake (note this will require tick() on embedded systems)
 	mstatus = SSL_negotiateConnection( mocana->_connection_instance );
 	if( mstatus < OK ) {
+		ts_status_debug( "*** mstatus = %d\n", mstatus );
 		TCP_CLOSE_SOCKET( mocana->_socket );
 		return TsStatusErrorInternalServerError;
 	}
 
-	return TsStatusErrorNotImplemented;
+	return TsStatusOk;
 }
 
 static TsStatus_t ts_disconnect(TsSecurityRef_t security) {
@@ -273,7 +288,7 @@ static TsStatus_t ts_disconnect(TsSecurityRef_t security) {
 	SSL_closeConnection( mocana->_connection_instance );
 	TCP_CLOSE_SOCKET( mocana->_socket );
 
-	return TsStatusErrorNotImplemented;
+	return TsStatusOk;
 }
 
 static TsStatus_t ts_read(TsSecurityRef_t security, const uint8_t * buffer, size_t * buffer_size, uint32_t budget) {
@@ -313,4 +328,6 @@ static TsStatus_t ts_write(TsSecurityRef_t security, const uint8_t * buffer, siz
 	}
 	return TsStatusOk;
 }
+
+
 #endif // TS_SECURITY_MOCANA
