@@ -1,0 +1,6 @@
+# docker build -t simulator-simulate -f Dockerfile.simulate .
+FROM simulator-builder
+
+ADD binary /binary
+
+WORKDIR /binary
