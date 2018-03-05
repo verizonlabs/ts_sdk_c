@@ -31,3 +31,6 @@
 [submodule "sdk_dependencies/mocana"]
 	path = sdk_dependencies/mocana
 	url = https://github.com/verizonlabs/mocana.git
+[submodule "examples/platforms/ts_sdk_c_platforms_none_frdm-k82f"]
+	path = examples/platforms/ts_sdk_c_platforms_none_frdm-k82f
+	url = https://github.com/verizonlabs/ts_sdk_c_platforms_none_frdm-k82f
