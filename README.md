@@ -9,7 +9,6 @@ The TS-SDK has several language bindings including this one, the embedded-C bind
 ```
 $ git clone https://github.com/verizonlabs/ts_sdk_c.git
 $ cd ts_sdk_c
-$ git submodule update --init --recursive
 ```
 
 Some submodules are held by private repositories, and will only be downloaded if you have permissions to access those repositories.
@@ -34,12 +33,12 @@ From the cloned TS-SDK directory, run 'cmake .' with the following parameters,
 -DBUILD_EXAMPLES        = [ON | OFF (default)]
 ```
 
-Followed by 'gmake' in the newly created build directory. For example,
+Followed by 'make' in the newly created build directory. For example,
 
 ```
-$ cmake . -B./cmake-build-debug -DCMAKE_BUILD_TYPE=Debug
+$ cmake . -B./cmake-build-debug -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=gmake -G "CodeBlocks - Unix Makefiles"
 $ cd cmake-build-debug
-$ gmake
+$ make
 ```
 
 #### Build: Cross-compile 
@@ -57,15 +56,15 @@ Run 'cmake .' with the following parameters,
 -B [./cmake-build-debug | ./cmake-build-release]
 -DCMAKE_BUILD_TYPE      = [Debug | Release (default)]
 -DBUILD_EXAMPLES        = [ON | OFF (default)]
--DCMAKE_TOOLCHAIN_FILE  =./toolchain/Toolchain.cmake
+-DCMAKE_TOOLCHAIN_FILE  =./cmake/arm-none-eabi-gnu.cmake
 ```
 
-Followed by 'gmake' in the newly created build directory. For example,
+Followed by 'make' in the newly created build directory. For example,
 
 ```
-$ cmake . -B./cmake-build-debug -DCMAKE_TOOLCHAIN_FILE=./toolchain/Toolchain.cmake -DCMAKE_BUILD_TYPE=Debug
+$ cmake . -B./cmake-build-debug -DCMAKE_TOOLCHAIN_FILE=./cmake/arm-none-eabi-gnu.cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=gmake -G "CodeBlocks - Unix Makefiles"
 $ cd cmake-build-debug
-$ gmake
+$ make
 ```
 
 ## Examples
