@@ -1,10 +1,10 @@
 # Copyright (C) 2017, Verizon, Inc. All rights reserved.
 # ThingSpace Example Executables
 
-include_directories( ../platforms )
 include_directories( ${CMAKE_SOURCE_DIR}/sdk/include )
 include_directories( ${CMAKE_SOURCE_DIR}/sdk_dependencies/cJSON )
 include_directories( ${CMAKE_SOURCE_DIR}/sdk_dependencies/tinycbor/src )
+
 
 function (load_link_time_settings target_dest target_platform)
 	get_target_property(ldscript ${target_platform} LINK_FLAGS)

@@ -1,8 +1,13 @@
 # Copyright (C) 2017, Verizon, Inc. All rights reserved.
 cmake_minimum_required( VERSION 3.7 )
 
+# determine if this will build examples or not (affects submodules)
+option( BUILD_EXAMPLES "Compile example platforms and applications" OFF )
+message( STATUS "## Build Examples               (ON|OFF) : ${BUILD_EXAMPLES}" )
+
 # force cmake build subdirectory
-include( ${CMAKE_SOURCE_DIR}/toolchain/PreventInSourceBuilds.cmake )
+include( ${CMAKE_SOURCE_DIR}/cmake/PreventInSourceBuilds.cmake )
+include( ${CMAKE_SOURCE_DIR}/cmake/SynchronizeSubmodules.cmake )
 
 # force cmake build type
 if( NOT CMAKE_BUILD_TYPE )
@@ -14,10 +19,10 @@ project( ts_sdk_c C CXX ASM )
 
 # (optional) toolchain
 if( CMAKE_TOOLCHAIN_FILE )
-	message( STATUS "## Toolchain file chosen		: ${CMAKE_TOOLCHAIN_FILE}" )
-	message( STATUS "## Target triplet			: ${TARGET_TRIPLET}" )
-	message( STATUS "## Floating point hardware		: ${FP_HARD}" )
-	message( STATUS "## CPU chosen			: ${CPU_TYPE}" )
+	message( STATUS "## Toolchain file chosen		          : ${CMAKE_TOOLCHAIN_FILE}" )
+	message( STATUS "## Target triplet			              : ${TARGET_TRIPLET}" )
+	message( STATUS "## Floating point hardware		          : ${FP_HARD}" )
+	message( STATUS "## CPU chosen                            : ${CPU_TYPE}" )
 endif()
 
 message( STATUS "## Build Type            (Debug|Release) : ${CMAKE_BUILD_TYPE}" )
@@ -27,6 +32,7 @@ add_definitions( -DTS_SERVICE_TS_JSON )     # TS_JSON, TS_CBOR or CUSTOM
 add_definitions( -DTS_TRANSPORT_MQTT )      # MQTT or CUSTOM
 add_definitions( -DTS_SECURITY_MBED )       # MBED, MOCANA, NONE or CUSTOM
 add_definitions( -DTS_CONTROLLER_NONE )     # MONARCH, NONE or CUSTOM
+add_definitions( -DTS_FIREWALL_NONE )       # NONE or CUSTOM
 
 # build vendor libraries
 add_definitions( -D__GLIBC__ )              # TODO, remove tinyCBOR HACK
@@ -52,8 +58,6 @@ elseif( DEFINITIONS MATCHES TS_SECURITY_MOCANA )
 endif()
 
 # build optional examples
-option( BUILD_EXAMPLES "Compile example platforms and applications" OFF )
-message( STATUS "## Build Examples               (ON|OFF) : ${BUILD_EXAMPLES}" )
 if( BUILD_EXAMPLES )
 
     # platform kernal and board configuration
@@ -69,7 +73,6 @@ if( BUILD_EXAMPLES )
 
     # platform driver configuration
     add_definitions( -DTS_DRIVER_SOCKET )   # SERIAL, SOCKET, UART or CUSTOM
-    add_definitions( -DTS_PLATFORM_UNIX )   # TODO, remove,...
     # add_definitions( -DTS_UNIX_SIMPLE_SOCKET ) # Use simplified socket connection (required for mocana)
 
     # build example executables

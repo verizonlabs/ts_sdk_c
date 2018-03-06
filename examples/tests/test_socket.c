@@ -1,7 +1,6 @@
 // Copyright (C) 2017, 2018 Verizon, Inc. All rights reserved.
 #include <string.h>
 
-#include "ts_platforms.h"
 #include "ts_components.h"
 
 #include "ts_connection.h"

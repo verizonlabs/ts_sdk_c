@@ -1,7 +1,7 @@
 // Copyright (C) 2017, 2018 Verizon, Inc. All rights reserved.
 #include "ts_platform.h"
 #include "ts_controller.h"
-#include "at_intfc.h"
+#include "at_interpreter/at_intfc.h"
 #include "cmd_urc_monarch.h"
 
 #define mdbg(...)			ts_status_debug(__VA_ARGS__)

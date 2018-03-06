@@ -1,7 +1,6 @@
 # Copyright (C) 2017, Verizon, Inc. All rights reserved.
 # ThingSpace Tests
 
-include_directories( ../platforms )
 include_directories( ${CMAKE_SOURCE_DIR}/sdk/include )
 include_directories( ${CMAKE_SOURCE_DIR}/sdk_components )
 include_directories( ${CMAKE_SOURCE_DIR}/sdk_dependencies/cJSON )

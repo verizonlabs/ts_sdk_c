@@ -7,7 +7,6 @@
 
 #include "mbedtls/certs.h"
 
-#include "ts_platforms.h"
 #include "ts_components.h"
 
 #include "ts_connection.h"

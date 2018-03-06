@@ -6,9 +6,9 @@ set( TARGETS ts_sdk_components )
 file( GLOB SOURCES
     "*.c"
     "service/*.c"
-    "at_interpreter/*.c"
     "transport/*.c"
     "security/*.c"
+    "controller/at_interpreter/*.c"
     "controller/*.c" )
 
 add_library( ts_sdk_components OBJECT ${SOURCES} )

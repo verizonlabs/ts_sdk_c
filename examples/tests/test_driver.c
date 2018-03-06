@@ -2,9 +2,6 @@
 #include <string.h>
 #include <termios.h>
 
-#include "ts_platforms.h"
-#include "ts_components.h"
-
 static struct termios oldt;
 
 static void restore_terminal_settings(void) {

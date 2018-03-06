@@ -2,7 +2,7 @@
 #ifndef _CMD_URC_SQMONARCH_H
 #define _CMD_URC_SQMONARCH_H
 
-#include "at_intfc.h"
+#include "at_interpreter/at_intfc.h"
 
 #define MODEM_PDP_CTX			"3"
 #define MODEM_SOCK_ID			"1"
