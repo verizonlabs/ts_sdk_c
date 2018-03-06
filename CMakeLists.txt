@@ -5,8 +5,10 @@ cmake_minimum_required( VERSION 3.7 )
 option( BUILD_EXAMPLES "Compile example platforms and applications" OFF )
 message( STATUS "## Build Examples               (ON|OFF) : ${BUILD_EXAMPLES}" )
 
-# force cmake build subdirectory
+# force cmake build in subdirectory
 include( ${CMAKE_SOURCE_DIR}/cmake/PreventInSourceBuilds.cmake )
+
+# force cmake submodule creation
 include( ${CMAKE_SOURCE_DIR}/cmake/SynchronizeSubmodules.cmake )
 
 # force cmake build type
@@ -69,7 +71,7 @@ if( BUILD_EXAMPLES )
     #   none_nucleo-f401re      Bare-metal STMicro Nucleo F401RE
     #   none_nucleo-l476        Bare-metal STMicro Nucleo L476
     #   windows                 Microsoft Windows variants
-    set( TS_PLATFORM unix_raspberry-pi3 CACHE STRING "RTOS and Hardware Platform" FORCE )
+    set( TS_PLATFORM unix_raspberry-pi3 CACHE STRING "(RT)OS and Hardware Platform" FORCE )
 
     # platform driver configuration
     add_definitions( -DTS_DRIVER_SOCKET )   # SERIAL, SOCKET, UART or CUSTOM

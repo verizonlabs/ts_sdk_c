@@ -41,6 +41,12 @@
 
 function(SynchronizeSubmodules)
 
+    find_package(Git)
+    if( NOT GIT_FOUND )
+        message( STATUS "## error: git not found" )
+        return()
+    endif()
+
     set( TS_SUBMODULE_DEPENDENCIES
         sdk_dependencies/tinycbor
         sdk_dependencies/cJSON
@@ -50,8 +56,10 @@ function(SynchronizeSubmodules)
 
     foreach( ARG ${TS_SUBMODULE_DEPENDENCIES} )
 
-        if( NOT EXISTS ${CMAKE_SOURCE_DIR}/${ARG} )
-            execute_process( COMMAND git submodule update --init -- ${ARG} WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} )
+        #execute_process( COMMAND "${GIT_EXECUTABLE} submodule update --init -- ${ARG}" RESULT_VARIABLE CMD_ERROR WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+        execute_process( COMMAND ${GIT_EXECUTABLE} submodule update --init ${ARG} RESULT_VARIABLE CMD_ERROR WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} )
+        if( CMD_ERROR )
+            message( STATUS "## dependency update error : ${CMD_ERROR}" )
         endif()
 
     endforeach()
@@ -64,12 +72,14 @@ function(SynchronizeSubmodules)
 
     foreach( ARG ${TS_SUBMODULE_PLATFORMS} )
 
-        if( NOT EXISTS ${CMAKE_SOURCE_DIR}/${ARG} )
-            execute_process( COMMAND git submodule update --init -- ${ARG} WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} )
+        execute_process( COMMAND ${GIT_EXECUTABLE} submodule update --init ${ARG} RESULT_VARIABLE CMD_ERROR WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} )
+        if( CMD_ERROR )
+            message( STATUS "## dependency update error : ${CMD_ERROR}" )
         endif()
 
     endforeach()
 
 endfunction()
 
+message( STATUS "## synchronize submodules" )
 SynchronizeSubmodules()
