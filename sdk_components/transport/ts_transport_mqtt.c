@@ -361,7 +361,7 @@ static int paho_mqtt_read( Network * network, unsigned char * buffer, int buffer
 	uint64_t timestamp = ts_platform_time();
 	do {
 		size_t xbuffer_size = (size_t) ( buffer_size - index );
-		ts_connection_tick(network->_connection, budget * TS_TIME_MSEC_TO_USEC);
+		ts_connection_tick(network->_connection, 100 * TS_TIME_MSEC_TO_USEC);
 		TsStatus_t status = ts_connection_read( network->_connection, (uint8_t *) ( buffer + index ), &xbuffer_size, (uint32_t) budget );
 		switch( status ) {
 		default:
@@ -407,7 +407,7 @@ static int paho_mqtt_write( Network * network, unsigned char * buffer, int buffe
 	do {
 		size_t xbuffer_size = (size_t) ( buffer_size - index );
 		TsStatus_t status = ts_connection_write( network->_connection, (uint8_t *) ( buffer + index ), &xbuffer_size, (uint32_t) budget );
-		ts_connection_tick(network->_connection, budget * TS_TIME_MSEC_TO_USEC);
+		ts_connection_tick(network->_connection, 100 * TS_TIME_MSEC_TO_USEC);
 		switch( status ) {
 		default:
 			ts_status_debug( "paho_mqtt_write: %s\n", ts_status_string( status ));
