@@ -1,5 +1,5 @@
 # docker build -t simulator-builder -f Dockerfile.build .
-FROM ubuntu:16.04
+FROM ubuntu:17.10
 
 # setup ubuntu
 RUN apt-get update \
