@@ -35,6 +35,7 @@ add_definitions( -DTS_TRANSPORT_MQTT )      # MQTT or CUSTOM
 add_definitions( -DTS_SECURITY_MBED )       # MBED, MOCANA, NONE or CUSTOM
 add_definitions( -DTS_CONTROLLER_NONE )     # MONARCH, NONE or CUSTOM
 add_definitions( -DTS_FIREWALL_NONE )       # NONE or CUSTOM
+add_definitions( -DTS_MUTEX_NONE )          # NONE or CUSTOM
 
 # build vendor libraries
 add_definitions( -D__GLIBC__ )              # TODO, remove tinyCBOR HACK
