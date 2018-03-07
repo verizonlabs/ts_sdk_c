@@ -262,7 +262,15 @@ static TsStatus_t handler( TsTransportRef_t transport, void * state, TsPath_t pa
 				ts_status_debug( "ts_service_handler: diagnostics requested, and ignored,...\n" );
 				status = TsStatusOk;
 
-			} else if( strcmp( kind, "ts.device" ) == 0 ) {
+			} else if( strcmp( kind, "ts.event.firewall" ) == 0 ) {
+
+				// get diagnostics, note that the message will be modified 'in-place'
+				// and must be returned with the correct status
+				// TODO - TS-CBOR diagnostics query not yet implemented
+				ts_status_debug( "ts_service_handler: firewall requested, and ignored,...\n" );
+				status = TsStatusOk;
+
+			} else if( ( strcmp( kind, "ts.device" ) == 0 ) || ( strcmp( kind, "ts.element" ) == 0 ) ) {
 
 				// provisioning, note that the message will be modified 'in-place'
 				// and must be returned with the correct status

@@ -3,6 +3,7 @@
 #define TS_FIREWALL_H
 
 #include "ts_status.h"
+#include "ts_message.h"
 
 typedef struct TsFirewall * TsFirewallRef_t;
 typedef struct TsFirewall {
@@ -21,7 +22,7 @@ typedef struct TsFirewallVtable {
 	TsStatus_t (*get)(TsFirewallRef_t, TsMessageRef_t );
 	TsStatus_t (*remove)(TsFirewallRef_t, TsMessageRef_t );
 
-} TsControllerVtable_t;
+} TsFirewallVtable_t;
 
 #ifdef __cplusplus
 extern "C" {
