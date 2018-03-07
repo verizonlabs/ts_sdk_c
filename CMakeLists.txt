@@ -6,10 +6,10 @@ option( BUILD_EXAMPLES "Compile example platforms and applications" OFF )
 message( STATUS "## Build Examples               (ON|OFF) : ${BUILD_EXAMPLES}" )
 
 # force cmake build in subdirectory
-include( ${CMAKE_SOURCE_DIR}/cmake/PreventInSourceBuilds.cmake )
+include( ${CMAKE_SOURCE_DIR}/tools/PreventInSourceBuilds.cmake )
 
 # force cmake submodule creation
-include( ${CMAKE_SOURCE_DIR}/cmake/SynchronizeSubmodules.cmake )
+include( ${CMAKE_SOURCE_DIR}/tools/SynchronizeSubmodules.cmake )
 
 # force cmake build type
 if( NOT CMAKE_BUILD_TYPE )

@@ -81,5 +81,5 @@ function(SynchronizeSubmodules)
 
 endfunction()
 
-message( STATUS "## Synchronize Submodules" )
+message( STATUS "## Synchronizing Submodules" )
 SynchronizeSubmodules()
