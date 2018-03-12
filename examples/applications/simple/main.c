@@ -167,6 +167,7 @@ static char * xhostname_and_port = "simpm.thingspace.verizon.com:8883";
 static char xhost[256], xport[6];
 static TsStatus_t usage(int argc, char *argv[], char ** hostname_and_port, char ** host, char ** port ) {
 
+	bool has_given_cert_hostname = false;
 	switch( argc ) {
 #if defined(TS_SERVICE_TS_CBOR)
 	default:
@@ -183,14 +184,21 @@ static TsStatus_t usage(int argc, char *argv[], char ** hostname_and_port, char 
 	case 2:
 		*hostname_and_port = argv[ 1 ];
 		break;
+
+	case 3:
+		*hostname_and_port = argv[ 1 ];
+		*host = argv[ 2 ];
+		has_given_cert_hostname = true;
+		break;
 	}
 
 	if( ts_address_parse( *hostname_and_port, xhost, xport ) != TsStatusOk ) {
 		ts_status_alarm("failed to parse given address, %s\n", hostname_and_port);
 		return TsStatusError;
 	}
-
-	*host = xhost;
+	if( !has_given_cert_hostname ) {
+		*host = xhost;
+	}
 	*port = xport;
 
 	return TsStatusOk;

@@ -133,7 +133,7 @@ static TsStatus_t ts_create(TsSecurityRef_t *security) {
 
 	// initialize entropy source
 	size_t threshold = 1;
-	int is_strong = 0;
+	int is_strong = 1;
 	mbedtls_entropy_add_source(&(mbed->_entropy), mbedtls_hardware_poll, NULL, threshold, is_strong );
 
 	// initialize entropy
@@ -153,12 +153,13 @@ static TsStatus_t ts_create(TsSecurityRef_t *security) {
 		int error = mbedtls_ssl_config_defaults(&(mbed->_ssl_config),
 			MBEDTLS_SSL_IS_CLIENT,
 			MBEDTLS_SSL_TRANSPORT_STREAM,
-			MBEDTLS_SSL_PRESET_DEFAULT);
+			MBEDTLS_SSL_PRESET_DEFAULT );
 		if (error != 0) {
 			ts_status_debug("ts_security_create: mbedtls_ssl_config_defaults failed, %d\n", error );
 			ts_platform_free(mbed, sizeof(TsSecurityEmbed_t));
 			return TsStatusErrorPreconditionFailed;
 		}
+		//mbed->_ssl_config.authmode = MBEDTLS_SSL_VERIFY_NONE;
 	}
 
 	// initialize ssl-config debugging
