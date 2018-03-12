@@ -1117,6 +1117,10 @@ static TsCborKeyMapping_t _ts_cbor_key_mapping[] = {
 	{ "createdon",      9, TsCborValueTypeDefault },
 };
 
+static size_t _ts_cbor_key_mapping_size = sizeof(_ts_cbor_key_mapping) / sizeof(TsCborKeyMapping_t);
+
+static char _ts_cbor_hex_digits[] = { '0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F' };
+
 static char * _ts_cbor_kind_mapping[] = {
 	"ts.element",
 	"ts.event",
@@ -1316,6 +1320,21 @@ static TsStatus_t _ts_message_encode_ts_cbor( TsMessageRef_t message, CborEncode
 	return TsStatusOk;
 }
 
+// return key_type if key is recongnized
+static TsCborValueType_t ts_cbor_key_to_key_type( const char * key ) {
+
+	TsCborValueType_t key_type = TsCborValueTypeNone;
+	for( int i = 0; i < _ts_cbor_key_mapping_size; i++ ) {
+
+		if( strcmp( key, _ts_cbor_key_mapping[i].name ) == 0 ) {
+
+			key_type = _ts_cbor_key_mapping[i].type;
+			break;
+		}
+	}
+	return key_type;
+}
+
 /* _ts_message_decode_ts_cbor */
 TsStatus_t _ts_message_decode_ts_cbor( TsMessageRef_t message, int depth, CborValue * value ) {
 
@@ -1375,6 +1394,13 @@ TsStatus_t _ts_message_decode_ts_cbor( TsMessageRef_t message, int depth, CborVa
 			// notice this will advance to the next sibling
 			cbor_value_dup_text_string( value, &key, &key_size, value );
 			key_needs_free = true;
+
+			// set key_type if at root level (depth is one)
+			if( depth == 1 ) {
+				key_type = ts_cbor_key_to_key_type( key );
+			}
+
+			break;
 		}
 
 		// decode value node
@@ -1448,16 +1474,20 @@ TsStatus_t _ts_message_decode_ts_cbor( TsMessageRef_t message, int depth, CborVa
 			if( data_size != 16 ) {
 				status = TsStatusErrorBadRequest;
 			} else {
+
 				int uuid_index = 0;
 				char uuid[ TS_MESSAGE_UUID_SIZE + 1 ];
+
+				// format as, 00000000-0000-0000-0000-000000000000
 				for( int i = 0; i < 16; i++ ) {
-					// 00000000-0000-0000-0000-000000000000
-					snprintf(uuid + uuid_index, 2, "%02x", data[i] );
+					uuid[ uuid_index ] = _ts_cbor_hex_digits[ data[i] >> 4 ];
+					uuid[ uuid_index + 1 ] = _ts_cbor_hex_digits[ data[i] & 0x0F ];
 					uuid_index = uuid_index + 2;
 					if( i == 4 || i == 6 || i == 8 || i == 10 ) {
-						snprintf(uuid + uuid_index, 1, "-" );
+						uuid[ uuid_index ] = '-';
 						uuid_index = uuid_index + 1;
 					}
+					uuid[ uuid_index ] = 0x00;
 				}
 				ts_message_set_string( message, key, uuid );
 			}
