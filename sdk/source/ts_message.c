@@ -1119,7 +1119,7 @@ static TsCborKeyMapping_t _ts_cbor_key_mapping[] = {
 
 static size_t _ts_cbor_key_mapping_size = sizeof(_ts_cbor_key_mapping) / sizeof(TsCborKeyMapping_t);
 
-static char _ts_cbor_hex_digits[] = { '0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F' };
+static char _ts_cbor_hex_digits[] = { '0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f' };
 
 static char * _ts_cbor_kind_mapping[] = {
 	"ts.element",
@@ -1483,7 +1483,7 @@ TsStatus_t _ts_message_decode_ts_cbor( TsMessageRef_t message, int depth, CborVa
 					uuid[ uuid_index ] = _ts_cbor_hex_digits[ data[i] >> 4 ];
 					uuid[ uuid_index + 1 ] = _ts_cbor_hex_digits[ data[i] & 0x0F ];
 					uuid_index = uuid_index + 2;
-					if( i == 4 || i == 6 || i == 8 || i == 10 ) {
+					if( i == 3 || i == 5 || i == 7 || i == 9 ) {
 						uuid[ uuid_index ] = '-';
 						uuid_index = uuid_index + 1;
 					}
