@@ -1161,6 +1161,20 @@ static TsStatus_t _ts_message_encode_ts_cbor_key( CborEncoder * encoder, bool is
 	return TsStatusOk;
 }
 
+static uint8_t _ts_message_hex_number( char digit ) {
+
+	if( ( digit >= '0' ) && ( digit <= '9' ) ) {
+		return (uint8_t)(digit - '0');
+	} else if( ( digit >= 'a' ) && ( digit <= 'f' ) ) {
+		return (uint8_t)(digit - 'a' + 10);
+	} else if( ( digit >= 'A' ) && ( digit <= 'F' ) ) {
+		return (uint8_t)(digit - 'A' + 10);
+	} else {
+		ts_status_alarm( "ts_message_encode_ts_cbor: no mapping found for malformed UUID digit, '%c', ignoring,...\n", digit );
+		return 0;
+	}
+}
+
 static TsStatus_t _ts_message_encode_ts_cbor_value( CborEncoder * encoder, bool is_root, char * value, TsCborValueType_t type ) {
 
 	if( is_root ) {
@@ -1178,27 +1192,16 @@ static TsStatus_t _ts_message_encode_ts_cbor_value( CborEncoder * encoder, bool 
 				int uuid_index = 0;
 				while( ( uuid_index < uuid_size ) && ( value_index < TS_MESSAGE_UUID_SIZE ) ) {
 
-					if( ( value[value_index] >= '0' && value[value_index] <= '9' ) &&
-						( value[value_index+1] >= '0' && value[value_index+1] <= '9' ) ) {
-
-						uint8_t high = (uint8_t)(value[value_index] - '0');
-						uint8_t low = (uint8_t)(value[value_index+1] - '0');
-						uuid[uuid_index] = high * (uint8_t)16 + low;
-						uuid_index = uuid_index + 1;
-
-					} else if(
-						( value[value_index] == '-' ) &&
-						( value[value_index+1] >= '0' && value[value_index+1] <= '9' ) ) {
-
+					if( value[ value_index ] == '-' ) {
 						value_index = value_index + 1;
-
-					} else {
-
-						ts_status_alarm( "ts_message_encode_ts_cbor: no mapping found for malformed UUID, %s, ignoring,...\n", value );
-						cbor_encode_text_stringz( encoder, value );
-						return TsStatusOk;
+						continue;
 					}
-				};
+					uint8_t high = _ts_message_hex_number( value[ value_index ] );
+					uint8_t low = _ts_message_hex_number( value[ value_index + 1 ] );
+					uuid[ uuid_index ] = high*(uint8_t) 16 + low;
+					uuid_index = uuid_index + 1;
+					value_index = value_index + 2;
+				}
 				cbor_encode_byte_string( encoder, uuid, (size_t)uuid_size );
 			}
 			break;
