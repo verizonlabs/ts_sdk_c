@@ -11,6 +11,8 @@ static TsStatus_t ts_disconnect( TsControllerRef_t );
 static TsStatus_t ts_read( TsControllerRef_t, const uint8_t *, size_t *, uint32_t );
 static TsStatus_t ts_write( TsControllerRef_t, const uint8_t *, size_t *, uint32_t );
 
+static TsStatus_t ts_get( TsControllerRef_t, char * );
+
 TsControllerVtable_t ts_controller_none = {
 	.create = ts_create,
 	.destroy = ts_destroy,
@@ -20,6 +22,16 @@ TsControllerVtable_t ts_controller_none = {
 	.disconnect = ts_disconnect,
 	.read = ts_read,
 	.write = ts_write,
+
+	.get_id = ts_get,
+	.get_rssi = ts_get,
+	.get_ipv4_addr = ts_get,
+	.get_iccid = ts_get,
+	.get_date_and_time = ts_get,
+	.get_imsi = ts_get,
+	.get_manufacturer = ts_get,
+	.get_module_name = ts_get,
+	.get_firmware_version = ts_get,
 };
 
 static TsStatus_t ts_create( TsControllerRef_t * controller ) {
@@ -100,4 +112,13 @@ static TsStatus_t ts_write( TsControllerRef_t controller, const uint8_t * buffer
 	ts_platform_assert( controller != NULL );
 
 	return ts_driver_write( controller->_driver, buffer, buffer_size, budget );
+}
+
+static TsStatus_t ts_get( TsControllerRef_t controller, char * value ) {
+
+	ts_status_trace( "ts_controller_get_xxx\n" );
+	ts_platform_assert( ts_driver != NULL );
+	ts_platform_assert( controller != NULL );
+
+	return TsStatusErrorNotImplemented;
 }
