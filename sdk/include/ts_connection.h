@@ -34,12 +34,13 @@ TsStatus_t ts_connection_tick( TsConnectionRef_t, uint32_t );
 TsStatus_t ts_connection_get_security( TsConnectionRef_t, TsSecurityRef_t *);
 TsStatus_t ts_connection_get_profile( TsConnectionRef_t, TsProfileRef_t *);
 
-// TODO - remove this section
-TsStatus_t ts_connection_get_spec_mcu( TsConnectionRef_t, uint32_t* );
+TsStatus_t ts_connection_get_spec_mtu( TsConnectionRef_t, uint32_t* );
+// TODO - should the signature be size_t* (in/out parameter)
 TsStatus_t ts_connection_get_spec_id( TsConnectionRef_t, const uint8_t *, size_t );
 TsStatus_t ts_connection_get_spec_budget( TsConnectionRef_t, uint32_t* );
 
-// TODO - remove this section
+// TODO - TsStatus_t ts_connection_set_spec_id( TsConnectionRef_t, const uint8_t *, size_t );
+
 TsStatus_t ts_connection_set_server_cert_hostname( TsConnectionRef_t, const char * );
 TsStatus_t ts_connection_set_server_cert( TsConnectionRef_t, const uint8_t *, size_t );
 TsStatus_t ts_connection_set_client_cert( TsConnectionRef_t, const uint8_t *, size_t );

@@ -1,5 +1,6 @@
 // Copyright (C) 2017, 2018 Verizon, Inc. All rights reserved.
 #include "ts_transport.h"
+#include "ts_platform.h"
 
 // must compile with,...
 //

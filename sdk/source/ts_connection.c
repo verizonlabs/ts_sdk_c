@@ -84,18 +84,18 @@ TsStatus_t ts_connection_get_profile( TsConnectionRef_t connection, TsProfileRef
 	return TsStatusOk;
 }
 
-TsStatus_t ts_connection_get_spec_mcu( TsConnectionRef_t connection, uint32_t* mcu ) {
+TsStatus_t ts_connection_get_spec_mtu( TsConnectionRef_t connection, uint32_t* mtu ) {
 
-	ts_status_trace( "ts_connection_get_spec_mcu\n" );
+	ts_status_trace( "ts_connection_get_spec_mtu\n" );
 	ts_platform_assert( ts_security != NULL );
 	ts_platform_assert( connection != NULL );
 	ts_platform_assert( connection->_security != NULL );
 	ts_platform_assert( connection->_security->_controller != NULL );
 	ts_platform_assert( connection->_security->_controller->_driver != NULL );
-	ts_platform_assert( mcu != NULL );
+	ts_platform_assert( mtu != NULL );
 
 	// TODO - This should call the next link in pipeline, dont assume the driver knows (maybe the controller does)
-	*mcu = connection->_security->_controller->_driver->_spec_mcu;
+	*mtu = connection->_security->_controller->_driver->_spec_mtu;
 
 	return TsStatusOk;
 }

@@ -4,16 +4,16 @@
 #include "at_interpreter/at_intfc.h"
 #include "cmd_urc_monarch.h"
 
-#define mdbg( ... )            ts_status_debug(__VA_ARGS__)
+#define mdbg( ... )                 ts_status_debug(__VA_ARGS__)
 
-#define DEFAULT_ATTEMPTS        5
-#define IDLE_TIME_MS            5
-#define NET_REG_TIMEOUT_MS        20000
-#define STARTUP_TIMEOUT_MS        5000
+#define DEFAULT_ATTEMPTS            5
+#define IDLE_TIME_MS                5
+#define NET_REG_TIMEOUT_MS          20000
+#define STARTUP_TIMEOUT_MS          5000
 
-#define ts_platform_time_ms()    (ts_platform_time() / TS_TIME_MSEC_TO_USEC)
-#define ts_platform_sleep_ms( t )    ts_platform_sleep((t) * TS_TIME_MSEC_TO_USEC)
-#define MSEC2USEC( t )        ((t) * TS_TIME_MSEC_TO_USEC)
+#define ts_platform_time_ms()       (ts_platform_time() / TS_TIME_MSEC_TO_USEC)
+#define ts_platform_sleep_ms( t )   ts_platform_sleep((t) * TS_TIME_MSEC_TO_USEC)
+#define MSEC2USEC( t )              ((t) * TS_TIME_MSEC_TO_USEC)
 
 static TsStatus_t ts_create( TsControllerRef_t * );
 static TsStatus_t ts_destroy( TsControllerRef_t );
@@ -69,13 +69,13 @@ typedef struct {
 	char * data;
 } array_t;
 
-#define SIZEOF_IMEI            15
-#define SIZEOF_IMSI            15
-#define SIZEOF_ICCID            20
-#define SIZEOF_DATE_AND_TIME        20
-#define SIZEOF_IPV4            15
-#define SIZEOF_RSSI            2
-#define SIZEOF_TEXT_INFO        30
+#define SIZEOF_IMEI             TS_DRIVER_MAX_ID_SIZE
+#define SIZEOF_IMSI             TS_DRIVER_MAX_ID_SIZE
+#define SIZEOF_ICCID            TS_DRIVER_MAX_ID_SIZE
+#define SIZEOF_DATE_AND_TIME    TS_DRIVER_MAX_ID_SIZE
+#define SIZEOF_IPV4             TS_DRIVER_MAX_ID_SIZE
+#define SIZEOF_RSSI             TS_DRIVER_MAX_ID_SIZE
+#define SIZEOF_TEXT_INFO        TS_DRIVER_MAX_ID_SIZE
 
 typedef struct TsControllerMonarch * TsControllerMonarchRef_t;
 typedef struct TsControllerMonarch {

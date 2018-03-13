@@ -67,13 +67,13 @@ static TsStatus_t ts_enqueue( TsServiceRef_t service, TsMessageRef_t sensor ) {
 
 	// encode copy to send buffer
 	// i.e., encode and send unsolicited message
-	// get mcu from controller (via connection)
-	uint32_t mcu;
-	ts_connection_get_spec_mcu( service->_transport->_connection, &mcu);
+	// get mtu from controller (via connection)
+	uint32_t mtu;
+	ts_connection_get_spec_mtu( service->_transport->_connection, &mtu);
 
 	// allocate data buffer and encode data
-	uint8_t * buffer = (uint8_t*)ts_platform_malloc( mcu );
-	size_t buffer_size = (size_t)(mcu - 4);
+	uint8_t * buffer = (uint8_t*)ts_platform_malloc( mtu );
+	size_t buffer_size = (size_t)(mtu - 4);
 	ts_message_encode(message, TsEncoderTsCbor, buffer + 4, &buffer_size);
 
 	// encode envelope
@@ -88,7 +88,7 @@ static TsStatus_t ts_enqueue( TsServiceRef_t service, TsMessageRef_t sensor ) {
 	snprintf( topic, topic_size, "ThingSpace/%s/ElementToProvider", id );
 
 	// TODO - check return codes - may have disconnected.
-	ts_transport_speak( service->_transport, (TsPath_t)topic, buffer, buffer_size );
+	ts_transport_speak( service->_transport, (TsPath_t)topic, buffer, buffer_size + 4 );
 
 	// clean-up and return
 	ts_platform_free( buffer, buffer_size );
@@ -309,13 +309,13 @@ static TsStatus_t handler( TsTransportRef_t transport, void * state, TsPath_t pa
 
 	// encode copy to send buffer
 	// i.e., encode and send unsolicited message
-	// get mcu from controller (via connection)
-	uint32_t mcu;
-	ts_connection_get_spec_mcu( transport->_connection, &mcu);
+	// get mtu from controller (via connection)
+	uint32_t mtu;
+	ts_connection_get_spec_mtu( transport->_connection, &mtu);
 
 	// allocate data buffer
-	uint8_t * response_buffer = (uint8_t*)ts_platform_malloc( mcu );
-	size_t response_buffer_size = (size_t)(mcu - 4);
+	uint8_t * response_buffer = (uint8_t*)ts_platform_malloc( mtu );
+	size_t response_buffer_size = (size_t)(mtu - 4);
 
 	// encode response message
 	ts_message_encode(message, TsEncoderTsCbor, response_buffer + 4, &response_buffer_size);
@@ -331,7 +331,7 @@ static TsStatus_t handler( TsTransportRef_t transport, void * state, TsPath_t pa
 	size_t topic_size = 256;
 	char topic[ 256 ];
 	snprintf( topic, topic_size, "ThingSpace/%s/ElementToProvider", id );
-	ts_transport_speak( transport, (TsPath_t)topic, response_buffer, response_buffer_size );
+	ts_transport_speak( transport, (TsPath_t)topic, response_buffer, response_buffer_size + 4 );
 
 	// clean-up and return
 	ts_platform_free( response_buffer, response_buffer_size );

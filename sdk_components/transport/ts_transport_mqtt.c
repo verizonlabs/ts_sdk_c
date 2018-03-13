@@ -107,10 +107,10 @@ static TsStatus_t ts_create( TsTransportRef_t * transport ) {
 	mqtt->_network.disconnect = paho_mqtt_disconnect;
 
 	// get controller specifications for id, timeout and buffer sizes
-	uint32_t mcu, budget;
+	uint32_t mtu, budget;
 	ts_connection_get_spec_id( connection, (const uint8_t *) &( mqtt->_id ), TS_DRIVER_MAX_ID_SIZE );
 	ts_connection_get_spec_budget( connection, &budget );
-	ts_connection_get_spec_mcu( connection, &mcu );
+	ts_connection_get_spec_mtu( connection, &mtu );
 
 	// initialize mqtt connection configuration (used for MQTTConnect)
 	memcpy( &( mqtt->_connection ), &default_connection, sizeof( MQTTPacket_connectData ));
@@ -123,9 +123,9 @@ static TsStatus_t ts_create( TsTransportRef_t * transport ) {
 	mqtt->_connection.cleansession = 1;             // clean-session
 
 	// initialize mqtt intermediate buffers
-	mqtt->_read_buffer = ts_platform_malloc( mcu );
-	mqtt->_write_buffer = ts_platform_malloc( mcu );
-	mqtt->_read_write_buffer_size = mcu;
+	mqtt->_read_buffer = ts_platform_malloc( mtu );
+	mqtt->_write_buffer = ts_platform_malloc( mtu );
+	mqtt->_read_write_buffer_size = mtu;
 
 	// initialize mqtt spec parameters
 	mqtt->_spec_qos = QOS1;
@@ -223,13 +223,13 @@ static TsStatus_t ts_dial( TsTransportRef_t transport, TsAddress_t address ) {
 	// NOTE - the transport attribute, "handler" isn't used due to
 	// (poor) paho design, we have to use a local static variable,
 	// i.e., '_default_handler'.
-
+	ts_status_debug( "ts_transport_dial: connecting to, '%s'\n", address );
 	TsStatus_t status = ts_connection_connect( mqtt->_transport._connection, address );
 	if( status != TsStatusOk ) {
-		ts_status_debug("TLS handshake failed\n");
+		ts_status_debug("ts_transport_dial: TLS handshake failed\n");
 		return status;
 	}
-	ts_status_debug("Connected to server through TLS\n");
+	ts_status_debug( "ts_transport_dial: connected to server\n" );
 
 	mqtt->_network._last_status = TsStatusOk;
 	int code = MQTTConnect( &( mqtt->_client ), &( mqtt->_connection ));

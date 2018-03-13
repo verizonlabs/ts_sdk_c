@@ -96,13 +96,13 @@ static TsStatus_t ts_enqueue( TsServiceRef_t service, TsMessageRef_t sensor ) {
 
 	// encode copy to send buffer
 	// i.e., encode and send unsolicited message
-	// get mcu from controller (via connection)
-	uint32_t mcu;
-	ts_connection_get_spec_mcu( service->_transport->_connection, &mcu);
+	// get mtu from controller (via connection)
+	uint32_t mtu;
+	ts_connection_get_spec_mtu( service->_transport->_connection, &mtu);
 
 	// allocate data buffer
-	uint8_t * buffer = (uint8_t*)ts_platform_malloc( mcu );
-	size_t buffer_size = (size_t)mcu;
+	uint8_t * buffer = (uint8_t*)ts_platform_malloc( mtu );
+	size_t buffer_size = (size_t)mtu;
 	ts_message_encode(message, TsEncoderJson, buffer, &buffer_size);
 
 	// send data
@@ -301,13 +301,13 @@ static TsStatus_t handler( TsTransportRef_t transport, void * data, TsPath_t pat
 
 		// encode copy to send buffer
 		// i.e., encode and send unsolicited message
-		// get mcu from controller (via connection)
-		uint32_t mcu;
-		ts_connection_get_spec_mcu( transport->_connection, &mcu);
+		// get mtu from controller (via connection)
+		uint32_t mtu;
+		ts_connection_get_spec_mtu( transport->_connection, &mtu);
 
 		// allocate data buffer
-		uint8_t * response_buffer = (uint8_t*)ts_platform_malloc( mcu );
-		size_t response_buffer_size = (size_t)mcu;
+		uint8_t * response_buffer = (uint8_t*)ts_platform_malloc( mtu );
+		size_t response_buffer_size = (size_t)mtu;
 		ts_message_encode(message, TsEncoderJson, response_buffer, &response_buffer_size);
 
 		// send data

@@ -34,8 +34,8 @@ add_definitions( -DTS_SERVICE_TS_JSON )     # TS_JSON, TS_CBOR or CUSTOM
 add_definitions( -DTS_TRANSPORT_MQTT )      # MQTT or CUSTOM
 add_definitions( -DTS_SECURITY_MBED )       # MBED, MOCANA, NONE or CUSTOM
 add_definitions( -DTS_CONTROLLER_NONE )     # MONARCH, NONE or CUSTOM
-add_definitions( -DTS_FIREWALL_NONE )       # NONE or CUSTOM
-add_definitions( -DTS_MUTEX_NONE )          # NONE or CUSTOM
+add_definitions( -DTS_FIREWALL_NONE )       # NONE or CUSTOM (rarely used)
+add_definitions( -DTS_MUTEX_NONE )          # NONE or CUSTOM (rarely used)
 
 # build vendor libraries
 add_definitions( -D__GLIBC__ )              # TODO, remove tinyCBOR HACK
@@ -65,18 +65,16 @@ if( BUILD_EXAMPLES )
 
     # platform kernal and board configuration
     #
-    #   unix                    Linux and Unix variants
     #   unix_raspberry-pi3      Raspberry Pi3 Linux and Unix variants
     #   threadx_synergy-s5d9    ThreadX Renesas Synergy S5D9
     #   none_freedom-k82f       Bare-metal NXP Freedom K82F
-    #   none_nucleo-f401re      Bare-metal STMicro Nucleo F401RE
     #   none_nucleo-l476        Bare-metal STMicro Nucleo L476
-    #   windows                 Microsoft Windows variants
     set( TS_PLATFORM unix_raspberry-pi3 CACHE STRING "(RT)OS and Hardware Platform" FORCE )
 
     # platform driver configuration
     add_definitions( -DTS_DRIVER_SOCKET )   # SERIAL, SOCKET, UART or CUSTOM
     # add_definitions( -DTS_UNIX_SIMPLE_SOCKET ) # Use simplified socket connection (required for mocana)
+    # add_definitions( -DTS_PLATFORM_UNIX ) # Use for OS based command-line tools
 
     # build example executables
     add_subdirectory( examples )
