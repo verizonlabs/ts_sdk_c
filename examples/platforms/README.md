@@ -8,7 +8,7 @@ The following repo's where added as submodules:
 $ git submodule add https://github.com/verizonlabs/ts_sdk_c_platforms_none_nucleo-l476.git
 $ git submodule add https://github.com/verizonlabs/ts_sdk_c_platforms_unix_raspberry-pi3.git
 $ git submodule add https://github.com/verizonlabs/ts_sdk_c_platforms_none_frdm-k82f.git
-$ git submodule add https://github.com/verizonlabs/ts_sdk_c_platforms_threadx_renesas_s5d9.git
+$ git submodule add https://github.com/verizonlabs/ts_sdk_c_platforms_threadx_synergy_s5d9.git
 ```
 
 This is how you delete a submodule,

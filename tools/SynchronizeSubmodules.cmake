@@ -48,10 +48,6 @@ function(SynchronizeSubmodules)
     endif()
 
     set( TS_SUBMODULE_DEPENDENCIES
-        sdk_dependencies/tinycbor
-        sdk_dependencies/cJSON
-        sdk_dependencies/paho.mqtt.embedded-c
-        sdk_dependencies/mbedtls_custom
         sdk_dependencies/mocana )
 
     foreach( ARG ${TS_SUBMODULE_DEPENDENCIES} )
@@ -65,7 +61,6 @@ function(SynchronizeSubmodules)
     endforeach()
 
     set( TS_SUBMODULE_PLATFORMS
-        examples/platforms/ts_sdk_c_platforms_unix
         examples/platforms/ts_sdk_c_platforms_unix_raspberry-pi3
         examples/platforms/ts_sdk_c_platforms_none_nucleo-l476
         examples/platforms/ts_sdk_c_platforms_none_frdm-k82f )
