@@ -1,0 +1,227 @@
+#!/bin/bash
+
+# Copyright(C) 2016 Verizon. All rights reserved.
+
+# Apply a set of changes to the mbedtls build-time configuration file to 
+# configure it for use with the Verizon Over-the-Top IoT services.
+
+function usage() {
+	echo "Usage: "
+	echo "    ${0##*/} [help] [debug] [no-net] [full-msgs] [no-hwrng] [heap-prof]"
+	exit 0
+}
+
+function c() {
+	scripts/config.pl "$@"
+}
+
+function option() {
+	echo $SELECTED_OPTIONS | grep -q "$1" 
+	return $?
+}
+
+CNFDIR=include/mbedtls
+SELECTED_OPTIONS="$@"
+
+if option "help"; then
+	usage
+fi
+
+if [ ! -f $CNFDIR/config.h.original ]; then
+	echo "Unmodified config.h.original file not found in $CNFDIR."
+	exit 1
+fi
+
+cp $CNFDIR/config.h.original $CNFDIR/config.h
+
+#
+# These are only changes from the default values.
+# The goal is to support the cloud's requirements with minimum code size and
+# usable performance.
+#
+
+if option "no-net"; then
+c unset MBEDTLS_NET_C
+fi
+
+# This is the only cipher suite we want to support
+# Note: ECDHE_ECDSA_WITH_AES_128_CCM_8 would very likely be smaller
+# but the cloud side currently wants to do RSA certs.
+c set MBEDTLS_SSL_CIPHERSUITES MBEDTLS_TLS_DHE_RSA_WITH_AES_128_GCM_SHA256
+
+# Platform-support options
+c unset MBEDTLS_HAVE_TIME
+c unset MBEDTLS_HAVE_TIME_DATE
+c set	MBEDTLS_DEPRECATED_REMOVED
+######################################
+## Danger -- for initial debug only ##
+#####c set	MBEDTLS_TEST_NULL_ENTROPY
+#####c set	MBEDTLS_NO_DEFAULT_ENTROPY_SOURCES
+######################################
+
+if ! option "no-hwrng"; then
+c set MBEDTLS_ENTROPY_HARDWARE_ALT
+fi
+
+# Only need GCM cipher mode
+c unset MBEDTLS_CIPHER_MODE_CFB
+c unset MBEDTLS_CIPHER_MODE_CTR
+c unset MBEDTLS_CIPHER_MODE_CBC
+
+# Not using ECDSA
+c unset MBEDTLS_ECDSA_DETERMINISTIC
+
+# Disable unneeded key exhange modes
+c unset MBEDTLS_KEY_EXCHANGE_PSK_ENABLED
+c unset MBEDTLS_KEY_EXCHANGE_DHE_PSK_ENABLED
+c unset MBEDTLS_KEY_EXCHANGE_ECDHE_PSK_ENABLED
+c unset MBEDTLS_KEY_EXCHANGE_RSA_PSK_ENABLED
+c unset MBEDTLS_KEY_EXCHANGE_RSA_ENABLED
+c unset MBEDTLS_KEY_EXCHANGE_ECDHE_RSA_ENABLED
+c unset MBEDTLS_KEY_EXCHANGE_ECDHE_ECDSA_ENABLED
+c unset MBEDTLS_KEY_EXCHANGE_ECDH_ECDSA_ENABLED
+c unset MBEDTLS_KEY_EXCHANGE_ECDH_RSA_ENABLED
+
+# Don't need this (or any) elliptic curve key formats
+c unset MBEDTLS_PK_PARSE_EC_EXTENDED
+
+# No file system access
+c unset MBEDTLS_FS_IO
+
+# No UNIX style /dev/urandom
+if ! option "no-hwrng"; then
+c set	MBEDTLS_NO_PLATFORM_ENTROPY
+fi
+
+# Faster option for mixing in entropy
+c set	MBEDTLS_ENTROPY_FORCE_SHA256
+
+# Not building for x86 / x86-64
+c unset MBEDTLS_PADLOCK_C
+c unset MBEDTLS_AESNI_C
+
+# Enable the use of mbedtls_platform_set_calloc_free() when profiling the heap
+if option "heap-prof"; then
+c set MBEDTLS_PLATFORM_MEMORY
+fi
+
+# No external sources for RSA keys
+c unset MBEDTLS_PK_RSA_ALT_SUPPORT
+
+# Unneeded certificate encoding
+c unset	MBEDTLS_PKCS1_V21
+
+# Save space
+c unset MBEDTLS_SELF_TEST
+
+# Disable sending TLS alert messages to the server (save space)
+c unset MBEDTLS_SSL_ALL_ALERT_MESSAGES
+
+# No fallback to different TLS versions, so don't need this
+c unset MBEDTLS_SSL_FALLBACK_SCSV
+
+# Not using any CBC modes
+c unset MBEDTLS_SSL_CBC_RECORD_SPLITTING
+
+# Don't really need these options
+c unset MBEDTLS_SSL_RENEGOTIATION
+c unset MBEDTLS_SSL_MAX_FRAGMENT_LENGTH
+
+# ONLY support TLS 1.2
+c unset MBEDTLS_SSL_PROTO_TLS1
+c unset MBEDTLS_SSL_PROTO_TLS1_1
+c unset MBEDTLS_SSL_PROTO_DTLS
+
+# More unneeded options
+c unset MBEDTLS_SSL_ALPN
+c unset MBEDTLS_SSL_DTLS_ANTI_REPLAY
+c unset MBEDTLS_SSL_DTLS_HELLO_VERIFY
+c unset MBEDTLS_SSL_DTLS_CLIENT_PORT_REUSE
+c unset MBEDTLS_SSL_DTLS_BADMAC_LIMIT
+c unset MBEDTLS_SSL_EXPORT_KEYS
+c unset MBEDTLS_SSL_SERVER_NAME_INDICATION
+c unset MBEDTLS_SSL_TRUNCATED_HMAC
+c unset MBEDTLS_VERSION_FEATURES
+
+# Don't need this option
+c unset MBEDTLS_X509_RSASSA_PSS_SUPPORT
+
+# Nuke some the ciphers we don't want
+c unset MBEDTLS_ARC4_C
+c unset MBEDTLS_BLOWFISH_C
+c unset MBEDTLS_CAMELLIA_C
+c unset MBEDTLS_DES_C
+
+# Not using CCM cipher mode
+c unset MBEDTLS_CCM_C
+
+# Only need to parse ASN1
+c unset MBEDTLS_ASN1_WRITE_C
+
+# Only PEM needs this
+c unset MBEDTLS_BASE64_C
+
+# Disable test certificates
+c unset MBEDTLS_CERTS_C
+
+if ! option "debug"; then
+# Disable debug functions
+c unset MBEDTLS_DEBUG_C
+fi
+
+# Disable the elliptic curve crypto library and EC keys and certs.
+c unset MBEDTLS_ECDH_C
+c unset MBEDTLS_ECDSA_C
+c unset MBEDTLS_ECP_C
+
+# Disable mbedtls_strerror (saves code space)
+c unset MBEDTLS_ERROR_C
+
+# Use AES based RNG
+c unset MBEDTLS_HMAC_DRBG_C
+
+# Should not need this so disable it.
+c unset MBEDTLS_MD5_C
+
+# Don't need PEM support - DER is more compact
+c unset MBEDTLS_PEM_PARSE_C
+c unset MBEDTLS_PEM_WRITE_C
+
+# Don't need PKCS#5 or PKCS#12 functions.
+c unset MBEDTLS_PKCS5_C
+c unset MBEDTLS_PKCS12_C
+
+# Nuke some hash algorithms we don't want
+c unset MBEDTLS_RIPEMD160_C
+c unset MBEDTLS_SHA1_C
+c unset MBEDTLS_SHA512_C
+
+# Only for DTLS
+c unset MBEDTLS_SSL_COOKIE_C
+
+# Only running as a TLS client
+c unset MBEDTLS_SSL_SRV_C
+
+# Timing module only needed for DTLS
+c unset MBEDTLS_TIMING_C
+
+c unset MBEDTLS_VERSION_C
+
+# Don't need to deal with CRLs, writing certs, or writing cert requests.
+c unset MBEDTLS_X509_CRL_PARSE_C
+c unset MBEDTLS_X509_CSR_PARCE_C
+c unset MBEDTLS_X509_CREATE_C
+c unset MBEDTLS_X509_CRT_WRITE_C
+c unset MBEDTLS_X509_CSR_WRITE_C
+
+# Don't need XTEA block cipher
+c unset MBEDTLS_XTEA_C
+
+# OTT protocol has a max frame size of 512.  But even if the cloud side 
+# server is configured for a reduced size, mbedtls can't handle fragmented
+# TLS handshake messages.  We need ~4096 bytes for the largest handshake
+# message with our current certificates, but allow a little more for 
+# slack.
+if ! option "full-msgs"; then
+c set	MBEDTLS_SSL_MAX_CONTENT_LEN 4608
+fi
