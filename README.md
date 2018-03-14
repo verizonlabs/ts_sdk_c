@@ -68,17 +68,4 @@ $ cd cmake-build-debug
 $ make
 ```
 
-## Examples
-
-#### Registration and Credentialing
-
-TBD
-
-#### Platforms
-
-TBD
-
-#### Applications
-
-TBD
 
