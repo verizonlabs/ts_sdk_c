@@ -11,7 +11,7 @@ When creating a new application, the developer must first select a example platf
 
 Although the SDK can be configured and customized in many various ways, the easiest use is demonstrated in ./examples/applications. There you may notice a simple application that sends sensor data, and acts on actuator commands using the ts_service interface (and ts_message abstraction). 
 
-If you use the configuration as is, then a simple application can be implemented on you MAC or LINUX like the following example (see ./examples/applications/simple/main/c for the complete code listing),
+If you use the configuration as is, then a simple application can be implemented on you MAC or LINUX computer like the following example (see [examples/applications/simple](../examples/applications/simple/main.c) for a complete code listing),
 ```
 int main() {
 
