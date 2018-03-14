@@ -70,7 +70,7 @@ An optional application protocol layer. Currently, only the deprecated TS-JSON a
 * Partially. Only the protocol portion of the service is currently "customizable".
 ##### Location and Definition?
 * [sdk_components](../sdk_components/ts_components.c): ```ts_service : TsServiceVtable_t*```
-* [sdk/include/ts_component.h](../sdk/include/ts_component.h)
+* [sdk/include/ts_service.h](../sdk/include/ts_service.h)
 ##### Dependencies?
 * Transport
 * Platform
