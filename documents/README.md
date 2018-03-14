@@ -13,13 +13,14 @@ Although the SDK can be configured and customized in many various ways, the easi
 
 If you use the configuration as is, then a simple application can be implemented on you MAC or LINUX computer like the following example (see [examples/applications/simple](../examples/applications/simple/main.c) for a complete code listing),
 ```
+static TsMessageRef_t sensor;
+
 int main() {
 
-    // initialize the platoform (implemented per platform)
+    // initialize (implemented per platform)
     ts_platform_initialize();
 
     // initialize sensor cache (its contents would come from the actual hardware)
-    TsMessage_t sensor;
     ts_message_create( &sensor );
     ts_message_set_float( sensor, "temperature", 50.5 );
     
