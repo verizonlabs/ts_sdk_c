@@ -69,11 +69,8 @@ extern "C" {
  * create a ts_security object.
  *
  * @param connection
- * The pointer to a pre-existing TsConnectionRef_t, which will be initialized by this
+ * [in/out] The pointer to a pre-existing TsConnectionRef_t, which will be initialized by this
  * function with the connection state.
- *
- * @param connection
- * [in/out] The pointer to the target connection object being allocated and initialized.
  *
  * @return
  * The return status (TsStatus_t) of the function, see ts_status.h for more information.

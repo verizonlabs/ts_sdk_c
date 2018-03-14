@@ -2,6 +2,10 @@
 
 The ThingSpace SDK allows developers to integrate devices into the Verizon ThingSpace IoT platform.
 
+### Design
+
+See [documents](./documents/README.md) for design documentation and links.
+
 ### Quick Start
 
 The TS-SDK has several language bindings including this one, the embedded-C binding. Once you've cloned the repo, you will also need to update its submodules (see below). 
@@ -66,6 +70,35 @@ Followed by 'make' in the newly created build directory. For example,
 $ cmake . -B./cmake-build-debug -DCMAKE_TOOLCHAIN_FILE=./tools/arm-none-eabi-gnu.cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=gmake -G "CodeBlocks - Unix Makefiles"
 $ cd cmake-build-debug
 $ make
+```
+
+### Directory Structure
+
+The SDK was arranged to allow the user to integrate at various layers, customize various SDK components, and customize hardware integration.
+
+```
+sdk                     -- the thingspace client framework 
+    include             -- the API description
+    source              -- core API implementation
+ 
+sdk_components          -- framework options
+    service             -- application integration and ThingSpace protocols
+    transport           -- pub-sub or point-to-point protocols (e.g., mqtt)
+    connection          -- network connectivity  
+    security            -- optional connection credentials and security (e.g., ssl)
+    controller          -- optional connection modem controllers (e.g., qualcom)
+    driver              -- optional connection device driver 
+ 
+sdk_dependencies        -- external vendor libraries
+ 
+examples
+    platforms           -- os and hardware specific libraries 
+    applications        -- end-user applications (e.g., track-and-trace)
+    tests               -- unit tests
+    
+tools                   -- optional cross compiler toolchain
+
+documents               -- developer documentation
 ```
 
 

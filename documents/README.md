@@ -4,8 +4,9 @@
 
 The SDK is designed to allow a developer to quickly prototype an IoT device on their desktop, as well as, implement an hardened application and cross-compile to a target MCU.
 
-The SDK itself is composed of two main parts, the API, (seen in the [sdk](../sdk) directory), and the components (placed in the [sdk_components](../sdk_components) directory).
+The SDK itself is composed of two main parts, the API, (seen in the [sdk](../sdk) directory), and its components (placed in the [sdk_components](../sdk_components) directory). If you have doxygen installed on your machine, you may obtain a detailed API description by running it in this directory (see the [Doxyfile](./Doxyfile)). However, an overview is provided here as well.
 
+### Example
 When creating a new application, the developer must first select a example platform from ./examples/platforms directory, or create their own by implementing the "ts_device" and "ts_platform" interfaces.
 
 Although the SDK can be configured and customized in many various ways, the easiest use is demonstrated in ./examples/applications. There you may notice a simple application that sends sensor data, and acts on actuator commands using the ts_service interface (and ts_message abstraction). 
@@ -58,91 +59,105 @@ static TsStatus_t handler( TsServiceRef_t service, TsServiceAction_t action, TsM
 
 ### Components
 
-The SDK is designed according to the following UML diagram, and it can be customized at any point in the diagram where the stereotype, "vtable" is indicated. 
+The SDK is designed as described in the following UML diagram, and it can be customized at any point in the diagram where the stereotype, "vtable" is indicated. 
 
 ![UML Design](images/communication_diagram.png "UML Design Diagram")
 
-### Directory Structure
+#### Service
+An optional application protocol layer. Currently, only the deprecated TS-JSON and the new TS-CBOR protocols are supported.
+##### Plugable?  
+* Partially. Only the protocol portion of the service is currently "customizable".
+##### Location and Definition?
+* [sdk_components](../sdk_components/ts_components.c): ```ts_service : TsServiceVtable_t*```
+* [sdk/include/ts_component.h](../sdk/include/ts_component.h)
+##### Dependencies?
+* Transport
+* Platform
 
-The SDK was arranged to allow the user to integrate at various layers, customize various SDK components, and customize hardware integration.
+#### Transport
+An optional application transport layer, e.g., MQTT, CoAP, XMPP, etc. Currently, only MQTT is supported.
+##### Plugable?  
+*  Yes
+##### Location and Definition?
+* [sdk_components](../sdk_components/ts_components.c): ```ts_transport : TsTransportVtable_t*```
+* [sdk/include/ts_transport.h](../sdk/include/ts_transport.h)
+##### Dependencies?
+* Connection 
+* Platform
 
-```
-sdk                     -- the thingspace client framework 
-    include             -- the API description
-    source              -- core API implementation
- 
-sdk_components          -- framework options
-    service             -- application integration and ThingSpace protocols
-    transport           -- pub-sub or point-to-point protocols (e.g., mqtt)
-    connection          -- network connectivity  
-    security            -- optional connection credentials and security (e.g., ssl)
-    controller          -- optional connection modem controllers (e.g., qualcom)
-    driver              -- optional connection device driver 
- 
-sdk_dependencies        -- external vendor libraries
- 
-examples
-    platforms           -- os and hardware specific libraries 
-    applications        -- end-user applications (e.g., track-and-trace)
-    tests               -- unit tests
-    
-tools                   -- optional cross compiler toolchain
+#### Connection
+Provides the semantics for a TCP/IP connection, it is itself composed of three other components: Security, Controller and Driver.
+##### Plugable?  
+* No
+##### Location and Definition? 
+* [sdk/include/ts_connection.h](../sdk/include/ts_connection.h)
+##### Dependencies?
+* Security
+* Platform
 
-documents               -- developer documentation
-```
-
-### Conventions
-
-- ```ts_[component].[function]``` vs ```ts_[component]_[function]```
-- ```ts_[component]_[function]``` vs ```_ts_[component]_[function]```
-
-
-### Configuration
-- explain vtables
-- explain tick vs rtos vs os variants
-
-### Toolchain
-- explain triplets
-- explain toolchain vs platform
-
-### Platform
-- show matrix, board x mcu x component + opt. header boards and component
-
-## Use
-
-### Application
-
-### Message
-
-### Platform
-- ts_platform vs platforms
-
-### Service
-
-### Transport
-
-### Security
-
-### Connection
-
-#### Type
+#### Security 
+Provides an optional application TLS layer via the Controller.
+##### Plugable?  
+* Yes
+##### Location and Definition?
+* [sdk_components](../sdk_components/ts_components.c): ```ts_security : TsSecurityVtable_t*```
+* [sdk/include/ts_security.h](../sdk/include/ts_security.h)
+##### Dependencies?
+* Controller
+* Platform
 
 #### Controller
+Provides an optional TCP/IP-centric module controller via the Driver.
+##### Plugable?  
+* Yes
+##### Location and Definition?
+* [sdk_components](../sdk_components/ts_components.c): ```ts_controller : TsControllerVtable_t*```
+* [sdk/include/ts_controller.h](../sdk/include/ts_controller.h)
+##### Dependencies?
+* Driver
+* Platform
 
-## Debug
+#### Driver
+Provides a TCP/IP-centric module driver.
+##### Plugable?  
+*  Yes
+##### Location and Definition?
+* [examples/platforms/[platform-specific-directory]](../examples/platforms): ```ts_driver : TsDriverVtable_t*```
+* [sdk/include/ts_driver.h](../sdk/include/ts_driver.h)
+##### Dependencies?
+* Platform
 
-## Examples
-- using service w/module-based transport
-- using various connection types or controllers
+### Other Components
 
-#### Registration and Credentialing
+#### Platform
+This is defined by the platform, and provides the platform-specific implementation of functions like, printf, assert, random, etc.
+##### Plugable?  
+* Yes
+##### Location and Definition?
+* [examples/platforms/[platform-specific-directory]](../examples/platforms): ```ts_platform : TsPlatformVtable_t*```
+* [sdk/include/ts_platform.h](../sdk/include/ts_platform.h)
+##### Dependencies?
+* *N/A*
 
-TBD
+#### Mutex
+Not used by default. In rare cases when a SDK component is threaded, it will use the platform specific mutex defined using this interface to coordinate those threads.
+##### Plugable?  
+* Yes
+##### Location and Definition?
+* [examples/platforms](../examples/platforms/ts_platforms.c): ```ts_mutex : TsMutexVtable_t*```
+* [examples/platforms/[platform-specific-directory]](../examples/platforms): ```ts_mutex : TsMutexVtable_t*```
+* [sdk/include/ts_mutex.h](../sdk/include/ts_mutex.h)
+##### Dependencies?
+* Platform
 
-#### Platforms
+#### Firewall
+Not used by default. In rare cases when the TCP/IP stack provides security hooks, the developer may integrate firewall services.
+##### Plugable?  
+* Yes
+##### Location and Definition?
+* [examples/platforms](../examples/platforms/ts_platforms.c): ```ts_firewall : TsFirewallVtable_t*```
+* [examples/platforms/[platform-specific-directory]](../examples/platforms): ```ts_firewall : TsFirewallVtable_t*```
+* [sdk/include/ts_firewall.h](../sdk/include/ts_firewall.h)
+##### Dependencies?
+* Platform
 
-TBD
-
-#### Applications
-
-TBD
