@@ -159,6 +159,9 @@ static TsStatus_t ts_create(TsSecurityRef_t *security) {
 			ts_platform_free(mbed, sizeof(TsSecurityEmbed_t));
 			return TsStatusErrorPreconditionFailed;
 		}
+		// TODO - this is covered below during connect, however, we still require
+		// TODO - the hostname to match the one provided on the returned server certificate
+		// TODO - this setting (or simular) should turn that validation off as well, if needed.
 		//mbed->_ssl_config.authmode = MBEDTLS_SSL_VERIFY_NONE;
 	}
 

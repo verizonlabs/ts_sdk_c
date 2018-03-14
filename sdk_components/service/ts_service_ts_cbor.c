@@ -275,7 +275,7 @@ static TsStatus_t handler( TsTransportRef_t transport, void * state, TsPath_t pa
 				// provisioning, note that the message will be modified 'in-place'
 				// and must be returned with the correct status
 				// TODO - TS-CBOR provisioning not yet implemented
-				ts_status_debug( "ts_service_handler: diagnostics requested, and ignored,...\n" );
+				ts_status_debug( "ts_service_handler: provisioning requested, and ignored,...\n" );
 				status = TsStatusOk;
 
 			} else {

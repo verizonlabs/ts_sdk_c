@@ -57,12 +57,13 @@ Run 'cmake .' with the following parameters,
 -DCMAKE_BUILD_TYPE      = [Debug | Release (default)]
 -DBUILD_EXAMPLES        = [ON | OFF (default)]
 -DCMAKE_TOOLCHAIN_FILE  =./cmake/arm-none-eabi-gnu.cmake
+-DTOOLCHAIN_PREFIX      = [path to compiler triplet]
 ```
 
 Followed by 'make' in the newly created build directory. For example,
 
 ```
-$ cmake . -B./cmake-build-debug -DCMAKE_TOOLCHAIN_FILE=./cmake/arm-none-eabi-gnu.cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=gmake -G "CodeBlocks - Unix Makefiles"
+$ cmake . -B./cmake-build-debug -DCMAKE_TOOLCHAIN_FILE=./tools/arm-none-eabi-gnu.cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=gmake -G "CodeBlocks - Unix Makefiles"
 $ cd cmake-build-debug
 $ make
 ```

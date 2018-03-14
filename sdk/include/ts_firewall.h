@@ -16,7 +16,6 @@ typedef struct TsFirewallVtable {
 	TsStatus_t (*create)(TsFirewallRef_t *);
 	TsStatus_t (*destroy)(TsFirewallRef_t);
 	TsStatus_t (*tick)(TsFirewallRef_t, uint32_t);
-	TsStatus_t (*diagnostics)(TsFirewallRef_t, TsMessageRef_t );
 
 	TsStatus_t (*set)(TsFirewallRef_t, TsMessageRef_t );
 	TsStatus_t (*get)(TsFirewallRef_t, TsMessageRef_t );

@@ -1,37 +1,58 @@
-// Copyright (C) 2017, 2018 Verizon, Inc. All rights reserved.
+/**
+ * @file ts_address.h
+ * @copyright Copyright (C) 2017, 2018 Verizon, Inc. All rights reserved.
+ * @brief Basic host and port string utilities
+ */
 #ifndef TS_ADDRESS_H
 #define TS_ADDRESS_H
 
 #include "ts_status.h"
 
-// maximum size of any host-name character array
+/**
+ * @brief maximum size of any host-name character array
+ */
 #define TS_ADDRESS_MAX_HOST_SIZE 256
 
-// maximum size of the port-value character array
+/**
+ * @brief maximum size of the port-value character array
+ */
 #define TS_ADDRESS_MAX_PORT_SIZE 6
 
-// well-known network interface
-// e.g., "/dev/ttyAMA0" for USB, "eth0" for socket, etc.
-typedef const char *TsInterface_t;
-
-// well-known network address
-// e.g., "mqtt.thingspace.verizon.com:1883"
+/**
+ * @brief well-known network address
+ * @example "mqtt.thingspace.verizon.com:1883"
+ */
 typedef const char *TsAddress_t;
 
-// path node
+/**
+ * @brief path node(s)
+ * @example "location" and "longitude" from, "/location/longitude"
+ */
 typedef char *TsPathNode_t;
 typedef TsPathNode_t *TsPathNodes_t;
 
-// path
+/**
+ * \brief path
+ * \example "/location/logitude"
+ */
 typedef char *TsPath_t;
-
-// verb
-typedef char *TsVerb_t;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/**
+ * @brief Parse a string in the format "host:port", and fill the host and port out parameters to the pointer to each.
+ * @param destination
+ * The network address in the form "host:port".
+ * @param host
+ * [out] pointer to the given host.
+ * @param port
+ * [out] pointer to the given port.
+ * @return
+ * TsStatusOk        - Host and port were found successfully
+ * TsStatusError...  - Indicates an error has occurred, see ts_status.h for more information.
+ */
 TsStatus_t ts_address_parse(TsAddress_t destination, char * host, char * port);
 
 #ifdef __cplusplus

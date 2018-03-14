@@ -1,12 +1,13 @@
 [Home](../README.md)
 
-
 ## Directory Structure
 
 The SDK was arranged to allow the user to integrate at various layers, customize various SDK components, and customize hardware integration.
 
 ```
 sdk                     -- the thingspace client framework 
+    include             -- the API description
+    source              -- core API implementation
  
 sdk_components          -- framework options
     service             -- application integration and ThingSpace protocols
@@ -23,10 +24,9 @@ examples
     applications        -- end-user applications (e.g., track-and-trace)
     tests               -- unit tests
     
-toolchain               -- optional cross compiler toolchain
+tools                   -- optional cross compiler toolchain
 
 documents               -- developer documentation
-
 ```
 
 ### Conventions
