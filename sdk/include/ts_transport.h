@@ -135,9 +135,86 @@ typedef struct TsTransportVtable {
 	 */
 	TsStatus_t (* get_connection)( TsTransportRef_t, TsConnectionRef_t* );
 
+	/**
+	 * Create a connection to the given server adddress and negotiate access to the transport.
+	 * Note that this will use the underlying ts_connection component to manage the TCP/IP stack
+	 * on the configured platform.
+	 *
+	 * @param transport
+	 * [in] The transport object
+	 *
+	 * @param address
+	 * [in] The destination address. A FQDN may require resolution prior to calling this function based
+	 * on the underlying ts_security, ts_controller or ts_driver capabilities, e.g., Mocana TLS expects an IP.
+	 *
+	 * @return
+	 * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+	 * - TsStatusOk
+	 * - TsStatusError[Code]
+	 */
 	TsStatus_t (* dial)( TsTransportRef_t, TsAddress_t );
+
+	/**
+	 * Destroy (i.e., tear down) the current connection. Note that this will used the underlying
+	 * ts_connection component to tear down the connection.
+	 *
+	 * @param transport
+	 * [in] The transport object
+	 *
+	 * @return
+	 * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+	 * - TsStatusOk
+	 * - TsStatusError[Code]
+	 */
 	TsStatus_t (* hangup)( TsTransportRef_t );
+
+	/**
+	 * Set a callback used when a message has been received by the transport. Note that
+	 * the address parameter is currently not used, and this function may only be called on
+	 * a pre-existing connection (i.e., ts_transport_dial must be called first).
+	 *
+	 * @param transport
+	 * [in] The transport state
+	 *
+	 * @param address
+	 * [in] The address to listen to, must be set to NULL in this verison of the SDK.
+	 *
+	 * @param path
+	 * [in] The resource path to listen to, e.g., for MQTT this would be the subscribed queue topic
+	 *
+	 * @param handler
+	 * [in] The function to call when a message has been received
+	 *
+	 * @param handler_data
+	 * [in] A optional pointer sent to the handler when a message has been received
+	 *
+	 * @return
+	 * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+	 * - TsStatusOk
+	 * - TsStatusError[Code]
+	 */
 	TsStatus_t (* listen)( TsTransportRef_t, TsAddress_t, TsPath_t, TsTransportHandler_t, void* );
+
+	/**
+	 * Write to the driver (blocking) via the security and controller components.
+	 *
+	 * @param transport
+	 * [in] The transport state
+	 *
+	 * @param path
+	 *
+	 * @param buffer
+	 * [in] The pre-allocated buffer memory containing the data to be written.
+	 *
+	 * @param buffer_size
+	 * [in] The pre-allocated buffer data size
+	 * [out] The actual number of byte written
+	 *
+	 * @return
+	 * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+	 * - TsStatusOk
+	 * - TsStatusError[Code]
+	 */
 	TsStatus_t (* speak)( TsTransportRef_t, TsPath_t, const uint8_t *, size_t );
 
 } TsTransportVtable_t;

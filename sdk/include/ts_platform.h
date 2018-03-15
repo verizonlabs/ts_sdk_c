@@ -46,15 +46,53 @@ typedef struct TsPlatform {} TsPlatform_t;
  * See examples/platforms for available platform implementations, or use your own customized implementation.
  */
 typedef struct TsPlatformVtable {
+
+	/**
+	 * Initialize the hardware configuration. This should be called before any function is called on the TS-SDK.
+	 */
 	void		(*initialize)();
+
+	/**
+	 * A facade for printf, usually routed to _write via stdlib or newlib, then onto a UART
+	 */
 	void 		(*printf)(const char *, ...);
+
+	/**
+	 * A facade for vprintf, it should same implementation as printf above.
+	 */
 	void 		(*vprintf)(const char *, va_list);
+
+	/**
+	 * Return the current GMT time in microseconds
+	 */
 	uint64_t	(*time)();
+
+	/**
+	 * (Deprecated) Sleep for the given amount of time, given in microseconds. Note that this function is being removed.
+	 */
 	void		(*sleep)(uint32_t);
+
+	/**
+	 * Return a crypto-quality random number (typically via hardware)
+	 */
 	void		(*random)(uint32_t*);
+
+	/**
+	 * Return allocated memory of the given size
+	 */
 	void *		(*malloc)(size_t);
+
+	/**
+	 * Free the allocated memory, the size is an estimate for the sake of profiling and can be set to zero.
+	 */
 	void		(*free)(void*,size_t);
+
+	/**
+	 * Handle any assertion, i.e., this function doesnt perform the check, it simply performs the effect, e.g.,
+	 * display the given message and halt, etc.
+	 */
 	void		(*assertion)(const char *msg, const char *file, int line);
+
 } TsPlatformVtable_t;
 
 extern const TsPlatformVtable_t * ts_platform;

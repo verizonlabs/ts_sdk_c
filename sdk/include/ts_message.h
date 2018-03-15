@@ -152,6 +152,7 @@ TsStatus_t ts_message_report();
  * - TsStatusError[Code]
  */
 TsStatus_t ts_message_create(TsMessageRef_t *message);
+
 TsStatus_t ts_message_create_copy(TsMessageRef_t message, TsMessageRef_t *value);
 TsStatus_t ts_message_create_array(TsMessageRef_t message, TsPathNode_t field, TsMessageRef_t *value);
 TsStatus_t ts_message_create_message(TsMessageRef_t message, TsPathNode_t field, TsMessageRef_t *value);

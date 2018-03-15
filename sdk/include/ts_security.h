@@ -115,9 +115,101 @@ typedef struct TsSecurityVtable {
 	TsStatus_t (*set_client_cert)(TsSecurityRef_t, const uint8_t *, size_t);
 	TsStatus_t (*set_client_key)(TsSecurityRef_t, const uint8_t *, size_t);
 
+	/**
+	 * Negotiate a TLS connection to the given server adddress. Note that this will use the underlying
+	 * ts_controller component to manage the TCP/IP stack on the configured platform.
+	 *
+	 * @param security
+	 * [in] The security object
+	 *
+	 * @param address
+	 * [in] The destination address. A FQDN may require resolution prior to calling this function based
+	 * on the underlying ts_controller or ts_driver capabilities, e.g., Mocana TLS expects an IP.
+	 *
+	 * @return
+	 * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+	 * - TsStatusOk
+	 * - TsStatusError[Code]
+	 */
 	TsStatus_t (*connect)(TsSecurityRef_t, TsAddress_t);
+
+	/**
+	 * Destroy (i.e., tear down) the current TCP/IP connection. Note that this will used the underlying
+	 * ts_controller component to tear down the connection.
+	 *
+	 * @param security
+	 * [in] The security object
+	 *
+	 * @return
+	 * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+	 * - TsStatusOk
+	 * - TsStatusError[Code]
+	 */
 	TsStatus_t (*disconnect)(TsSecurityRef_t);
+
+	/**
+	 * Read and decrypt from the tcp/ip driver (non-blocking) via the controller component.
+	 *
+	 * @note
+	 * TsStatusOkReadPending has a very specific meaning, only return when the read
+	 * has returned pending and there isn't data in the buffer, in all other cases
+	 * return a valid status with the contents of the current buffer.
+	 *
+	 * @param security
+	 * [in] The security state
+	 *
+	 * @param buffer
+	 * [in] The pre-allocated buffer memory
+	 *
+	 * @param buffer_size
+	 * [in] The pre-allocated buffer memory size
+	 * [out] The actual number of byte read
+	 *
+	 * @param budget
+	 * [in] Recommended allotment of time in microseconds allowed wait for received bytes.
+	 *
+	 * @return
+	 * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+	 * - TsStatusOk, *buffer_size > 0
+	 * 		- Successfully returned the given amount of read data
+	 * - TsStatusOk, *buffer_size = 0
+	 * 		- Indicates an end-of-file condition
+	 * - TsStatusOkPendingRead
+	 * 		- Indicates a blocking condition exists (and was avoided), note, *buffer_size is guaranteed to be zero when this condition occurs.
+	 * - TsStatusErrorConnectionReset
+	 * 		- Indicates that the connection was disrupted
+	 * - TsStatusError[Code]
+	 * 		- Additional errors are defined in, ts_status.h
+	 */
 	TsStatus_t (*read)(TsSecurityRef_t, const uint8_t *, size_t *, uint32_t);
+
+	/**
+	 * Encrypt and write to the driver (blocking) via the controller components.
+	 *
+	 * @param security
+	 * [in] The security state
+	 *
+	 * @param buffer
+	 * [in] The pre-allocated buffer memory containing the data to be written.
+	 *
+	 * @param buffer_size
+	 * [in] The pre-allocated buffer data size
+	 * [out] The actual number of byte written
+	 *
+	 * @param budget
+	 * [in] Recommended allotment of time in microseconds allowed to send bytes.
+	 *
+	 * @return
+	 * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+	 * - TsStatusOk, *buffer_size > 0
+	 * 		- Successfully returned the given amount of written data
+	 * - TsStatusOkPendingWrite
+	 * 		- Indicates a blocking condition exists (and was avoided), note, *buffer_size is guaranteed to be zero when this condition occurs.
+	 * - TsStatusErrorConnectionReset
+	 * 		- Indicates that the connection was disrupted
+	 * - TsStatusError[Code]
+	 * 		- Additional errors are defined in, ts_status.h
+	 */
 	TsStatus_t (*write)(TsSecurityRef_t, const uint8_t *, size_t *, uint32_t);
 
 } TsSecurityVtable_t;

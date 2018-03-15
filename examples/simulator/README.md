@@ -12,7 +12,7 @@ simulator $ ./build.bash
 
 After building the simulator, perform the following commands:
 ```$xslt
-simulator $ ./simulate.bash [host:port] 
+simulator $ ./simulate.bash [host:port] [[ca-host]
 ```
 
-Where the optional "host:port" parameter is the MQTT server proxy address and port.
+Where the optional "host:port" parameter is the MQTT server proxy address and port. If the host is different than the server certificate, then you may pass the ca-host parameter for sake ca-cert host validation.
