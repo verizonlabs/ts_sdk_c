@@ -7,7 +7,6 @@
  *
  * @brief
  * A hardware or software driver to an underlying TCP/IP stack (e.g., typically UART access to a cellular modem).
- * This interface is implemented by the software developer.
  *
  * @details
  * The "driver" is usually called from the ts_controller component, and encapsulates the hardware or software

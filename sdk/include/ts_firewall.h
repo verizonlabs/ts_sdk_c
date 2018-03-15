@@ -1,25 +1,96 @@
-// Copyright (C) 2017, 2018 Verizon, Inc. All rights reserved.
+/**
+ * @file
+ * ts_firewall.h
+ *
+ * @copyright
+ * Copyright (C) 2017, 2018 Verizon, Inc. All rights reserved.
+ *
+ * @brief
+ * A firewall connectivity service interface.
+ *
+ * @details
+ * The "firewall" connectivity service interface is used by licenced ThingSpace devices to manage local
+ * firewalls from the cloud. Implementation is specific to the OS and/or hardware platform.
+ *
+ * @note
+ * A developer would not implement this interface, it is a Verizon specific service that
+ * is only enabled from the network and billing systems.  Custom implementations may be
+ * supported in the future.
+ */
 #ifndef TS_FIREWALL_H
 #define TS_FIREWALL_H
 
 #include "ts_status.h"
 #include "ts_message.h"
 
+/**
+ * The firewall object reference
+ */
 typedef struct TsFirewall * TsFirewallRef_t;
-typedef struct TsFirewall {
 
-} TsFirewall_t;
+/**
+ * The firewall object.
+ */
+typedef struct TsFirewall {} TsFirewall_t;
 
-
+/**
+ * The firewall vector table (i.e., the firewall "class" definition), used to define the firewall SDK-aspect.
+ * See examples/platforms for available firewalls, or use your own customized implementation.
+ */
 typedef struct TsFirewallVtable {
 
+	/**
+	 * Allocate and initialize a new firewall object.
+	 *
+	 * @param firewall
+	 * [on/out] The pointer to a pre-existing TsFirewallRef_t, which will be initialized with the firewall state.
+	 *
+	 * @return
+	 * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+	 * - TsStatusOk
+	 * - TsStatusError[Code]
+	 */
 	TsStatus_t (*create)(TsFirewallRef_t *);
+
+	/**
+	 * Deallocate the given firewall object.
+	 *
+	 * @param firewall
+	 * [in] The firewall state.
+	 *
+	 * @return
+	 * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+	 * - TsStatusOk
+	 * - TsStatusError[Code]
+	 */
 	TsStatus_t (*destroy)(TsFirewallRef_t);
+
+	/**
+	 * Provide the given firewall processing time according to the given budget "recommendation".
+	 * This function is typically called from ts_service.
+	 *
+	 * @param firewall
+	 * [in] The firewall state.
+	 *
+	 * @param budget
+	 * [in] The recommended time in microseconds budgeted for the function
+	 *
+	 * @return
+	 * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+	 * - TsStatusOk
+	 * - TsStatusError[Code]
+	 */
 	TsStatus_t (*tick)(TsFirewallRef_t, uint32_t);
 
-	TsStatus_t (*set)(TsFirewallRef_t, TsMessageRef_t );
-	TsStatus_t (*get)(TsFirewallRef_t, TsMessageRef_t );
-	TsStatus_t (*remove)(TsFirewallRef_t, TsMessageRef_t );
+	/**
+	 * Process the given firewall message.
+	 *
+	 * @return
+	 * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+	 * - TsStatusOk
+	 * - TsStatusError[Code]
+	 */
+	TsStatus_t (*handle)(TsFirewallRef_t, TsMessageRef_t );
 
 } TsFirewallVtable_t;
 

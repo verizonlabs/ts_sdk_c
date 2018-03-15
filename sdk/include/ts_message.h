@@ -1,4 +1,41 @@
-// Copyright (C) 2017, 2018 Verizon, Inc. All rights reserved.
+/**
+ * @file
+ * ts_message.h
+ *
+ * @copyright
+ * Copyright (C) 2017, 2018 Verizon, Inc. All rights reserved.
+ *
+ * @brief
+ * A directed acyclic graph, i.e., a tree data-type.
+ *
+ * @details
+ * The "message" is used to hold data as a tree structure in an encoding-agnostic way. It
+ * is used as the intermediate structure between encoded data, i.e., JSON, CBOR and a special
+ * compressed CBOR form using predefined key and value tokens (used by the TS-CBOR protocol).
+ *
+ * @code
+ *
+ * 	TsMessageRef_t sensors, location;
+ * 	ts_message_create( &sensors );
+ *
+ * 	// create a name-value pair at the root, "temperature"
+ * 	ts_message_set_float( sensors, "temperature", 50.2 );
+ *
+ * 	// create a branch, "location"
+ * 	ts_message_create_message( sensors, "location", &location );
+ * 	ts_message_set_float( location, "longitude", -71.0 );
+ * 	ts_message_set_float( location, "latitude", 42.3 );
+ *
+ * 	// encode to JSON
+ * 	uint8_t buffer[ 2048 ];
+ * 	size_t buffer_size( sizeof( buffer ) );
+ * 	ts_message_encode( sensors, TsEncoderJson, buffer, buffer_size );
+ *
+ * 	// clean-up
+ * 	ts_message_destroy( sensors );
+ *
+ * @endcode
+ */
 #ifndef TS_MESSAGE_H
 #define TS_MESSAGE_H
 
@@ -55,11 +92,19 @@ typedef enum {
 	TsTypeNull      // no value 
 } TsType_t;
 
-// forward reference and typedef to TsMessage pointer
+/**
+ * The message object reference
+ */
 typedef struct TsMessage *TsMessageRef_t;
+
+/**
+ * The message object
+ */
 typedef TsStatus_t (*TsMessageHandler_t)( void * source, int source_action, TsMessageRef_t );
 
-// message value
+/**
+ * A message value
+ */
 typedef void *TsValue_t;
 
 // message string (zero terminated)
@@ -93,10 +138,35 @@ extern "C" {
 
 // create and destroy 
 TsStatus_t ts_message_report();
+
+
+/**
+ * Allocate and initialize a new message object.
+ *
+ * @param message
+ * [on/out] The pointer to a pre-existing TsMessageRef_t, which will be initialized with the message state.
+ *
+ * @return
+ * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+ * - TsStatusOk
+ * - TsStatusError[Code]
+ */
 TsStatus_t ts_message_create(TsMessageRef_t *message);
 TsStatus_t ts_message_create_copy(TsMessageRef_t message, TsMessageRef_t *value);
 TsStatus_t ts_message_create_array(TsMessageRef_t message, TsPathNode_t field, TsMessageRef_t *value);
 TsStatus_t ts_message_create_message(TsMessageRef_t message, TsPathNode_t field, TsMessageRef_t *value);
+
+/**
+ * Deallocate the given message object.
+ *
+ * @param message
+ * [in] The message state.
+ *
+ * @return
+ * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+ * - TsStatusOk
+ * - TsStatusError[Code]
+ */
 TsStatus_t ts_message_destroy(TsMessageRef_t message);
 
 // set and get operations 

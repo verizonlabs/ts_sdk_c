@@ -1,4 +1,19 @@
-// Copyright (C) 2017, 2018 Verizon, Inc. All rights reserved.
+/**
+ * @file
+ * ts_status.h
+ *
+ * @copyright
+ * Copyright (C) 2017, 2018 Verizon, Inc. All rights reserved.
+ *
+ * @brief
+ * Used for logging and error reporting.
+ *
+ * @details
+ * The entire SDK uses types defined in this file for all errors and debug messages
+ * as well as alarming. The error codes shown below are considered a "living" set of
+ * errors returned by the SDK back to the server, they may be extended at any time in
+ * the future.
+ */
 #ifndef TS_STATUS_H
 #define TS_STATUS_H
 

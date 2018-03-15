@@ -1,4 +1,23 @@
-// Copyright (C) 2017, 2018 Verizon, Inc. All rights reserved.
+/**
+ * @file
+ * ts_platform.h
+ *
+ * @copyright
+ * Copyright (C) 2017, 2018 Verizon, Inc. All rights reserved.
+ *
+ * @brief
+ * The OS-agnostic abstraction of certain resources, i.e., console, time, memory and random number generation (RNG).
+ *
+ * @details
+ * The SDK depends on this interface to access console, time, memory and RNG resources, which may be
+ * implemented differently on different OS' or hardware (e.g., UART console, hardware RNG, etc.)
+ *
+ * @note
+ * Components (e.g., ts_security, etc.) are simple vector-table (vtable) objects initialized according a
+ * configuration chosen at compile time, or (in some rare use-case scenarios) runtime. They provide the
+ * behavioral aspect of the particular component, allowing the developer to create and destroy objects of
+ * that type, and act on those objects according to the design of the component (e.g., connect, disconect, etc.)
+ */
 #ifndef TS_PLATFORM_H
 #define TS_PLATFORM_H
 
@@ -12,25 +31,27 @@
 #define TS_TIME_MSEC_TO_USEC 1000L
 #define TS_TIME_USEC_TO_NSEC 1000L
 
+/**
+ * The platform object reference
+ */
 typedef struct TsPlatform *TsPlatformRef_t;
-typedef struct TsPlatform {
-	// TODO - memory profile, hardware specs
-} TsPlatform_t;
 
-// TODO - rework to fit convention (e.g., initialize becomes create - enable profiling, enable status returns
-// TODO - comment on the time unit (e.g., usec vs msec)
-// TODO - should drivers be accessible from this struct? or separate (as it is today)
+/**
+ * The platform object
+ */
+typedef struct TsPlatform {} TsPlatform_t;
 
+/**
+ * The platform vector table (i.e., the platform "class" definition), used to define the platform SDK-aspect.
+ * See examples/platforms for available platform implementations, or use your own customized implementation.
+ */
 typedef struct TsPlatformVtable {
 	void		(*initialize)();
-	// TODO - switch to one printf?
 	void 		(*printf)(const char *, ...);
 	void 		(*vprintf)(const char *, va_list);
 	uint64_t	(*time)();
 	void		(*sleep)(uint32_t);
 	void		(*random)(uint32_t*);
-	// TODO - should enable memory profile
-	// TODO - should return status to indicate OOM or low-memory condition
 	void *		(*malloc)(size_t);
 	void		(*free)(void*,size_t);
 	void		(*assertion)(const char *msg, const char *file, int line);

@@ -1,4 +1,24 @@
-// Copyright (C) 2017, 2018 Verizon, Inc. All rights reserved.
+/**
+ * @file
+ * ts_security.h
+ *
+ * @copyright
+ * Copyright (C) 2017, 2018 Verizon, Inc. All rights reserved.
+ *
+ * @brief
+ * The security aspect of a connection as a component.
+ *
+ * @details
+ * The encryption and credentialing implementation used by the connection when connecting
+ * or communicating with a server. This is currently implemented by mbedTLS, but a Mocana version
+ * may be licenced, or a custom version may be used.
+ *
+ * @note
+ * Components (e.g., ts_security, etc.) are simple vector-table (vtable) objects initialized according a
+ * configuration chosen at compile time, or (in some rare use-case scenarios) run-time. They provide the
+ * behavioral aspect of the particular component, allowing the developer to create and destroy objects of
+ * that type, and act on those objects according to the design of the component (e.g., connect, disconect, etc.)
+ */
 #ifndef TS_SECURITY_H
 #define TS_SECURITY_H
 
@@ -26,7 +46,14 @@
 #define SSL_WRITE_BUDGET (50 * TS_TIME_SEC_TO_USEC)
 #endif
 
+/**
+ * The security object reference
+ */
 typedef struct TsSecurity *TsSecurityRef_t;
+
+/**
+ * The security object
+ */
 typedef struct TsSecurity {
 
 	TsControllerRef_t   _controller;
@@ -34,10 +61,53 @@ typedef struct TsSecurity {
 
 } TsSecurity_t;
 
+/**
+ * The security vector table (i.e., the security "class" definition), used to define the security SDK-aspect.
+ * See sdk_components/security for available security implementations, or use your own customized implementation.
+ */
 typedef struct TsSecurityVtable {
 
+	/**
+	 * Allocate and initialize a new security object. This function is typically called from ts_connection.
+	 *
+	 * @param security
+	 * [on/out] The pointer to a pre-existing TsSecurityRef_t, which will be initialized with the security state.
+	 *
+	 * @return
+	 * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+	 * - TsStatusOk
+	 * - TsStatusError[Code]
+	 */
 	TsStatus_t (*create)(TsSecurityRef_t *);
+
+	/**
+	 * Deallocate the given security object.
+	 *
+	 * @param security
+	 * [in] The security state.
+	 *
+	 * @return
+	 * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+	 * - TsStatusOk
+	 * - TsStatusError[Code]
+	 */
 	TsStatus_t (*destroy)(TsSecurityRef_t);
+
+	/**
+	 * Provide the given security object processing time according to the given budget "recommendation".
+	 * This function is typically called from ts_connection.
+	 *
+	 * @param security
+	 * [in] The security state.
+	 *
+	 * @param budget
+	 * [in] The recommended time in microseconds budgeted for the function
+	 *
+	 * @return
+	 * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+	 * - TsStatusOk
+	 * - TsStatusError[Code]
+	 */
 	TsStatus_t (*tick)(TsSecurityRef_t, uint32_t);
 
 	TsStatus_t (*set_server_cert_hostname)(TsSecurityRef_t, const char *);

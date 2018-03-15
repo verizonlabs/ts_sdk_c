@@ -3,6 +3,7 @@
 cmake-build-debug
 cmake-build-release
 *.swp
+documents/html/
 cacert.h
 client-crt.h
 client-key.h
