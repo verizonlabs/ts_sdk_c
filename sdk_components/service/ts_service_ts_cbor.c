@@ -1,6 +1,7 @@
 // Copyright (C) 2017, 2018 Verizon, Inc. All rights reserved.
 #include "ts_platform.h"
 #include "ts_service.h"
+#include "ts_firewall.h"
 
 static TsStatus_t ts_create( TsServiceRef_t * );
 static TsStatus_t ts_destroy( TsServiceRef_t );
@@ -19,22 +20,31 @@ TsServiceVtable_t ts_service_ts_cbor = {
 	.dequeue = ts_dequeue,
 };
 
-// TODO - clean-up controller x connection confusion (i.e., ...MAX_ID_SIZE)
 static TsStatus_t ts_create( TsServiceRef_t * service ) {
 
 	ts_status_trace("ts_service_create: ts-cbor\n");
+	ts_platform_assert( service != NULL );
+	ts_platform_assert( *service != NULL );
 
-	// do nothing
-
+	// create firewall if supported
+	if( ts_firewall != NULL ) {
+		TsStatus_t status = ts_firewall_create( &((*service)->_firewall) );
+		if( status != TsStatusOk ) {
+			ts_status_alarm( "ts_service_create: failed to create installed firewall, '%s'\n", ts_status_string(status));
+		}
+	}
 	return TsStatusOk;
 }
 
 static TsStatus_t ts_destroy( TsServiceRef_t service ) {
 
 	ts_status_trace("ts_service_destroy\n");
+	ts_platform_assert( service != NULL );
 
-	// do nothing
-
+	// destroy firewall, if already created
+	if( service->_firewall != NULL ) {
+		ts_firewall_destroy( service->_firewall );
+	}
 	return TsStatusOk;
 }
 
@@ -256,7 +266,7 @@ static TsStatus_t handler( TsTransportRef_t transport, void * state, TsPath_t pa
 
 			} else if( strcmp( kind, "ts.event.diagnostic" ) == 0 ) {
 
-				// get diagnostics, note that the message will be modified 'in-place'
+				// diagnostics, note that the message will be modified 'in-place'
 				// and must be returned with the correct status
 				// TODO - TS-CBOR diagnostics query not yet implemented
 				ts_status_debug( "ts_service_handler: diagnostics requested, and ignored,...\n" );
@@ -264,11 +274,17 @@ static TsStatus_t handler( TsTransportRef_t transport, void * state, TsPath_t pa
 
 			} else if( strcmp( kind, "ts.event.firewall" ) == 0 ) {
 
-				// get diagnostics, note that the message will be modified 'in-place'
+				// firewall, note that the message will be modified 'in-place'
 				// and must be returned with the correct status
-				// TODO - TS-CBOR diagnostics query not yet implemented
-				ts_status_debug( "ts_service_handler: firewall requested, and ignored,...\n" );
-				status = TsStatusOk;
+				if( service->_firewall != NULL ) {
+
+					status = ts_firewall_handle( service->_firewall, message );
+
+				} else {
+
+					ts_status_alarm( "ts_service_handler: firewall request on unavailable service,...\n" );
+					status = TsStatusErrorNotImplemented;
+				}
 
 			} else if( ( strcmp( kind, "ts.device" ) == 0 ) || ( strcmp( kind, "ts.element" ) == 0 ) ) {
 

@@ -22,6 +22,7 @@ TsStatus_t ts_service_create( TsServiceRef_t * service ) {
 	*service = (TsServiceRef_t) ( ts_platform_malloc( sizeof( TsService_t )));
 	memset( *service, 0x00, sizeof( TsService_t ) );
 	(*service)->_transport = transport;
+	(*service)->_firewall = NULL;
 
 	// last, complete service initialization via protocol-specific create
 	status = ts_service->create( service );

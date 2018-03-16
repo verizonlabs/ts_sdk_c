@@ -48,11 +48,11 @@ function(SynchronizeSubmodules)
     endif()
 
     set( TS_SUBMODULE_DEPENDENCIES
-        sdk_dependencies/mocana )
+    #   sdk_dependencies/mocana
+    )
 
     foreach( ARG ${TS_SUBMODULE_DEPENDENCIES} )
 
-        #execute_process( COMMAND "${GIT_EXECUTABLE} submodule update --init -- ${ARG}" RESULT_VARIABLE CMD_ERROR WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
         execute_process( COMMAND ${GIT_EXECUTABLE} submodule update --init ${ARG} RESULT_VARIABLE CMD_ERROR WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} )
         if( CMD_ERROR )
             message( STATUS "## dependency update error : ${CMD_ERROR}" )
@@ -62,8 +62,11 @@ function(SynchronizeSubmodules)
 
     set( TS_SUBMODULE_PLATFORMS
         examples/platforms/ts_sdk_c_platforms_unix_raspberry-pi3
-        examples/platforms/ts_sdk_c_platforms_none_nucleo-l476
-        examples/platforms/ts_sdk_c_platforms_none_frdm-k82f )
+    #   examples/platforms/ts_sdk_c_platforms_none_nucleo-l476
+    #   examples/platforms/ts_sdk_c_platforms_none_frdm-k82f
+    #   examples/platforms/ts_sdk_c_platforms_threadx_synergy-s5d9
+    #   examples/platforms/ts_sdk_c_platforms_nanowall_synergy-s5d9
+    )
 
     foreach( ARG ${TS_SUBMODULE_PLATFORMS} )
 
