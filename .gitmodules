@@ -10,3 +10,9 @@
 [submodule "examples/platforms/ts_sdk_c_platforms_none_frdm-k82f"]
 	path = examples/platforms/ts_sdk_c_platforms_none_frdm-k82f
 	url = https://github.com/verizonlabs/ts_sdk_c_platforms_none_frdm-k82f
+[submodule "examples/platforms/ts_sdk_c_platforms_nanowall_synergy-s5d9"]
+	path = examples/platforms/ts_sdk_c_platforms_nanowall_synergy-s5d9
+	url = https://github.com/verizonlabs/ts_sdk_c_platforms_nanowall_synergy-s5d9
+[submodule "examples/platforms/ts_sdk_c_platforms_threadx_synergy-s5d9"]
+	path = examples/platforms/ts_sdk_c_platforms_threadx_synergy-s5d9
+	url = https://github.com/verizonlabs/ts_sdk_c_platforms_threadx_synergy-s5d9
