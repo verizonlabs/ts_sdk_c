@@ -1,5 +1,5 @@
 # Copyright (C) 2017, Verizon, Inc. All rights reserved.
-cmake_minimum_required( VERSION 3.7 )
+cmake_minimum_required( VERSION 3.6 )
 
 # determine if this will build examples or not (affects submodules)
 option( BUILD_EXAMPLES "Compile example platforms and applications" OFF )
@@ -18,6 +18,7 @@ endif()
 
 # project definition
 project( ts_sdk_c C CXX ASM )
+set( CMAKE_C_STANDARD 99 )
 
 # (optional) toolchain
 if( CMAKE_TOOLCHAIN_FILE )
