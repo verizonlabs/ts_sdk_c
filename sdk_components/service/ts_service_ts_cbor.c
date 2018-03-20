@@ -91,14 +91,15 @@ static TsStatus_t ts_enqueue( TsServiceRef_t service, TsMessageRef_t sensor ) {
 	buffer[ 1 ] = TsServiceEnvelopeServiceIdTsCbor;
 	buffer[ 2 ] = (uint8_t)(buffer_size >> 8);
 	buffer[ 3 ] = (uint8_t)(buffer_size & 0xff);
-
+	buffer_size = buffer_size + 4;
+	
 	// send data
 	size_t topic_size = 256;
 	char topic[ 256 ];
 	snprintf( topic, topic_size, "ThingSpace/%s/ElementToProvider", id );
 
 	// TODO - check return codes - may have disconnected.
-	ts_transport_speak( service->_transport, (TsPath_t)topic, buffer, buffer_size + 4 );
+	ts_transport_speak( service->_transport, (TsPath_t)topic, buffer, buffer_size );
 
 	// clean-up and return
 	ts_platform_free( buffer, buffer_size );
@@ -347,7 +348,7 @@ static TsStatus_t handler( TsTransportRef_t transport, void * state, TsPath_t pa
 	size_t topic_size = 256;
 	char topic[ 256 ];
 	snprintf( topic, topic_size, "ThingSpace/%s/ElementToProvider", id );
-	ts_transport_speak( transport, (TsPath_t)topic, response_buffer, response_buffer_size + 4 );
+	ts_transport_speak( transport, (TsPath_t)topic, response_buffer, response_buffer_size );
 
 	// clean-up and return
 	ts_platform_free( response_buffer, response_buffer_size );
