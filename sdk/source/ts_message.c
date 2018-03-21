@@ -25,7 +25,7 @@ static TsStatus_t _ts_message_get( TsMessageRef_t, TsPathNode_t, TsType_t, TsVal
 static TsStatus_t _ts_message_encode_debug( TsMessageRef_t, int );
 static TsStatus_t _ts_message_encode_json( TsMessageRef_t, uint8_t *, size_t );
 static TsStatus_t _ts_message_encode_cbor( TsMessageRef_t, CborEncoder *, uint8_t *, size_t );
-static TsStatus_t _ts_message_encode_ts_cbor( TsMessageRef_t, CborEncoder *, bool, uint8_t *, size_t );
+static TsStatus_t _ts_message_encode_ts_cbor( TsMessageRef_t, CborEncoder *, int, uint8_t *, size_t );
 static TsStatus_t _ts_message_decode_ts_cbor( TsMessageRef_t, int, CborValue * );
 
 TsStatus_t ts_message_report() {
@@ -368,7 +368,7 @@ TsStatus_t ts_message_get_message( TsMessageRef_t message, TsPathNode_t field, T
 TsStatus_t ts_message_get_size( TsMessageRef_t array, size_t * size ) {
 
 	/* check preconditions */
-	if( array == NULL || array->type != TsTypeArray ) {
+	if( array == NULL || ( array->type != TsTypeArray && array->type != TsTypeMessage ) ) {
 		return TsStatusErrorPreconditionFailed;
 	}
 
@@ -484,7 +484,7 @@ TsStatus_t ts_message_encode( TsMessageRef_t message, TsEncoder_t encoder, uint8
 
 		CborEncoder cbor;
 		cbor_encoder_init( &cbor, buffer, *buffer_size, 0 );
-		TsStatus_t status = _ts_message_encode_ts_cbor( message, &cbor, true, buffer, *buffer_size );
+		TsStatus_t status = _ts_message_encode_ts_cbor( message, &cbor, 0, buffer, *buffer_size );
 		*buffer_size = cbor_encoder_get_buffer_size( &cbor, buffer );
 		return status;
 	}
@@ -617,10 +617,61 @@ TsStatus_t ts_message_decode_json( TsMessageRef_t message, cJSON * value ) {
 			}
 			break;
 		}
-		case cJSON_Array:
-			/* TODO */
-			/* fallthrough */
+		case cJSON_Array: {
 
+			TsMessageRef_t array;
+			status = ts_message_create_array( message, value->string, &array );
+			if( status == TsStatusOk ) {
+
+				for( size_t index = 0; index < cJSON_GetArraySize( value ); index++ ) {
+
+					cJSON * item = cJSON_GetArrayItem( value, (int)index );
+					switch( item->type ) {
+					case cJSON_Number:
+						if( item->valuedouble == (double) ( item->valueint )) {
+							status = ts_message_set_int_at( array, index, item->valueint );
+						} else {
+							status = ts_message_set_float_at( array, index, (float)(item->valuedouble) );
+						}
+						break;
+
+					case cJSON_String:
+						status = ts_message_set_string_at( array, index, item->valuestring );
+						break;
+
+					case cJSON_True:
+						status = ts_message_set_bool_at( array, index, true );
+						break;
+
+					case cJSON_False:
+						status = ts_message_set_bool_at( array, index, false );
+						break;
+
+					case cJSON_Object: {
+
+						TsMessageRef_t xcontent;
+						status = ts_message_create( &xcontent );
+						if( status == TsStatusOk ) {
+							status = ts_message_decode_json( xcontent, item->child );
+							if( status == TsStatusOk ) {
+								ts_message_set_message_at( array, index, xcontent );
+							}
+						}
+						ts_message_destroy( xcontent );
+						break;
+					}
+					default:
+						ts_status_alarm("ts_message_decode_json: array item type not supported, re: '%s'\n", item->string );
+						return TsStatusErrorBadRequest;
+					}
+				}
+				/* Returns the number of items in an array (or object). */
+				//CJSON_PUBLIC(int) cJSON_GetArraySize(const cJSON *array);
+				/* Retrieve item number "item" from array "array". Returns NULL if unsuccessful. */
+				//CJSON_PUBLIC(cJSON *) cJSON_GetArrayItem(const cJSON *array, int index);
+			}
+			break;
+		}
 		case cJSON_Invalid:
 		case cJSON_Raw:
 		default:
@@ -865,57 +916,42 @@ static TsStatus_t _ts_message_get( TsMessageRef_t message, TsPathNode_t field, T
 /* simple debug based 'encoder', display the structure of the message as it stands */
 static TsStatus_t _ts_message_encode_debug( TsMessageRef_t message, int depth ) {
 
-	/* pretty print (indent) */
-	for( int i = 0; i < depth; i++ ) {
-		ts_status_debug( "  " );
-	}
-	if( strlen( message->name ) > 0 ) {
-		ts_status_debug( "%s", message->name );
-	}
-
 	/* display type and value */
 	switch( message->type ) {
 	case TsTypeNull:
-		ts_status_debug( ":NULL\n" );
+		ts_status_debug( "%s:NULL\n", message->name );
 		break;
 
 	case TsTypeInteger:
-		ts_status_debug( ":integer( %d )\n", message->value._xinteger );
+		ts_status_debug( "%s:integer( %d )\n", message->name, message->value._xinteger );
 		break;
 
 	case TsTypeFloat:
-		ts_status_debug( ":float( %f )\n", message->value._xfloat );
+		ts_status_debug( "%s:float( %f )\n", message->name, message->value._xfloat );
 		break;
 
 	case TsTypeBoolean:
-		ts_status_debug( ":boolean( %u )\n", message->value._xboolean );
+		ts_status_debug( "%s:boolean( %u )\n", message->name, message->value._xboolean );
 		break;
 
 	case TsTypeString:
-		ts_status_debug( ":string( %s )\n", message->value._xstring );
+		ts_status_debug( "%s:string( %s )\n", message->name, message->value._xstring );
 		break;
 
 	case TsTypeArray: {
-		ts_status_debug( ":array\n" );
+		ts_status_debug( "%s:array\n", message->name );
 		for( int i = 0; i < TS_MESSAGE_MAX_BRANCHES; i++ ) {
 			TsMessageRef_t branch = message->value._xfields[ i ];
 			if( branch == NULL) {
 				break;
 			}
-			for( int j = 0; j < depth; j++ ) {
-				ts_status_debug( "  " );
-			}
-			ts_status_debug( "[%d] = {\n", i );
+			ts_status_debug( "[%d] =\n", i );
 			_ts_message_encode_debug( branch, depth + 1 );
-			for( int j = 0; j < depth; j++ ) {
-				ts_status_debug( "  " );
-			}
-			ts_status_debug( "}\n" );
 		}
 		break;
 	}
 	case TsTypeMessage: {
-		ts_status_debug( ":message\n" );
+		ts_status_debug( "%s:message( BEGIN )\n", message->name );
 		for( int i = 0; i < TS_MESSAGE_MAX_BRANCHES; i++ ) {
 			TsMessageRef_t branch = message->value._xfields[ i ];
 			if( branch == NULL) {
@@ -923,10 +959,11 @@ static TsStatus_t _ts_message_encode_debug( TsMessageRef_t message, int depth ) 
 			}
 			_ts_message_encode_debug( branch, depth + 1 );
 		}
+		ts_status_debug( "%s:message( END )\n", message->name );
 		break;
 	}
 	default:
-		ts_status_debug( ":unknown\n" );
+		ts_status_debug( "%s:unknown\n", message->name );
 		break;
 	}
 	return TsStatusOk;
@@ -1050,8 +1087,57 @@ static TsStatus_t _ts_message_encode_cbor( TsMessageRef_t message, CborEncoder *
 		break;
 
 	case TsTypeArray: {
-		/* TODO - add array */
-		return TsStatusErrorNotImplemented;
+
+		cbor_encode_text_stringz( encoder, message->name );
+
+		/* determine size of array */
+		size_t length;
+		ts_message_get_size( message, &length );
+
+		/* create and fill array */
+		CborEncoder array;
+		cbor_encoder_create_array( encoder, &array, length );
+		for( int i = 0; i < (int)length; i++ ) {
+
+			TsMessageRef_t xmessage = message->value._xfields[ i ];
+			switch( xmessage->type ) {
+			case TsTypeInteger:
+				cbor_encode_int( &array, xmessage->value._xinteger );
+				break;
+
+			case TsTypeFloat:
+				cbor_encode_float( &array, xmessage->value._xfloat );
+				break;
+
+			case TsTypeBoolean:
+				cbor_encode_boolean( &array, xmessage->value._xboolean );
+				break;
+
+			case TsTypeString:
+				cbor_encode_text_string( &array, xmessage->value._xstring, strlen(xmessage->value._xstring) );
+				break;
+
+			case TsTypeMessage: {
+
+				/* determine size of map */
+				size_t xlength;
+				ts_message_get_size( xmessage, &xlength );
+
+				/* create and fill map */
+				CborEncoder xmap;
+				cbor_encoder_create_map( &array, &xmap, xlength );
+				for( int xi = 0; xi < (int)xlength; xi++ ) {
+					_ts_message_encode_cbor( xmessage->value._xfields[ xi ], &xmap, buffer, buffer_size );
+				}
+				cbor_encoder_close_container( &array, &xmap );
+				break;
+			}
+			default:
+				return TsStatusErrorInternalServerError;
+			}
+		}
+		cbor_encoder_close_container( encoder, &array );
+		break;
 	}
 	case TsTypeMessage: {
 
@@ -1060,15 +1146,9 @@ static TsStatus_t _ts_message_encode_cbor( TsMessageRef_t message, CborEncoder *
 			cbor_encode_text_stringz( encoder, message->name );
 		}
 
-		/* determine size of map */
-		/* TODO - avoid search, hold current free index in root */
-		size_t length = TS_MESSAGE_MAX_BRANCHES;
-		for( size_t i = 0; i < TS_MESSAGE_MAX_BRANCHES; i++ ) {
-			if( message->value._xfields[ i ] == NULL) {
-				length = i;
-				break;
-			}
-		}
+		/* determine size of array */
+		size_t length;
+		ts_message_get_size( message, &length );
 
 		/* create and fill map */
 		CborEncoder map;
@@ -1125,6 +1205,7 @@ static char * _ts_cbor_kind_mapping[] = {
 	"ts.element",
 	"ts.event",
 	"ts.event.diagnostic",
+	"ts.event.firewall",
 };
 
 static char * _ts_cbor_action_mapping[] = {
@@ -1135,11 +1216,12 @@ static char * _ts_cbor_action_mapping[] = {
 	"get",
 	"set",
 	"update",
+	"delete",
 };
 
-static TsStatus_t _ts_message_encode_ts_cbor_key( CborEncoder * encoder, bool is_root, char * name, TsCborValueType_t * type ) {
+static TsStatus_t _ts_message_encode_ts_cbor_key( CborEncoder * encoder, int depth, char * name, TsCborValueType_t * type ) {
 
-	if( is_root ) {
+	if( depth <= 1 ) {
 
 		bool found = false;
 		for( int i = 0; i < sizeof(_ts_cbor_key_mapping); i++ ) {
@@ -1175,9 +1257,9 @@ static uint8_t _ts_message_hex_number( char digit ) {
 	}
 }
 
-static TsStatus_t _ts_message_encode_ts_cbor_value( CborEncoder * encoder, bool is_root, char * value, TsCborValueType_t type ) {
+static TsStatus_t _ts_message_encode_ts_cbor_value( CborEncoder * encoder, int depth, char * value, TsCborValueType_t type ) {
 
-	if( is_root ) {
+	if( depth <= 1 ) {
 
 		switch( type ) {
 		case TsCborValueTypeUUID: {
@@ -1214,6 +1296,8 @@ static TsStatus_t _ts_message_encode_ts_cbor_value( CborEncoder * encoder, bool 
 				cbor_encode_int( encoder, 2 );
 			} else if( strcmp( value, "ts.event.diagnostic" ) == 0 ) {
 				cbor_encode_int( encoder, 3 );
+			} else if( strcmp( value, "ts.event.firewall" ) == 0 ) {
+				cbor_encode_int( encoder, 4 );
 			} else {
 				ts_status_alarm( "ts_message_encode_ts_cbor: no mapping found for malformed Kind, %s, ignoring,...\n", value );
 				cbor_encode_text_stringz( encoder, value );
@@ -1235,6 +1319,8 @@ static TsStatus_t _ts_message_encode_ts_cbor_value( CborEncoder * encoder, bool 
 				cbor_encode_int( encoder, 6 );
 			} else if( strcmp( value, "update" ) == 0 ) {
 				cbor_encode_int( encoder, 7 );
+			} else if( strcmp( value, "delete" ) == 0 ) {
+				cbor_encode_int( encoder, 8 );
 			} else {
 				ts_status_alarm( "ts_message_encode_ts_cbor: no mapping found for malformed Action, %s, ignoring,...\n", value );
 				cbor_encode_text_stringz( encoder, value );
@@ -1252,7 +1338,7 @@ static TsStatus_t _ts_message_encode_ts_cbor_value( CborEncoder * encoder, bool 
 	return TsStatusOk;
 }
 
-static TsStatus_t _ts_message_encode_ts_cbor( TsMessageRef_t message, CborEncoder * encoder, bool is_root, uint8_t * buffer, size_t buffer_size ) {
+static TsStatus_t _ts_message_encode_ts_cbor( TsMessageRef_t message, CborEncoder * encoder, int depth, uint8_t * buffer, size_t buffer_size ) {
 
 	TsCborValueType_t type;
 	switch( message->type ) {
@@ -1277,36 +1363,80 @@ static TsStatus_t _ts_message_encode_ts_cbor( TsMessageRef_t message, CborEncode
 		break;
 
 	case TsTypeString:
-		_ts_message_encode_ts_cbor_key( encoder, is_root, message->name, &type );
-		_ts_message_encode_ts_cbor_value( encoder, is_root, message->value._xstring, type );
+		_ts_message_encode_ts_cbor_key( encoder, depth, message->name, &type );
+		_ts_message_encode_ts_cbor_value( encoder, depth, message->value._xstring, type );
 		break;
 
 	case TsTypeArray: {
-		/* TODO - add array */
-		return TsStatusErrorNotImplemented;
+
+		cbor_encode_text_stringz( encoder, message->name );
+
+		/* determine size of array */
+		size_t length;
+		ts_message_get_size( message, &length );
+
+		/* create and fill array */
+		CborEncoder array;
+		cbor_encoder_create_array( encoder, &array, length );
+		for( int i = 0; i < (int)length; i++ ) {
+
+			TsMessageRef_t xmessage = message->value._xfields[ i ];
+			TsCborValueType_t xtype;
+			switch( xmessage->type ) {
+			case TsTypeInteger:
+				cbor_encode_int( &array, xmessage->value._xinteger );
+				break;
+
+			case TsTypeFloat:
+				cbor_encode_float( &array, xmessage->value._xfloat );
+				break;
+
+			case TsTypeBoolean:
+				cbor_encode_boolean( &array, xmessage->value._xboolean );
+				break;
+
+			case TsTypeString:
+				cbor_encode_text_string( &array, xmessage->value._xstring, strlen(xmessage->value._xstring) );
+				break;
+
+			case TsTypeMessage: {
+
+				/* determine size of map */
+				size_t xlength;
+				ts_message_get_size( xmessage, &xlength );
+
+				/* create and fill map */
+				CborEncoder xmap;
+				cbor_encoder_create_map( &array, &xmap, xlength );
+				for( int xi = 0; xi < (int)xlength; xi++ ) {
+					_ts_message_encode_ts_cbor( xmessage->value._xfields[ xi ], &xmap, depth+1, buffer, buffer_size );
+				}
+				cbor_encoder_close_container( &array, &xmap );
+				break;
+			}
+			default:
+				return TsStatusErrorInternalServerError;
+			}
+		}
+		cbor_encoder_close_container( encoder, &array );
+		break;
 	}
 	case TsTypeMessage: {
 
 		/* tag if not root */
-		if( strcmp( message->name, "$root" ) != 0 ) {
-			_ts_message_encode_ts_cbor_key( encoder, is_root, message->name, &type );
+		if( depth > 0 ) {
+			_ts_message_encode_ts_cbor_key( encoder, depth, message->name, &type );
 		}
 
 		/* determine size of map */
-		/* TODO - avoid search, hold current free index in root */
-		size_t length = TS_MESSAGE_MAX_BRANCHES;
-		for( size_t i = 0; i < TS_MESSAGE_MAX_BRANCHES; i++ ) {
-			if( message->value._xfields[ i ] == NULL) {
-				length = i;
-				break;
-			}
-		}
+		size_t length;
+		ts_message_get_size( message, &length );
 
 		/* create and fill map */
 		CborEncoder map;
 		cbor_encoder_create_map( encoder, &map, length );
-		for( int i = 0; i < length; i++ ) {
-			_ts_message_encode_ts_cbor( message->value._xfields[ i ], &map, true, buffer, buffer_size );
+		for( int i = 0; i < (int)length; i++ ) {
+			_ts_message_encode_ts_cbor( message->value._xfields[ i ], &map, depth+1, buffer, buffer_size );
 		}
 		cbor_encoder_close_container( encoder, &map );
 		break;
@@ -1336,6 +1466,113 @@ static TsCborValueType_t ts_cbor_key_to_key_type( const char * key ) {
 		}
 	}
 	return key_type;
+}
+
+static TsStatus_t _ts_message_decode_ts_cbor_array( TsMessageRef_t message, CborValue * value ) {
+
+	size_t index = 0;
+	TsStatus_t status = TsStatusOk;
+	do {
+
+		bool get_next_sibling = false;
+		CborError error;
+
+		// decode value node
+		CborType type = cbor_value_get_type( value );
+		switch( type ) {
+		case CborIntegerType: {
+
+			int64_t data = 0;
+			cbor_value_get_int64( value, &data);
+			ts_message_set_int_at( message, index, (int)data );
+			get_next_sibling = true;
+			break;
+		}
+		case CborTextStringType: {
+
+			size_t data_size;
+			char * data = NULL;
+			error = cbor_value_dup_text_string( value, &data, &data_size, value );
+			if( error ) {
+				status = TsStatusErrorInternalServerError;
+				break;
+			}
+			ts_message_set_string_at( message, index, data );
+			free(data);
+			break;
+		}
+		case CborBooleanType: {
+
+			bool data;
+			cbor_value_get_boolean( value, &data );
+			ts_message_set_bool_at( message, index, data );
+			get_next_sibling = true;
+			break;
+		}
+		case CborDoubleType: {
+
+			double data;
+			cbor_value_get_double( value, &data );
+			ts_message_set_float_at( message, index, (float)data );
+			get_next_sibling = true;
+			break;
+		}
+		case CborFloatType: {
+
+			float data;
+			cbor_value_get_float( value, & data );
+			ts_message_set_float_at( message, index, data );
+			get_next_sibling = true;
+			break;
+		}
+		case CborMapType: {
+
+			// recursive type
+			CborValue recursed;
+			error = cbor_value_enter_container( value, &recursed );
+			if( error ) {
+				ts_status_alarm( "ts_message_decode_ts_cbor: failed to open container\n" );
+				status = TsStatusErrorInternalServerError;
+			}
+
+			TsMessageRef_t content;
+			ts_message_create( &content );
+			status = _ts_message_decode_ts_cbor( content, -1, &recursed );
+			if( status == TsStatusOk ) {
+				ts_message_set_message_at( message, index, content );
+			}
+			ts_message_destroy( content );
+
+			error = cbor_value_leave_container( value, &recursed );
+			if( error ) {
+				ts_status_alarm( "ts_message_decode_ts_cbor: failed to close container\n" );
+				status = TsStatusErrorInternalServerError;
+			}
+			break;
+		}
+		default:
+
+			ts_status_alarm( "ts_message_decode_ts_cbor: unknown type encountered during decode, %d\n", value->type );
+			status = TsStatusErrorNotImplemented;
+			break;
+		}
+
+		// get next key sibling
+		if( get_next_sibling  && status == TsStatusOk ) {
+
+			error = cbor_value_advance_fixed( value );
+			if( error ) {
+				ts_status_alarm( "ts_message_decode_ts_cbor: failed to advance, %d\n", error );
+				status = TsStatusErrorInternalServerError;
+			}
+		}
+
+		// bump index
+		index = index + 1;
+
+	} while( !cbor_value_at_end( value ) && status == TsStatusOk && index < TS_MESSAGE_MAX_BRANCHES );
+
+	return status;
 }
 
 /* _ts_message_decode_ts_cbor */
@@ -1503,6 +1740,7 @@ TsStatus_t _ts_message_decode_ts_cbor( TsMessageRef_t message, int depth, CborVa
 			cbor_value_get_boolean( value, &data );
 			ts_message_set_bool( message, key, data );
 			get_next_sibling = true;
+			break;
 		}
 		case CborDoubleType: {
 
@@ -1528,13 +1766,27 @@ TsStatus_t _ts_message_decode_ts_cbor( TsMessageRef_t message, int depth, CborVa
 			status = TsStatusErrorNotImplemented;
 			break;
 
-		case CborArrayType:
+		case CborArrayType: {
 
-			// TODO - array not implemented
-			ts_status_alarm( "ts_message_decode_ts_cbor: array decoding not implemented\n" );
-			status = TsStatusErrorNotImplemented;
+			// recursive type
+			CborValue recursed;
+			error = cbor_value_enter_container( value, &recursed );
+			if( error ) {
+				ts_status_alarm( "ts_message_decode_ts_cbor: failed to open container\n" );
+				status = TsStatusErrorInternalServerError;
+			}
+
+			TsMessageRef_t content;
+			ts_message_create_array( message, key, &content );
+			status = _ts_message_decode_ts_cbor_array( content, &recursed );
+
+			error = cbor_value_leave_container( value, &recursed );
+			if( error ) {
+				ts_status_alarm( "ts_message_decode_ts_cbor: failed to close container\n" );
+				status = TsStatusErrorInternalServerError;
+			}
 			break;
-
+		}
 		case CborMapType: {
 
 			// recursive type
@@ -1561,7 +1813,6 @@ TsStatus_t _ts_message_decode_ts_cbor( TsMessageRef_t message, int depth, CborVa
 			}
 			break;
 		}
-
 		default:
 
 			ts_status_alarm( "ts_message_decode_ts_cbor: unknown type encountered during decode, %d\n", value->type );

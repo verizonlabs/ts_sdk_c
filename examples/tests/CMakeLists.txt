@@ -42,3 +42,7 @@ target_link_libraries( test_transport_mqtt_tls ts_sdk )
 add_executable( test_debug_interface test_debug_interface.c $<TARGET_OBJECTS:ts_sdk_platforms> )
 load_link_time_settings(test_debug_interface ts_sdk_platforms)
 target_link_libraries( test_debug_interface ts_sdk )
+
+add_executable( test_firewall test_firewall.c $<TARGET_OBJECTS:ts_sdk_platforms> )
+load_link_time_settings( test_firewall ts_sdk_platforms )
+target_link_libraries( test_firewall ts_sdk )

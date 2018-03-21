@@ -31,7 +31,14 @@ typedef struct TsFirewall * TsFirewallRef_t;
 /**
  * The firewall object.
  */
-typedef struct TsFirewall {} TsFirewall_t;
+typedef struct TsFirewall {
+	bool _enabled;
+	TsMessageRef_t _default_rules;
+	TsMessageRef_t _default_domains;
+	TsMessageRef_t _rules;
+	TsMessageRef_t _domains;
+
+} TsFirewall_t;
 
 /**
  * The firewall vector table (i.e., the firewall "class" definition), used to define the firewall SDK-aspect.
