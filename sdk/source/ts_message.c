@@ -1472,7 +1472,7 @@ static TsStatus_t _ts_message_decode_ts_cbor_array( TsMessageRef_t message, Cbor
 
 	size_t index = 0;
 	TsStatus_t status = TsStatusOk;
-	do {
+	while( !cbor_value_at_end( value ) && status == TsStatusOk && index < TS_MESSAGE_MAX_BRANCHES ) {
 
 		bool get_next_sibling = false;
 		CborError error;
@@ -1570,7 +1570,7 @@ static TsStatus_t _ts_message_decode_ts_cbor_array( TsMessageRef_t message, Cbor
 		// bump index
 		index = index + 1;
 
-	} while( !cbor_value_at_end( value ) && status == TsStatusOk && index < TS_MESSAGE_MAX_BRANCHES );
+	}
 
 	return status;
 }
