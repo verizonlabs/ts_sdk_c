@@ -21,6 +21,10 @@ static TsStatus_t ts_set_server_cert(TsSecurityRef_t, const uint8_t *, size_t);
 static TsStatus_t ts_set_client_cert(TsSecurityRef_t, const uint8_t *, size_t);
 static TsStatus_t ts_set_client_key(TsSecurityRef_t, const uint8_t *, size_t);
 
+static TsStatus_t ts_get_spec_mtu( TsSecurityRef_t, uint32_t* );
+static TsStatus_t ts_get_spec_id( TsSecurityRef_t, const uint8_t *, size_t );
+static TsStatus_t ts_get_spec_budget( TsSecurityRef_t, uint32_t* );
+
 static TsStatus_t ts_connect(TsSecurityRef_t, TsAddress_t);
 static TsStatus_t ts_disconnect(TsSecurityRef_t);
 static TsStatus_t ts_read(TsSecurityRef_t, const uint8_t *, size_t *, uint32_t);
@@ -35,6 +39,10 @@ TsSecurityVtable_t ts_security_mocana = {
 	.set_server_cert = ts_set_server_cert,
 	.set_client_cert = ts_set_client_cert,
 	.set_client_key = ts_set_client_key,
+
+	.get_spec_mtu = ts_get_spec_mtu,
+	.get_spec_id = ts_get_spec_id,
+	.get_spec_budget = ts_get_spec_budget,
 
 	.connect = ts_connect,
 	.disconnect = ts_disconnect,
@@ -218,6 +226,53 @@ static TsStatus_t ts_set_client_key(TsSecurityRef_t security, const uint8_t * cl
 			return TsStatusErrorInternalServerError;
 		}
 	}
+
+	return TsStatusOk;
+}
+
+
+TsStatus_t ts_get_spec_mtu( TsSecurityRef_t security, uint32_t* mtu ) {
+
+	ts_status_trace( "ts_security_get_spec_mtu\n" );
+	ts_platform_assert( ts_security != NULL );
+	ts_platform_assert( security != NULL );
+	ts_platform_assert( security->_controller != NULL );
+	ts_platform_assert( security->_controller->_driver != NULL );
+	ts_platform_assert( mtu != NULL );
+
+	// TODO - This should call the next link in pipeline
+	*mtu = security->_controller->_driver->_spec_mtu;
+
+	return TsStatusOk;
+}
+
+TsStatus_t ts_get_spec_id( TsSecurityRef_t security, const uint8_t * id, size_t id_size ) {
+
+	ts_status_trace( "ts_security_get_spec_id\n" );
+	ts_platform_assert( ts_security != NULL );
+	ts_platform_assert( security != NULL );
+	ts_platform_assert( security->_controller != NULL );
+	ts_platform_assert( security->_controller->_driver != NULL );
+	ts_platform_assert( id != NULL );
+	ts_platform_assert( id_size <= TS_DRIVER_MAX_ID_SIZE );
+
+	// TODO - This should call the next link in pipeline
+	snprintf( (char *)id, id_size, "%s", (const char *)(security->_controller->_driver->_spec_id) );
+
+	return TsStatusOk;
+}
+
+TsStatus_t ts_get_spec_budget( TsSecurityRef_t security, uint32_t* budget ) {
+
+	ts_status_trace( "ts_security_get_spec_budget\n" );
+	ts_platform_assert( ts_security != NULL );
+	ts_platform_assert( security != NULL );
+	ts_platform_assert( security->_controller != NULL );
+	ts_platform_assert( security->_controller->_driver != NULL );
+	ts_platform_assert( budget != NULL );
+
+	// TODO - This should call the next link in pipeline
+	*budget = security->_controller->_driver->_spec_budget;
 
 	return TsStatusOk;
 }

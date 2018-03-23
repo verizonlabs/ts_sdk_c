@@ -48,8 +48,12 @@ add_subdirectory( sdk )
 
 # build common static library
 # (depends on components and dependencies)
-add_library( ts_sdk STATIC $<TARGET_OBJECTS:ts_sdk_apis> $<TARGET_OBJECTS:ts_sdk_components> )
-target_link_libraries( ts_sdk tinycbor cjson pahomqtt )
+add_library( ts_sdk STATIC
+    $<TARGET_OBJECTS:ts_sdk_apis>
+    $<TARGET_OBJECTS:ts_sdk_components>
+    $<TARGET_OBJECTS:tinycbor>
+    $<TARGET_OBJECTS:cjson>
+    $<TARGET_OBJECTS:pahomqtt> )
 
 # link only one version from the security dependencies
 get_directory_property( DEFINITIONS COMPILE_DEFINITIONS )

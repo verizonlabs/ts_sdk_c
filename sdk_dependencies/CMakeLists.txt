@@ -25,7 +25,7 @@ endif()
 set( TARGETS tinycbor )
 file( GLOB SOURCES tinycbor/src/*.[ch] )
 
-add_library( tinycbor STATIC ${SOURCES} )
+add_library( tinycbor OBJECT ${SOURCES} )
 target_compile_definitions( tinycbor PRIVATE CBOR_PARSER_NO_STRICT_CHECKS=TRUE )
 
 # #############################################################################
@@ -34,7 +34,7 @@ target_compile_definitions( tinycbor PRIVATE CBOR_PARSER_NO_STRICT_CHECKS=TRUE )
 set( TARGETS cjson )
 file( GLOB SOURCES cJSON/cJSON.[ch] )
 
-add_library( cjson STATIC ${SOURCES} )
+add_library( cjson OBJECT ${SOURCES} )
 target_compile_definitions( cjson PRIVATE ENABLE_CJSON_TEST=OFF )
 
 # #############################################################################
@@ -43,7 +43,7 @@ target_compile_definitions( cjson PRIVATE ENABLE_CJSON_TEST=OFF )
 set( TARGETS pahomqtt )
 file( GLOB SOURCES paho.mqtt.embedded-c/MQTTPacket/src/*.[ch] paho.mqtt.embedded-c/MQTTClient-C/src/MQTTClient.c )
 
-add_library( pahomqtt STATIC ${SOURCES} )
+add_library( pahomqtt OBJECT ${SOURCES} )
 target_include_directories( pahomqtt PRIVATE
     paho.mqtt.embedded-c/MQTTPacket/src
     paho.mqtt.embedded-c/MQTTClient-C/src

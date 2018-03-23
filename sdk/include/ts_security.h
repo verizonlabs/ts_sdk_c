@@ -116,6 +116,60 @@ typedef struct TsSecurityVtable {
 	TsStatus_t (*set_client_key)(TsSecurityRef_t, const uint8_t *, size_t);
 
 	/**
+	 * Return the recommended maximum message size. This value usually comes from the
+	 * ts_driver object held by the ts_controller (which, in turn, is held by this ts_security
+	 * object, _security), and usually reflects a hardware (e.g., module memory) or
+	 * TCP/IP stack limitation on the message size.
+	 *
+	 * @param security
+	 * [in] The security state.
+	 *
+	 * @param mtu
+	 * [in/out] The pointer to the target int being filled with the MTU value.
+	 *
+	 * @return
+	 * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+	 * - TsStatusOk
+	 * - TsStatusError[Code]
+	 */
+	TsStatus_t (*get_spec_mtu)( TsSecurityRef_t connection, uint32_t* mtu );
+
+	/**
+	 * Return the hardware identifier (e.g., MAC or IMEI) of the network interface used by this connection.
+	 *
+	 * @param security
+	 * [in] The security state.
+	 *
+	 * @param id
+	 * [in/out] The pointer to the target string being filled with the ID value.
+	 *
+	 * @param id_size
+	 * [in] The maxium size of the the target string, id.
+	 *
+	 * @return
+	 * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+	 * - TsStatusOk
+	 * - TsStatusError[Code]
+	 */
+	TsStatus_t (*get_spec_id)( TsSecurityRef_t connection, const uint8_t * id, size_t id_size );
+
+	/**
+	 * [deprecated] Return the hardware recommended tick budget.
+	 *
+	 * @param security
+	 * [in] The security state.
+	 *
+	 * @param budget
+	 * [in/out] The pointer to the target uint32 being filled with the budget value.
+ 	 *
+	 * @return
+	 * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+	 * - TsStatusOk
+	 * - TsStatusError[Code]
+	 */
+	TsStatus_t (*get_spec_budget)( TsSecurityRef_t connection, uint32_t* budget );
+
+	/**
 	 * Negotiate a TLS connection to the given server adddress. Note that this will use the underlying
 	 * ts_controller component to manage the TCP/IP stack on the configured platform.
 	 *
@@ -229,6 +283,10 @@ extern const TsSecurityVtable_t * ts_security;
 #define ts_security_set_server_cert	ts_security->set_server_cert
 #define ts_security_set_client_cert	ts_security->set_client_cert
 #define ts_security_set_client_key	ts_security->set_client_key
+
+#define ts_security_get_spec_mtu    ts_security->get_spec_mtu
+#define ts_security_get_spec_id     ts_security->get_spec_id
+#define ts_security_get_spec_budget ts_security->get_spec_budget
 
 #define ts_security_connect			ts_security->connect
 #define ts_security_disconnect		ts_security->disconnect

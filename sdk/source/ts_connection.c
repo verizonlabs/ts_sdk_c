@@ -90,14 +90,9 @@ TsStatus_t ts_connection_get_spec_mtu( TsConnectionRef_t connection, uint32_t* m
 	ts_platform_assert( ts_security != NULL );
 	ts_platform_assert( connection != NULL );
 	ts_platform_assert( connection->_security != NULL );
-	ts_platform_assert( connection->_security->_controller != NULL );
-	ts_platform_assert( connection->_security->_controller->_driver != NULL );
 	ts_platform_assert( mtu != NULL );
 
-	// TODO - This should call the next link in pipeline, dont assume the driver knows (maybe the controller does)
-	*mtu = connection->_security->_controller->_driver->_spec_mtu;
-
-	return TsStatusOk;
+	return ts_security_get_spec_mtu( connection->_security, mtu );
 }
 
 TsStatus_t ts_connection_get_spec_id( TsConnectionRef_t connection, const uint8_t * id, size_t id_size ) {
@@ -106,15 +101,10 @@ TsStatus_t ts_connection_get_spec_id( TsConnectionRef_t connection, const uint8_
 	ts_platform_assert( ts_security != NULL );
 	ts_platform_assert( connection != NULL );
 	ts_platform_assert( connection->_security != NULL );
-	ts_platform_assert( connection->_security->_controller != NULL );
-	ts_platform_assert( connection->_security->_controller->_driver != NULL );
 	ts_platform_assert( id != NULL );
 	ts_platform_assert( id_size <= TS_DRIVER_MAX_ID_SIZE );
 
-	// TODO - This should call the next link in pipeline, dont assume the driver knows (maybe the controller does)
-	snprintf( (char *)id, id_size, "%s", (const char *)(connection->_security->_controller->_driver->_spec_id) );
-
-	return TsStatusOk;
+	return ts_security_get_spec_id( connection->_security, id, id_size );
 }
 
 TsStatus_t ts_connection_get_spec_budget( TsConnectionRef_t connection, uint32_t* budget ) {
@@ -123,14 +113,9 @@ TsStatus_t ts_connection_get_spec_budget( TsConnectionRef_t connection, uint32_t
 	ts_platform_assert( ts_security != NULL );
 	ts_platform_assert( connection != NULL );
 	ts_platform_assert( connection->_security != NULL );
-	ts_platform_assert( connection->_security->_controller != NULL );
-	ts_platform_assert( connection->_security->_controller->_driver != NULL );
 	ts_platform_assert( budget != NULL );
 
-	// TODO - This should call the next link in pipeline, dont assume the driver knows (maybe the controller does)
-	*budget = connection->_security->_controller->_driver->_spec_budget;
-
-	return TsStatusOk;
+	return ts_security_get_spec_budget( connection->_security, budget );
 }
 
 TsStatus_t ts_connection_set_server_cert_hostname( TsConnectionRef_t connection, const char * hostname ) {
