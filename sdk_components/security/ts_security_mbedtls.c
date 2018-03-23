@@ -303,7 +303,7 @@ static TsStatus_t ts_set_client_key(TsSecurityRef_t security, const uint8_t *clk
 }
 
 
-TsStatus_t ts_get_spec_mtu( TsSecurityRef_t security, uint32_t* mtu ) {
+static TsStatus_t ts_get_spec_mtu( TsSecurityRef_t security, uint32_t* mtu ) {
 
 	ts_status_trace( "ts_security_get_spec_mtu\n" );
 	ts_platform_assert( ts_security != NULL );
@@ -318,7 +318,7 @@ TsStatus_t ts_get_spec_mtu( TsSecurityRef_t security, uint32_t* mtu ) {
 	return TsStatusOk;
 }
 
-TsStatus_t ts_get_spec_id( TsSecurityRef_t security, const uint8_t * id, size_t id_size ) {
+static TsStatus_t ts_get_spec_id( TsSecurityRef_t security, const uint8_t * id, size_t id_size ) {
 
 	ts_status_trace( "ts_security_get_spec_id\n" );
 	ts_platform_assert( ts_security != NULL );
@@ -334,7 +334,7 @@ TsStatus_t ts_get_spec_id( TsSecurityRef_t security, const uint8_t * id, size_t 
 	return TsStatusOk;
 }
 
-TsStatus_t ts_get_spec_budget( TsSecurityRef_t security, uint32_t* budget ) {
+static TsStatus_t ts_get_spec_budget( TsSecurityRef_t security, uint32_t* budget ) {
 
 	ts_status_trace( "ts_security_get_spec_budget\n" );
 	ts_platform_assert( ts_security != NULL );
