@@ -72,6 +72,16 @@ $ cd cmake-build-debug
 $ make
 ```
 
+On windows,
+
+```$xslt
+cmake.exe . -B./cmake-build-debug -G "Unix Makefiles" \
+    -DBUILD_EXAMPLES=ON \
+    -DCMAKE_BUILD_TYPE=Debug \
+    -DTOOLCHAIN_PREFIX=/c/Program\ Files\ \(x86\)/GNU\ Tools\ ARM\ Embedded/7\ 2017-q4-major/ \
+    -DCMAKE_TOOLCHAIN_FILE=/c/Users/dipen/version_2/ts_sdk_c/toolchain/arm-none-eabi-gnu.cmake
+```
+
 ### Directory Structure
 
 The SDK was arranged to allow the user to integrate at various layers, customize various SDK components, and customize hardware integration.

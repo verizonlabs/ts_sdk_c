@@ -1537,7 +1537,8 @@ static TsStatus_t _ts_message_decode_ts_cbor_array( TsMessageRef_t message, Cbor
 
 			TsMessageRef_t content;
 			ts_message_create( &content );
-			status = _ts_message_decode_ts_cbor( content, -1, &recursed );
+			// Use depth beyond root (0) or trunk (1) to avoid special cbor behavior
+			status = _ts_message_decode_ts_cbor( content, 2, &recursed );
 			if( status == TsStatusOk ) {
 				ts_message_set_message_at( message, index, content );
 			}
@@ -1580,7 +1581,7 @@ TsStatus_t _ts_message_decode_ts_cbor( TsMessageRef_t message, int depth, CborVa
 
 	// decode each node in the current value
 	TsStatus_t status = TsStatusOk;
-	do {
+	while( !cbor_value_at_end( value ) && status == TsStatusOk ) {
 
 		bool get_next_sibling = false;
 		CborError error;
@@ -1602,7 +1603,7 @@ TsStatus_t _ts_message_decode_ts_cbor( TsMessageRef_t message, int depth, CborVa
 
 				int64_t data;
 				cbor_value_get_int64( value, &data );
-				if( data > 0 && data <= sizeof(_ts_cbor_key_mapping) ) {
+				if( data > 0 && data <= sizeof( _ts_cbor_key_mapping )) {
 
 					key = _ts_cbor_key_mapping[ data - 1 ].name;
 					key_type = _ts_cbor_key_mapping[ data - 1 ].type;
@@ -1625,7 +1626,7 @@ TsStatus_t _ts_message_decode_ts_cbor( TsMessageRef_t message, int depth, CborVa
 		default:
 
 			// check that the format of the message is correct
-			if( !cbor_value_is_text_string( value ) ) {
+			if( !cbor_value_is_text_string( value )) {
 				ts_status_alarm( "ts_message_decode_ts_cbor: malformed TS-CBOR\n" );
 				status = TsStatusErrorBadRequest;
 				break;
@@ -1655,23 +1656,23 @@ TsStatus_t _ts_message_decode_ts_cbor( TsMessageRef_t message, int depth, CborVa
 		case CborIntegerType: {
 
 			int64_t data = 0;
-			cbor_value_get_int64( value, &data);
-			switch(key_type) {
+			cbor_value_get_int64( value, &data );
+			switch( key_type ) {
 			case TsCborValueTypeNone:
-				ts_message_set_int( message, key, (int)data );
+				ts_message_set_int( message, key, (int) data );
 				break;
 
 			case TsCborValueTypeAction: {
-				if( data > 0 && data <= sizeof(_ts_cbor_action_mapping) ) {
-					ts_message_set_string( message, key, _ts_cbor_action_mapping[data-1] );
+				if( data > 0 && data <= sizeof( _ts_cbor_action_mapping )) {
+					ts_message_set_string( message, key, _ts_cbor_action_mapping[ data - 1 ] );
 				} else {
 					status = TsStatusErrorBadRequest;
 				}
 				break;
 			}
 			case TsCborValueTypeKind: {
-				if( data > 0 && data <= sizeof(_ts_cbor_kind_mapping) ) {
-					ts_message_set_string( message, key, _ts_cbor_kind_mapping[data-1] );
+				if( data > 0 && data <= sizeof( _ts_cbor_kind_mapping )) {
+					ts_message_set_string( message, key, _ts_cbor_kind_mapping[ data - 1 ] );
 				} else {
 					status = TsStatusErrorBadRequest;
 				}
@@ -1694,7 +1695,7 @@ TsStatus_t _ts_message_decode_ts_cbor( TsMessageRef_t message, int depth, CborVa
 				break;
 			}
 			ts_message_set_string( message, key, data );
-			free(data);
+			free( data );
 			break;
 		}
 		case CborByteStringType: {
@@ -1716,12 +1717,12 @@ TsStatus_t _ts_message_decode_ts_cbor( TsMessageRef_t message, int depth, CborVa
 			} else {
 
 				int uuid_index = 0;
-				char uuid[ TS_MESSAGE_UUID_SIZE + 1 ];
+				char uuid[TS_MESSAGE_UUID_SIZE + 1];
 
 				// format as, 00000000-0000-0000-0000-000000000000
 				for( int i = 0; i < 16; i++ ) {
-					uuid[ uuid_index ] = _ts_cbor_hex_digits[ data[i] >> 4 ];
-					uuid[ uuid_index + 1 ] = _ts_cbor_hex_digits[ data[i] & 0x0F ];
+					uuid[ uuid_index ] = _ts_cbor_hex_digits[ data[ i ]>>4 ];
+					uuid[ uuid_index + 1 ] = _ts_cbor_hex_digits[ data[ i ] & 0x0F ];
 					uuid_index = uuid_index + 2;
 					if( i == 3 || i == 5 || i == 7 || i == 9 ) {
 						uuid[ uuid_index ] = '-';
@@ -1747,14 +1748,14 @@ TsStatus_t _ts_message_decode_ts_cbor( TsMessageRef_t message, int depth, CborVa
 			double data;
 			cbor_value_get_double( value, &data );
 			// TODO - check for possible loss of data
-			ts_message_set_float( message, key, (float)data );
+			ts_message_set_float( message, key, (float) data );
 			get_next_sibling = true;
 			break;
 		}
 		case CborFloatType: {
 
 			float data;
-			cbor_value_get_float( value, & data );
+			cbor_value_get_float( value, &data );
 			ts_message_set_float( message, key, data );
 			get_next_sibling = true;
 			break;
@@ -1798,12 +1799,12 @@ TsStatus_t _ts_message_decode_ts_cbor( TsMessageRef_t message, int depth, CborVa
 			}
 
 			TsMessageRef_t content = message;
-			if( key != NULL ) {
+			if( key != NULL) {
 				ts_message_create_message( message, key, &content );
 			}
 			status = _ts_message_decode_ts_cbor( content, depth + 1, &recursed );
 			if( status != TsStatusOk ) {
-				ts_status_debug( "ts_message_decode_ts_cbor: recursion failed, %s\n", ts_status_string(status) );
+				ts_status_debug( "ts_message_decode_ts_cbor: recursion failed, %s\n", ts_status_string( status ));
 			}
 
 			error = cbor_value_leave_container( value, &recursed );
@@ -1821,12 +1822,12 @@ TsStatus_t _ts_message_decode_ts_cbor( TsMessageRef_t message, int depth, CborVa
 		}
 
 		// clean-up key
-		if( key_needs_free && key != NULL ) {
+		if( key_needs_free && key != NULL) {
 			free( key );
 		}
 
 		// get next key sibling
-		if( get_next_sibling  && status == TsStatusOk ) {
+		if( get_next_sibling && status == TsStatusOk ) {
 
 			error = cbor_value_advance_fixed( value );
 			if( error ) {
@@ -1834,8 +1835,7 @@ TsStatus_t _ts_message_decode_ts_cbor( TsMessageRef_t message, int depth, CborVa
 				status = TsStatusErrorInternalServerError;
 			}
 		}
-
-	} while( !cbor_value_at_end( value ) && status == TsStatusOk );
+	}
 
 	return status;
 }
