@@ -106,6 +106,7 @@ void ts_status_printf( TsStatusLevel_t level, const char * file, int line, const
 		// output status message
 		ts_platform->printf( "%-5s : [%-19s][%-24s][%-12s] : ", hlevel, htick, hfile, func );
 		ts_platform->vprintf( format, argp );
+		ts_platform->printf( "\r" );
 		va_end( argp );
 	}
 }
