@@ -68,6 +68,12 @@ Followed by 'make' in the newly created build directory. For example,
 
 ```
 $ cmake . -B./cmake-build-debug -DCMAKE_TOOLCHAIN_FILE=./tools/arm-none-eabi-gnu.cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=make -G "CodeBlocks - Unix Makefiles"
+$ cmake . -B./cmake-build-debug \
+    -DCMAKE_TOOLCHAIN_FILE=./tools/arm-none-eabi-gnu.cmake \
+    -DCMAKE_BUILD_TYPE=Debug \
+    -DCMAKE_MAKE_PROGRAM=make \
+    -DTOOLCHAIN_PREFIX=$MY_TOOLCHAIN_DIR/gcc-arm-none-eabi-7-2017-q4-major 
+    -G "CodeBlocks - Unix Makefiles"
 $ cd cmake-build-debug
 $ make
 ```
@@ -75,11 +81,12 @@ $ make
 On windows,
 
 ```$xslt
-cmake.exe . -B./cmake-build-debug -G "Unix Makefiles" \
-    -DBUILD_EXAMPLES=ON \
+cmake.exe . -B./cmake-build-debug \
+    -DCMAKE_TOOLCHAIN_FILE=./toolchain/arm-none-eabi-gnu.cmake \
     -DCMAKE_BUILD_TYPE=Debug \
+    -DCMAKE_MAKE_PROGRAM=make \
     -DTOOLCHAIN_PREFIX=/c/Program\ Files\ \(x86\)/GNU\ Tools\ ARM\ Embedded/7\ 2017-q4-major/ \
-    -DCMAKE_TOOLCHAIN_FILE=/c/Users/dipen/version_2/ts_sdk_c/toolchain/arm-none-eabi-gnu.cmake
+    -G "Unix Makefiles" 
 ```
 
 ### Directory Structure
