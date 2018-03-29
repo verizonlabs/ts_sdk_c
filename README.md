@@ -45,6 +45,9 @@ $ cd cmake-build-debug
 $ make
 ```
 
+If you change the cmake parameters to do a different build, you will have to move or delete
+the existing cmake-build-debug or cmake-build-release directory before running cmake again.
+
 #### Build: Cross-compile 
 
 ##### Prerequisites 
@@ -88,6 +91,9 @@ cmake.exe . -B./cmake-build-debug \
     -DTOOLCHAIN_PREFIX=/c/Program\ Files\ \(x86\)/GNU\ Tools\ ARM\ Embedded/7\ 2017-q4-major/ \
     -G "Unix Makefiles" 
 ```
+
+If you change the cmake parameters to do a different build, you will have to move or delete
+the existing cmake-build-debug or cmake-build-release directory before running cmake again.
 
 ### Directory Structure
 
