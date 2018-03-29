@@ -69,13 +69,13 @@ typedef struct {
 	char * data;
 } array_t;
 
-#define SIZEOF_IMEI             TS_DRIVER_MAX_ID_SIZE
 #define SIZEOF_IMSI             TS_DRIVER_MAX_ID_SIZE
 #define SIZEOF_ICCID            TS_DRIVER_MAX_ID_SIZE
 #define SIZEOF_DATE_AND_TIME    TS_DRIVER_MAX_ID_SIZE
 #define SIZEOF_IPV4             TS_DRIVER_MAX_ID_SIZE
 #define SIZEOF_RSSI             TS_DRIVER_MAX_ID_SIZE
 #define SIZEOF_TEXT_INFO        TS_DRIVER_MAX_ID_SIZE
+#define SIZEOF_IMEI             15
 
 typedef struct TsControllerMonarch * TsControllerMonarchRef_t;
 typedef struct TsControllerMonarch {
