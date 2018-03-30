@@ -46,7 +46,8 @@ $ make
 ```
 
 If you change the cmake parameters to do a different build, you will have to move or delete
-the existing cmake-build-debug or cmake-build-release directory before running cmake again.
+the existing cmake-build-debug or cmake-build-release directory before running cmake again
+(or just use a different directory name).
 
 #### Build: Cross-compile 
 
@@ -93,7 +94,8 @@ cmake.exe . -B./cmake-build-debug \
 ```
 
 If you change the cmake parameters to do a different build, you will have to move or delete
-the existing cmake-build-debug or cmake-build-release directory before running cmake again.
+the existing cmake-build-debug or cmake-build-release directory before running cmake again
+(or just use a different directory name).
 
 ### Directory Structure
 
