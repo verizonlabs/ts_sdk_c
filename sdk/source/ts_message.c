@@ -1206,6 +1206,11 @@ static char * _ts_cbor_kind_mapping[] = {
 	"ts.event",
 	"ts.event.diagnostic",
 	"ts.event.firewall",
+	"ts.event.firewall.alert",
+	"ts.event.log",
+	"ts.event.logentry",
+	"ts.event.logconfig",
+	"ts.event.firewall.statistics"
 };
 
 static char * _ts_cbor_action_mapping[] = {

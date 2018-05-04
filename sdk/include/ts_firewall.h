@@ -31,6 +31,7 @@ typedef struct TsFirewall * TsFirewallRef_t;
 /**
  * The firewall object.
  */
+
 typedef struct TsFirewall {
 	bool _enabled;
 	TsMessageRef_t _default_rules;
@@ -39,6 +40,17 @@ typedef struct TsFirewall {
 	TsMessageRef_t _domains;
 
 } TsFirewall_t;
+
+/**
+ * Contains any state information needed for processing firewall packet events.
+ */
+typedef struct TsCallbackContext {
+	bool alerts_enabled;
+	int alert_threshold_inbound;
+	int alert_threshold_outbound;
+	int inbound_rejections;
+	int outbound_rejections;
+} TsCallbackContext_t;
 
 /**
  * The firewall vector table (i.e., the firewall "class" definition), used to define the firewall SDK-aspect.
