@@ -2,12 +2,16 @@
 #include "ts_platform.h"
 #include "ts_service.h"
 #include "ts_firewall.h"
+#include <stdio.h>
+#include <string.h>
+
 
 static TsStatus_t ts_create( TsServiceRef_t * );
 static TsStatus_t ts_destroy( TsServiceRef_t );
 static TsStatus_t ts_tick( TsServiceRef_t, uint32_t );
 
 static TsStatus_t ts_enqueue( TsServiceRef_t, TsMessageRef_t );
+static TsStatus_t ts_enqueue_typed( TsServiceRef_t service, char* type, TsMessageRef_t data);
 static TsStatus_t ts_dequeue( TsServiceRef_t, TsServiceAction_t, TsServiceHandler_t );
 
 static TsStatus_t handler( TsTransportRef_t, void *, TsPath_t, const uint8_t *, size_t );
@@ -17,6 +21,7 @@ TsServiceVtable_t ts_service_ts_cbor = {
 	.destroy = ts_destroy,
 	.tick = ts_tick,
 	.enqueue = ts_enqueue,
+	.enqueuetyped = ts_enqueue_typed,
 	.dequeue = ts_dequeue,
 };
 
@@ -65,6 +70,63 @@ static TsStatus_t ts_tick( TsServiceRef_t service, uint32_t budget ) {
 	ts_status_trace("ts_service_tick\n");
 
 	// TODO - check diagnostics timeout
+
+	return TsStatusOk;
+}
+
+static TsStatus_t ts_encode_and_send_message(TsServiceRef_t service, const uint8_t id[ TS_DRIVER_MAX_ID_SIZE ], TsMessageRef_t message) {
+		// encode copy to send buffer
+		// i.e., encode and send unsolicited message
+		// get mtu from controller (via connection)
+		uint32_t mtu;
+		ts_connection_get_spec_mtu( service->_transport->_connection, &mtu);
+
+		// allocate data buffer and encode data
+		uint8_t * buffer = (uint8_t*)ts_platform_malloc( mtu );
+		size_t buffer_size = (size_t)(mtu - 4);
+		ts_message_encode(message, TsEncoderTsCbor, buffer + 4, &buffer_size);
+
+		// encode envelope
+		buffer[ 0 ] = TsServiceEnvelopeVersionOne;
+		buffer[ 1 ] = TsServiceEnvelopeServiceIdTsCbor;
+		buffer[ 2 ] = (uint8_t)(buffer_size >> 8);
+		buffer[ 3 ] = (uint8_t)(buffer_size & 0xff);
+		buffer_size = buffer_size + 4;
+
+		// send data
+		size_t topic_size = 256;
+		char topic[ 256 ];
+		snprintf( topic, topic_size, "ThingSpace/%s/ElementToProvider", id );
+
+		// TODO - check return codes - may have disconnected.
+		ts_transport_speak( service->_transport, (TsPath_t)topic, buffer, buffer_size );
+
+		// clean-up and return
+		ts_platform_free( buffer, buffer_size );
+		return TsStatusOk;
+}
+
+static TsStatus_t ts_enqueue_typed( TsServiceRef_t service, char* type, TsMessageRef_t data) {
+
+	ts_status_trace("ts_service_enqueue_typed\n");
+
+	// get device-id from controller (via connection)
+	const uint8_t id[ TS_DRIVER_MAX_ID_SIZE ];
+	ts_connection_get_spec_id( service->_transport->_connection, id, TS_DRIVER_MAX_ID_SIZE );
+
+	// create message content
+	TsMessageRef_t message;
+	ts_message_create(&message);
+	//"transactionid": 620158454135351354682660134707491,
+	ts_message_set_string( message, "action", "update" );
+
+	if (strcmp(type, "ts.event.firewall.statistics") == 0) {
+		ts_message_set_string( message, "kind", "ts.event.firewall.statistics" );
+		ts_message_set_message( message, "statistics", data );
+	}
+
+	ts_encode_and_send_message(service, id, message);
+	ts_message_destroy( message );
 
 	return TsStatusOk;
 }

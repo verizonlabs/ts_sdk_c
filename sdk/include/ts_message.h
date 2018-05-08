@@ -60,7 +60,7 @@
 // maximum number of branches allowed per node 
 // for TsTypeMessage, limits the number of attributes per JSON/CBOR object 
 // for TsTypeArray, limits the maximum size of the array. 
-#define TS_MESSAGE_MAX_BRANCHES     15
+#define TS_MESSAGE_MAX_BRANCHES     20
 
 // total number of nodes available for messages 
 #define TS_MESSAGE_MAX_NODES        (TS_MESSAGE_MAX_BRANCHES * TS_MESSAGE_MAX_ROOTS)

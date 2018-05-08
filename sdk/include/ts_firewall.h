@@ -114,6 +114,13 @@ typedef struct TsFirewallVtable {
 	 */
 	TsStatus_t (*handle)(TsFirewallRef_t, TsMessageRef_t );
 
+	/**
+	* Get firewall Stats
+	* @return
+	* The collection of statistics for the firewall
+	*/
+	TsMessageRef_t (*stats)();
+
 } TsFirewallVtable_t;
 
 #ifdef __cplusplus
@@ -126,6 +133,7 @@ extern const TsFirewallVtable_t *ts_firewall;
 #define ts_firewall_destroy     ts_firewall->destroy
 #define ts_firewall_tick        ts_firewall->tick
 #define ts_firewall_handle      ts_firewall->handle
+#define ts_firewall_stats		ts_firewall->stats
 
 #ifdef __cplusplus
 }
