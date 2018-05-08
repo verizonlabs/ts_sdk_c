@@ -163,6 +163,15 @@ TsStatus_t ts_service_enqueue( TsServiceRef_t service, TsMessageRef_t message ) 
 	return ts_service->enqueue( service, message );
 }
 
+TsStatus_t ts_service_enqueue_typed(TsServiceRef_t service, char* type, TsMessageRef_t message ) {
+	ts_status_trace( "ts_service_enqueue_typed\n" );
+	ts_platform_assert( ts_transport != NULL );
+	ts_platform_assert( service != NULL );
+	ts_platform_assert( service->_transport != NULL );
+	ts_platform_assert(type != NULL);
+	return ts_service->enqueuetyped(service, type, message);
+}
+
 TsStatus_t ts_service_dequeue( TsServiceRef_t service, TsServiceAction_t action, TsServiceHandler_t handler ) {
 
 	ts_status_trace( "ts_service_dequeue\n" );

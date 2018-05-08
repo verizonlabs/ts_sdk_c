@@ -1195,6 +1195,7 @@ static TsCborKeyMapping_t _ts_cbor_key_mapping[] = {
 	{ "status",         7, TsCborValueTypeDefault },
 	{ "error",          8, TsCborValueTypeDefault },
 	{ "createdon",      9, TsCborValueTypeDefault },
+	{ "statistics",     10, TsCborValueTypeDefault }, //TODO: Register this/confirm value
 };
 
 static size_t _ts_cbor_key_mapping_size = sizeof(_ts_cbor_key_mapping) / sizeof(TsCborKeyMapping_t);
@@ -1206,6 +1207,11 @@ static char * _ts_cbor_kind_mapping[] = {
 	"ts.event",
 	"ts.event.diagnostic",
 	"ts.event.firewall",
+	"ts.event.firewall.alert",
+	"ts.event.log",
+	"ts.event.logentry",
+	"ts.event.logconfig",
+	"ts.event.firewall.statistics",
 };
 
 static char * _ts_cbor_action_mapping[] = {
@@ -1298,6 +1304,16 @@ static TsStatus_t _ts_message_encode_ts_cbor_value( CborEncoder * encoder, int d
 				cbor_encode_int( encoder, 3 );
 			} else if( strcmp( value, "ts.event.firewall" ) == 0 ) {
 				cbor_encode_int( encoder, 4 );
+			} else if( strcmp( value, "ts.event.firewall.alert" ) == 0 ) {
+				cbor_encode_int( encoder, 5 );
+			} else if( strcmp( value, "ts.event.log" ) == 0 ) {
+				cbor_encode_int( encoder, 6 );
+			} else if( strcmp( value, "ts.event.logentry" ) == 0 ) {
+				cbor_encode_int( encoder, 7 );
+			}  else if( strcmp( value, "ts.event.logconfig" ) == 0 ) {
+				cbor_encode_int( encoder, 8 );
+			} else if( strcmp( value, "ts.event.firewall.statistics" ) == 0 ) {
+				cbor_encode_int( encoder, 9 );
 			} else {
 				ts_status_alarm( "ts_message_encode_ts_cbor: no mapping found for malformed Kind, %s, ignoring,...\n", value );
 				cbor_encode_text_stringz( encoder, value );
