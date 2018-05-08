@@ -115,6 +115,12 @@ static TsStatus_t ts_enqueue_typed( TsServiceRef_t service, char* type, TsMessag
 	const uint8_t id[ TS_DRIVER_MAX_ID_SIZE ];
 	ts_connection_get_spec_id( service->_transport->_connection, id, TS_DRIVER_MAX_ID_SIZE );
 
+	if (strcmp(type, "ts.event.firewall.alert") == 0) {
+		// The message is ready-made in this case. The alert callback caller owns it.
+		// TODO: Should some of the logic to generate UUID, kind, etc. be up here? Stats case could use the UUID generator
+		return ts_encode_and_send_message(service, id, data);
+	}
+
 	// create message content
 	TsMessageRef_t message;
 	ts_message_create(&message);
