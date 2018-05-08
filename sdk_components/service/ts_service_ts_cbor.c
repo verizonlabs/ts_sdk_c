@@ -25,10 +25,12 @@ TsServiceVtable_t ts_service_ts_cbor = {
 	.dequeue = ts_dequeue,
 };
 
-static TsServiceRef_t alertService;
+// Callback used by ts_firewall to issue alert messages over the connection.
+
+static TsServiceRef_t _alertService;
 static TsStatus_t _alertCallback( TsMessageRef_t message ) {
 	if (alertService != NULL && message != NULL) {
-		return ts_enqueue( alertService, message );
+		return ts_enqueue_typed( _alertService, "ts.event.firewall.alert", message );
 	} else {
 		return TsStatusErrorPreconditionFailed;
 	}
@@ -47,7 +49,7 @@ static TsStatus_t ts_create( TsServiceRef_t * service ) {
 			ts_status_alarm( "ts_service_create: failed to create installed firewall, '%s'\n", ts_status_string(status));
 		}
 		else {
-			alertService = *service;
+			_alertService = *service;
 		}
 	}
 	return TsStatusOk;
