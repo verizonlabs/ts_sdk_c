@@ -20,6 +20,15 @@ TsServiceVtable_t ts_service_ts_cbor = {
 	.dequeue = ts_dequeue,
 };
 
+static TsServiceRef_t alertService;
+static TsStatus_t _alertCallback( TsMessageRef_t message ) {
+	if (alertService != NULL && message != NULL) {
+		return ts_enqueue( alertService, message );
+	} else {
+		return TsStatusErrorPreconditionFailed;
+	}
+}
+
 static TsStatus_t ts_create( TsServiceRef_t * service ) {
 
 	ts_status_trace("ts_service_create: ts-cbor\n");
@@ -28,9 +37,12 @@ static TsStatus_t ts_create( TsServiceRef_t * service ) {
 
 	// create firewall if supported
 	if( ts_firewall != NULL ) {
-		TsStatus_t status = ts_firewall_create( &((*service)->_firewall) );
+		TsStatus_t status = ts_firewall_create( &((*service)->_firewall) , _alertCallback);
 		if( status != TsStatusOk ) {
 			ts_status_alarm( "ts_service_create: failed to create installed firewall, '%s'\n", ts_status_string(status));
+		}
+		else {
+			alertService = *service;
 		}
 	}
 	return TsStatusOk;

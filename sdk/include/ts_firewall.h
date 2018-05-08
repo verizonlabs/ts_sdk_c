@@ -38,7 +38,6 @@ typedef struct TsFirewall {
 	TsMessageRef_t _default_domains;
 	TsMessageRef_t _rules;
 	TsMessageRef_t _domains;
-
 } TsFirewall_t;
 
 /**
@@ -50,6 +49,7 @@ typedef struct TsCallbackContext {
 	int alert_threshold_outbound;
 	int inbound_rejections;
 	int outbound_rejections;
+	TsStatus_t (*alertCallback) (TsMessageRef_t);
 } TsCallbackContext_t;
 
 /**
@@ -64,12 +64,15 @@ typedef struct TsFirewallVtable {
 	 * @param firewall
 	 * [on/out] The pointer to a pre-existing TsFirewallRef_t, which will be initialized with the firewall state.
 	 *
+	 * @param alertCallback
+	 * [in] Pointer to a function that will send an alert message.
+	 *
 	 * @return
 	 * The return status (TsStatus_t) of the function, see ts_status.h for more information.
 	 * - TsStatusOk
 	 * - TsStatusError[Code]
 	 */
-	TsStatus_t (*create)(TsFirewallRef_t *);
+	TsStatus_t (*create)(TsFirewallRef_t *, TsStatus_t (*alertCallback)(TsMessageRef_t));
 
 	/**
 	 * Deallocate the given firewall object.
