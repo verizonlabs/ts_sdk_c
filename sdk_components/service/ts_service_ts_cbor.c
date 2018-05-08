@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <string.h>
 
-
 static TsStatus_t ts_create( TsServiceRef_t * );
 static TsStatus_t ts_destroy( TsServiceRef_t );
 static TsStatus_t ts_tick( TsServiceRef_t, uint32_t );
@@ -29,7 +28,7 @@ TsServiceVtable_t ts_service_ts_cbor = {
 
 static TsServiceRef_t _alertService;
 static TsStatus_t _alertCallback( TsMessageRef_t message ) {
-	if (alertService != NULL && message != NULL) {
+	if (_alertService != NULL && message != NULL) {
 		return ts_enqueue_typed( _alertService, "ts.event.firewall.alert", message );
 	} else {
 		return TsStatusErrorPreconditionFailed;
