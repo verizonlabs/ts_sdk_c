@@ -49,7 +49,7 @@ typedef struct TsCallbackContext {
 	int alert_threshold_outbound;
 	int inbound_rejections;
 	int outbound_rejections;
-	TsStatus_t (*alertCallback) (TsMessageRef_t);
+	TsStatus_t (*alert_callback) (TsMessageRef_t);
 } TsCallbackContext_t;
 
 /**
