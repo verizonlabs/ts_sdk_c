@@ -120,7 +120,7 @@ static TsStatus_t ts_create( TsTransportRef_t * transport ) {
 	mqtt->_connection.username.cstring = NULL;      // not used
 	mqtt->_connection.password.cstring = NULL;      // not used
 	mqtt->_connection.keepAliveInterval = 60;       // keep-alive is 60 seconds
-	mqtt->_connection.cleansession = 1;             // clean-session
+	mqtt->_connection.cleansession = 0;             // no clean-session
 
 	// initialize mqtt intermediate buffers
 	mqtt->_read_buffer = ts_platform_malloc( mtu );
