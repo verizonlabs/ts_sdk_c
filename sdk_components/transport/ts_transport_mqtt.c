@@ -350,7 +350,7 @@ int TimerLeftMS( Timer * timer ) {
 	return timer->end_time <= now ? 0 : (int) ( timer->end_time - now )/1000;
 }
 
-static int paho_mqtt_read( Network * network, unsigned char * buffer, int buffer_size, int budget ) {
+static int paho_mqtt_read( Network * network, unsigned char * buffer, int buffer_size, int budget_ms ) {
 
 	ts_status_trace( "paho_mqtt_read\n" );
 	ts_platform_assert( network != NULL );
@@ -358,11 +358,14 @@ static int paho_mqtt_read( Network * network, unsigned char * buffer, int buffer
 
 	int index = 0;
 	bool reading = true;
+
+	// Paho gives us time budgets in milliseconds
+	uint32_t budget = (uint32_t)budget_ms * TS_TIME_MSEC_TO_USEC;
 	uint64_t timestamp = ts_platform_time();
 	do {
 		size_t xbuffer_size = (size_t) ( buffer_size - index );
 		ts_connection_tick(network->_connection, 100 * TS_TIME_MSEC_TO_USEC);
-		TsStatus_t status = ts_connection_read( network->_connection, (uint8_t *) ( buffer + index ), &xbuffer_size, (uint32_t) budget );
+		TsStatus_t status = ts_connection_read( network->_connection, (uint8_t *) ( buffer + index ), &xbuffer_size, budget );
 		switch( status ) {
 		default:
 			ts_status_debug( "paho_mqtt_read: %s\n", ts_status_string( status ));
@@ -395,7 +398,7 @@ static int paho_mqtt_read( Network * network, unsigned char * buffer, int buffer
 	return index;
 }
 
-static int paho_mqtt_write( Network * network, unsigned char * buffer, int buffer_size, int budget ) {
+static int paho_mqtt_write( Network * network, unsigned char * buffer, int buffer_size, int budget_ms ) {
 
 	ts_status_trace( "paho_mqtt_write\n" );
 	ts_platform_assert( network != NULL );
@@ -403,10 +406,13 @@ static int paho_mqtt_write( Network * network, unsigned char * buffer, int buffe
 
 	int index = 0;
 	bool writing = true;
+
+	// Paho gives us time budgets in milliseconds
+	uint32_t budget = (uint32_t)budget_ms * TS_TIME_MSEC_TO_USEC;
 	uint64_t timestamp = ts_platform_time();
 	do {
 		size_t xbuffer_size = (size_t) ( buffer_size - index );
-		TsStatus_t status = ts_connection_write( network->_connection, (uint8_t *) ( buffer + index ), &xbuffer_size, (uint32_t) budget );
+		TsStatus_t status = ts_connection_write( network->_connection, (uint8_t *) ( buffer + index ), &xbuffer_size, budget );
 		ts_connection_tick(network->_connection, 100 * TS_TIME_MSEC_TO_USEC);
 		switch( status ) {
 		default:
