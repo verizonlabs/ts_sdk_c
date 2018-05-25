@@ -60,3 +60,19 @@ TsStatus_t ts_logconfig_handle(TsLogConfigRef_t logconfig, TsMessageRef_t messag
 TsStatus_t ts_logconfig_tick(TsLogConfigRef_t logconfig, uint32_t budget) {
 	return TsStatusOk;
 }
+
+
+/**
+ * Attempt to record a log message.
+ * @param log
+ * [in] TsLogConfigRef_t representing the log.
+ * @param level
+ * [in] Logging level. 0 = info, 1 = warning, 2 = error, 3 = alert.
+ * @param category
+ * [in] Category of message: "security_profile", "firewall", "credential", "diagnostic"
+ * @param message
+ * [in] The text of the log message.
+ */
+TsStatus_t ts_log(TsLogConfigRef_t log, int level, char *category, char *message) {
+	return TsStatusOk;
+}
