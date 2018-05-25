@@ -31,14 +31,26 @@ typedef struct TsFirewall * TsFirewallRef_t;
 /**
  * The firewall object.
  */
+
 typedef struct TsFirewall {
 	bool _enabled;
 	TsMessageRef_t _default_rules;
 	TsMessageRef_t _default_domains;
 	TsMessageRef_t _rules;
 	TsMessageRef_t _domains;
-
 } TsFirewall_t;
+
+/**
+ * Contains any state information needed for processing firewall packet events.
+ */
+typedef struct TsCallbackContext {
+	bool alerts_enabled;
+	int alert_threshold_inbound;
+	int alert_threshold_outbound;
+	int inbound_rejections;
+	int outbound_rejections;
+	TsStatus_t (*alert_callback) (TsMessageRef_t);
+} TsCallbackContext_t;
 
 /**
  * The firewall vector table (i.e., the firewall "class" definition), used to define the firewall SDK-aspect.
@@ -52,12 +64,15 @@ typedef struct TsFirewallVtable {
 	 * @param firewall
 	 * [on/out] The pointer to a pre-existing TsFirewallRef_t, which will be initialized with the firewall state.
 	 *
+	 * @param alertCallback
+	 * [in] Pointer to a function that will send an alert message.
+	 *
 	 * @return
 	 * The return status (TsStatus_t) of the function, see ts_status.h for more information.
 	 * - TsStatusOk
 	 * - TsStatusError[Code]
 	 */
-	TsStatus_t (*create)(TsFirewallRef_t *);
+	TsStatus_t (*create)(TsFirewallRef_t *, TsStatus_t (*alertCallback)(TsMessageRef_t));
 
 	/**
 	 * Deallocate the given firewall object.
@@ -99,6 +114,13 @@ typedef struct TsFirewallVtable {
 	 */
 	TsStatus_t (*handle)(TsFirewallRef_t, TsMessageRef_t );
 
+	/**
+	* Get firewall Stats
+	* @return
+	* The collection of statistics for the firewall
+	*/
+	TsMessageRef_t (*stats)();
+
 } TsFirewallVtable_t;
 
 #ifdef __cplusplus
@@ -111,6 +133,7 @@ extern const TsFirewallVtable_t *ts_firewall;
 #define ts_firewall_destroy     ts_firewall->destroy
 #define ts_firewall_tick        ts_firewall->tick
 #define ts_firewall_handle      ts_firewall->handle
+#define ts_firewall_stats		ts_firewall->stats
 
 #ifdef __cplusplus
 }
