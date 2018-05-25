@@ -13,7 +13,14 @@
  * - TsStatusError[Code]
  */
 TsStatus_t ts_logconfig_create(TsLogConfigRef_t *logconfig) {
-
+	ts_status_trace("ts_logconfig_create");
+	ts_platform_assert(logconfig != NULL);
+	*logconfig = (TsLogConfigRef_t)ts_platform_malloc(sizeof(TsLogConfig_t));
+	(*logconfig)->_enabled = false;
+	(*logconfig)->_level = 0;
+	(*logconfig)->_max_entries = 100;
+	(*logconfig)->_min_interval = 1000;
+	(*logconfig)->_reporting_interval = 3600;
 	return TsStatusOk;
 }
 
@@ -27,6 +34,9 @@ TsStatus_t ts_logconfig_create(TsLogConfigRef_t *logconfig) {
  * - TsStatusError[Code]
  */
 TsStatus_t ts_logconfig_destroy(TsLogConfigRef_t logconfig) {
+	ts_status_trace("ts_logconfig_destroy");
+	ts_platform_assert(logconfig != NULL);
+	ts_platform_free(logconfig);
 	return TsStatusOk;
 }
 
@@ -42,6 +52,9 @@ TsStatus_t ts_logconfig_destroy(TsLogConfigRef_t logconfig) {
  * - TsStatusError[Code]
  */
 TsStatus_t ts_logconfig_handle(TsLogConfigRef_t logconfig, TsMessageRef_t message) {
+	ts_status_trace("ts_logconfig_handle");
+	ts_platform_assert(logconfig != NULL);
+	ts_platform_assert(message != NULL);
 	return TsStatusOk;
 }
 
@@ -58,12 +71,15 @@ TsStatus_t ts_logconfig_handle(TsLogConfigRef_t logconfig, TsMessageRef_t messag
  * - TsStatusError[Code]
  */
 TsStatus_t ts_logconfig_tick(TsLogConfigRef_t logconfig, uint32_t budget) {
+	ts_status_trace("ts_logconfig_tick");
+	ts_platform_assert(logconfig != NULL);
 	return TsStatusOk;
 }
 
 
 /**
- * Attempt to record a log message.
+ * Attempt to record a log message. (It will only be recorded if log level
+ * and time/space parameters allow.)
  * @param log
  * [in] TsLogConfigRef_t representing the log.
  * @param level
@@ -73,6 +89,16 @@ TsStatus_t ts_logconfig_tick(TsLogConfigRef_t logconfig, uint32_t budget) {
  * @param message
  * [in] The text of the log message.
  */
-TsStatus_t ts_log(TsLogConfigRef_t log, int level, char *category, char *message) {
+TsStatus_t ts_log(TsLogConfigRef_t log, TsLogLevel_t level, char *category, char *message) {
+	ts_status_trace("ts_log");
+	ts_platform_assert(level >= 0 && level < _TsLogLevelLast);
+	ts_platform_assert(log != NULL);
+	ts_platform_assert(category != NULL);
+	ts_platform_assert(message != NULL);
+
+	if (level < log->_level) {
+		// We're not recording messages of this level
+		return TsStatusOk;
+	}
 	return TsStatusOk;
 }

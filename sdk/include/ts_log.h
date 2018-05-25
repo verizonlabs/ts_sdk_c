@@ -24,11 +24,22 @@
 #include "ts_status.h"
 #include "ts_message.h"
 
-
 /**
  * The log config reference
  */
 typedef struct TsLogConfig * TsLogConfigRef_t;
+
+
+
+/**
+ * A single log entry.
+ */
+typedef struct TsLogEntry {
+	uint64_t time;			// timestamp of the log entry
+	TsLogLevel_t level;		// log level
+	char *category;			// message category
+	char *body;				// message body
+} TsLogEntry_t;
 
 /**
  * The log config object.
@@ -40,7 +51,11 @@ typedef struct TsLogConfig {
 	int _max_entries;  			// maximum number of entries in the log
 	int _min_interval; 			// minimum interval between repeated identical messages, in milliseconds
 	int _reporting_interval; 	// interval between logs reported back to the platform, in seconds
+	TsLogEntry_t *_start;		// first entry in memory
+	TsLogEntry_t *_newest;		// newest entry (oldest one, if it exists, should be after this)
+	TsLogEntry_t *_end;			// last entry in memory
 } TsLogConfig_t;
+
 
 typedef enum {
 	TsLogLevelInfo = 0, // informational messages
@@ -110,6 +125,6 @@ TsStatus_t ts_logconfig_tick(TsLogConfigRef_t, uint32_t);
  * @param message
  * [in] The text of the log message.
  */
-TsStatus_t ts_log(TsLogConfigRef_t log, int level, char *category, char *message);
+TsStatus_t ts_log(TsLogConfigRef_t log, TsLogLevel_t level, char *category, char *message);
 
 #endif /* TS_LOG_H */
