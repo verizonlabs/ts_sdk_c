@@ -18,9 +18,12 @@ TsStatus_t ts_logconfig_create(TsLogConfigRef_t *logconfig) {
 	*logconfig = (TsLogConfigRef_t)ts_platform_malloc(sizeof(TsLogConfig_t));
 	(*logconfig)->_enabled = false;
 	(*logconfig)->_level = 0;
-	(*logconfig)->_max_entries = 100;
 	(*logconfig)->_min_interval = 1000;
 	(*logconfig)->_reporting_interval = 3600;
+
+	// Allocate some space for messages
+	_ts_log_create(*logconfig, 100);
+
 	return TsStatusOk;
 }
 
@@ -41,6 +44,7 @@ TsStatus_t ts_logconfig_destroy(TsLogConfigRef_t logconfig) {
 }
 
 static TsStatus_t _ts_handle_set( TsLogConfigRef_t logconfig, TsMessageRef_t fields ) {
+	int new_max_entries;
 	if (ts_message_get_bool(fields, "enabled", &(logconfig->_enabled))
 			== TsStatusOk) {
 		ts_status_debug("_ts_handle_set: enabled = %d\n", logconfig->_enabled);
@@ -49,9 +53,15 @@ static TsStatus_t _ts_handle_set( TsLogConfigRef_t logconfig, TsMessageRef_t fie
 			== TsStatusOk) {
 		ts_status_debug("_ts_handle_set: level = %d\n", logconfig->_level);
 	}
-	if (ts_message_get_int(fields, "max_entries", &(logconfig->_max_entries))
+	if (ts_message_get_int(fields, "max_entries", &(new_max_entries))
 			== TsStatusOk) {
-		ts_status_debug("_ts_handle_set: max_entries = %d\n", logconfig->_max_entries);
+		ts_status_debug("_ts_handle_set: max_entries = %d\n", new_max_entries);
+		if (new_max_entries > 0) {
+			_ts_log_resize(logconfig, new_max_entries);
+		}
+		else {
+			return TsStatusErrorBadRequest;
+		}
 	}
 	if (ts_message_get_int(fields, "min_interval", &(logconfig->_min_interval))
 			== TsStatusOk) {
@@ -280,27 +290,92 @@ TsStatus_t _ts_log_alloc(TsLogEntryRef_t *start, int max_entries) {
 	return TsStatusOk;
 }
 
-TsStatus_t _ts_log_create(TsLogConfigRef_t log) {
-	if (log->_max_entries > 0) {
-		TsStatus_t result = _ts_log_alloc(&(log->_start), log->_max_entries);
-		if (result != TsStatusOk) {
-			return result;
-		}
-		// TODO: create persistent storage?
-		log->_end = log->_start;
-		log->_newest = log->_start - 1; // back this up so the next message will be first
+TsStatus_t _ts_log_create(TsLogConfigRef_t log, int new_max_entries) {
+	ts_platform_assert(new_max_entries > 0);
+	TsStatus_t result = _ts_log_alloc(&(log->_start), new_max_entries);
+	if (result != TsStatusOk) {
+		return result;
 	}
+	// TODO: create persistent storage?
+	log->_max_entries = new_max_entries;
+	log->_end = log->_start;
+	log->_newest = log->_start - 1; // back this up so the next message will be first
 	return TsStatusOk;
 }
 
+void _ts_log_shallow_copy(TsLogEntryRef_t src, TsLogEntryRef_t dest) {
+	src->time = dest->time;
+	src->level = dest->level;
+	src->category = dest->category;
+	src->body = dest->body;
+}
+
 TsStatus_t _ts_log_resize(TsLogConfigRef_t log, int new_max_entries) {
-	if (new_max_entries > 0) {
-		TsLogEntryRef_t new;
-		TsStatus_t result = _ts_log_alloc(&new, new_max_entries);
-		if (result != TsStatusOk) {
-			return result;
-		}
-		// TODO: resize persistent storage?
-		// TODO: walk the list copying messages
+	ts_platform_assert(new_max_entries > 0);
+	if (new_max_entries == log->_max_entries) {
+		return TsStatusOk;
 	}
+
+	TsLogEntryRef_t new;
+	TsStatus_t result = _ts_log_alloc(&new, new_max_entries);
+	if (result != TsStatusOk) {
+		return result;
+	}
+	// TODO: resize persistent storage?
+	int old_entries = log->_end - log->_start;
+	if (old_entries > new_max_entries) {
+		// We need to truncate the old list.
+		// Work backwards from the newest entry,
+		// and fill the new list starting at the very end.
+
+		TsLogEntryRef_t new_current = new + new_max_entries - 1;
+		TsLogEntryRef_t old_current = log->_newest;
+
+		for (; new_current >= new; new_current--, old_current--) {
+			if (old_current < log->_start) {
+				old_current = log->_end - 1;
+			}
+			_ts_log_shallow_copy(old_current, new_current);
+		}
+		// Free the remaining old message bodies.
+		for (; old_current != log->_newest; old_current--) {
+			if (old_current < log->_start) {
+				old_current = log->_end - 1;
+			}
+			platform_free(old_current->body);
+		}
+		// Set the new log parameters. The log starts out full.
+		TsLogEntryRef_t old_start = log->_start;
+
+		log->_max_entries = new_max_entries;
+		log->_start = new;
+		log->_end = new + new_max_entries;
+		log->_newest = log->_end - 1;
+
+		platform_free(old_start);
+	} else {
+		// We have more space now.
+		// Work forwards from the oldest entry,
+		// and fill the new list starting from the beginning.
+
+		TsLogEntryRef_t new_current = new;
+		TsLogEntryRef_t old_current = log->_newest + 1;
+		int i;
+		for (i = 0; i < old_entries; i++, new_current++, old_current++) {
+			if (old_current == log->_end) {
+				old_current = log->_start;
+			}
+			_ts_log_shallow_copy(old_current, new_current);
+		}
+
+		// Set the new log parameters. The log is not necessarily full.
+		TsLogEntryRef_t old_start = log->_start;
+
+		log->_max_entries = new_max_entries;
+		log->_start = new;
+		log->_end = new + old_entries;
+		log->_newest = log->_end - 1;
+	}
+
+	return TsStatusOk;
 }
