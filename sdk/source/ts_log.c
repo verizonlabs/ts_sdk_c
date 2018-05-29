@@ -39,6 +39,7 @@ TsStatus_t ts_logconfig_create(TsLogConfigRef_t *logconfig) {
 TsStatus_t ts_logconfig_destroy(TsLogConfigRef_t logconfig) {
 	ts_status_trace("ts_logconfig_destroy");
 	ts_platform_assert(logconfig != NULL);
+	_ts_log_destroy(logconfig);
 	ts_platform_free(logconfig);
 	return TsStatusOk;
 }
@@ -301,6 +302,14 @@ TsStatus_t _ts_log_create(TsLogConfigRef_t log, int new_max_entries) {
 	log->_end = log->_start;
 	log->_newest = log->_start - 1; // back this up so the next message will be first
 	return TsStatusOk;
+}
+
+TsStatus_t _ts_log_destroy(TsLogConfigRef_t log) {
+	TsLogEntryRef_t current = log->_start;
+	for (; current < log->_end; current++) {
+		platform_free(current->body);
+	}
+	platform_free(log->_start);
 }
 
 void _ts_log_shallow_copy(TsLogEntryRef_t src, TsLogEntryRef_t dest) {
