@@ -354,7 +354,7 @@ TsStatus_t _ts_log_resize(TsLogConfigRef_t log, int new_max_entries) {
 
 		platform_free(old_start);
 	} else {
-		// We have more space now.
+		// There is enough room to hold all the old messages.
 		// Work forwards from the oldest entry,
 		// and fill the new list starting from the beginning.
 
