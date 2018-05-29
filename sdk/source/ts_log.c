@@ -375,6 +375,8 @@ TsStatus_t _ts_log_resize(TsLogConfigRef_t log, int new_max_entries) {
 		log->_start = new;
 		log->_end = new + old_entries;
 		log->_newest = log->_end - 1;
+
+		platform_free(old_start);
 	}
 
 	return TsStatusOk;
