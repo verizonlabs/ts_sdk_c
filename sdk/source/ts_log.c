@@ -185,20 +185,122 @@ TsStatus_t ts_logconfig_tick(TsLogConfigRef_t logconfig, uint32_t budget) {
  * @param level
  * [in] Logging level. 0 = info, 1 = warning, 2 = error, 3 = alert.
  * @param category
- * [in] Category of message: "security_profile", "firewall", "credential", "diagnostic"
+ * [in] Category of message: 0 = security_profile, 1 = firewall, 2 = credential, 3 = diagnostic
  * @param message
  * [in] The text of the log message.
+ * @return
+ * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+ * - TsStatusOk
+ * - TsStatusError[Code]
  */
-TsStatus_t ts_log(TsLogConfigRef_t log, TsLogLevel_t level, char *category, char *message) {
+TsStatus_t ts_log(TsLogConfigRef_t log, TsLogLevel_t level, TsLogCategory_t category, char *message) {
 	ts_status_trace("ts_log");
+	ts_status_debug("ts_log: level = %d, category = %d, message = %s\n", level, category, message);
 	ts_platform_assert(level >= 0 && level < _TsLogLevelLast);
 	ts_platform_assert(log != NULL);
-	ts_platform_assert(category != NULL);
+	ts_platform_assert(category >= 0 && category < _TsCategoryLast);
 	ts_platform_assert(message != NULL);
+
+	if (!(log->_enabled) || log->_max_entries < 1) {
+		// We're not logging at all
+		return TsStatusOk;
+	}
 
 	if (level < log->_level) {
 		// We're not recording messages of this level
 		return TsStatusOk;
 	}
+
+	uint64_t time = ts_platform_time();
+
+	// Check to see if we're spamming identical messages too frequently
+	if (log->_newest >= log->_start) {
+		uint64_t previous = log->_newest->time;
+		if ((time - previous > 0) && (time - previous < log->_min_interval)) {
+			if (log->_newest->level == level && log->_newest->category == category) {
+				if (strncmp(log->_newest->body, message, LOG_MESSAGE_MAX_LENGTH) == 0) {
+					ts_status_debug("ts_log: Log messages identical within interval %d\n", log->_min_interval);
+					return TsStatusOk;
+				}
+			}
+		}
+	}
+
+	// Can we get the space for the message body?
+	int length = strnlen(message, LOG_MESSAGE_MAX_LENGTH);
+	char *new_body = (char *)platform_malloc(length);
+	if (new_body == NULL) {
+		return TsStatusErrorOutOfMemory;
+	}
+
+	// We're good; record away
+	strncpy(new_body, message, LOG_MESSAGE_MAX_LENGTH);
+
+	TsLogEntryRef_t new = log->_newest + 1;
+	if (new >= log->_start + log->_max_entries) {
+		// Circular log with a hard limit
+		new = log->_start;
+	}
+
+	new->category = category;
+	new->level = level;
+	new->time = time;
+
+	char * old_body = new->body;
+	new->body = new_body;
+
+	log->_newest = new;
+
+	if (new >= log->_end) {
+		// We are expanding the actual size of the log; update the end vector
+		log->_end = new + 1;
+	}
+	else {
+		// There was a message here before; free its body
+		platform_free(old_body);
+	}
 	return TsStatusOk;
+}
+
+/**
+ * Allocate space for the log entries (not for the bodies).
+ * @param start Pointer to the TsLogEntryRef_t that will contain the first entry.
+ * @param max_entries Initial number of entries to allocate.
+ * @return
+ * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+ * - TsStatusOk
+ * - TsStatusError[Code]
+ */
+TsStatus_t _ts_log_alloc(TsLogEntryRef_t *start, int max_entries) {
+	ts_platform_assert(max_entries > 0);
+	*start = (TsLogEntryRef_t) platform_malloc(sizeof(TsLogEntry_t) * max_entries);
+	if (*start == NULL) {
+		return TsStatusErrorOutOfMemory;
+	}
+	return TsStatusOk;
+}
+
+TsStatus_t _ts_log_create(TsLogConfigRef_t log) {
+	if (log->_max_entries > 0) {
+		TsStatus_t result = _ts_log_alloc(&(log->_start), log->_max_entries);
+		if (result != TsStatusOk) {
+			return result;
+		}
+		// TODO: create persistent storage?
+		log->_end = log->_start;
+		log->_newest = log->_start - 1; // back this up so the next message will be first
+	}
+	return TsStatusOk;
+}
+
+TsStatus_t _ts_log_resize(TsLogConfigRef_t log, int new_max_entries) {
+	if (new_max_entries > 0) {
+		TsLogEntryRef_t new;
+		TsStatus_t result = _ts_log_alloc(&new, new_max_entries);
+		if (result != TsStatusOk) {
+			return result;
+		}
+		// TODO: resize persistent storage?
+		// TODO: walk the list copying messages
+	}
 }

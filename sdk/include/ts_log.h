@@ -35,11 +35,15 @@ typedef struct TsLogConfig * TsLogConfigRef_t;
  * A single log entry.
  */
 typedef struct TsLogEntry {
-	uint64_t time;			// timestamp of the log entry
-	TsLogLevel_t level;		// log level
-	char *category;			// message category
-	char *body;				// message body
+	uint64_t time;				// timestamp of the log entry
+	TsLogLevel_t level;			// log level
+	TsLogCategory_t category;	// message category
+	char *body;					// message body
 } TsLogEntry_t;
+
+typedef struct TsLogEntry * TsLogEntryRef_t;
+
+#define LOG_MESSAGE_MAX_LENGTH 1024
 
 /**
  * The log config object.
@@ -51,9 +55,9 @@ typedef struct TsLogConfig {
 	int _max_entries;  			// maximum number of entries in the log
 	int _min_interval; 			// minimum interval between repeated identical messages, in milliseconds
 	int _reporting_interval; 	// interval between logs reported back to the platform, in seconds
-	TsLogEntry_t *_start;		// first entry in memory
-	TsLogEntry_t *_newest;		// newest entry (oldest one, if it exists, should be after this)
-	TsLogEntry_t *_end;			// last entry in memory
+	TsLogEntryRef_t _start;		// first entry in memory
+	TsLogEntryRef_t _newest;	// newest entry (oldest one, if it exists, should be after this)
+	TsLogEntryRef_t _end;		// after the last entry in memory
 } TsLogConfig_t;
 
 
@@ -64,6 +68,14 @@ typedef enum {
 	TsLogLevelAlert,    // firewall alert messages
 	_TsLogLevelLast,    // not a level, used for index limits
 } TsLogLevel_t;
+
+typedef enum {
+	TsCategorySecurityProfile = 0, 	// security profile events--not used on device side
+	TsCategoryFirewall, 			// firewall alerts and changes
+	TsCategoryCredential, 			// device credential events
+	TsCategoryDiagnostic,			// diagnostic messages
+	_TsCategoryLast,				// not a level, used for index limits
+} TsLogCategory_t;
 
 /**
  * Create a log configuration object.
@@ -121,10 +133,10 @@ TsStatus_t ts_logconfig_tick(TsLogConfigRef_t, uint32_t);
  * @param level
  * [in] Logging level. 0 = info, 1 = warning, 2 = error, 3 = alert.
  * @param category
- * [in] Category of message: "security_profile", "firewall", "credential", "diagnostic"
+ * [in] Category of message: 0 = security_profile, 1 = firewall, 2 = credential, 3 = diagnostic
  * @param message
  * [in] The text of the log message.
  */
-TsStatus_t ts_log(TsLogConfigRef_t log, TsLogLevel_t level, char *category, char *message);
+TsStatus_t ts_log(TsLogConfigRef_t log, TsLogLevel_t level, TsLogCategory_t category, char *message);
 
 #endif /* TS_LOG_H */
