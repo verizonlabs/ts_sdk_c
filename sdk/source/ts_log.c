@@ -186,7 +186,7 @@ TsStatus_t ts_logconfig_tick(TsLogConfigRef_t logconfig, uint32_t budget) {
 	ts_status_trace("ts_logconfig_tick");
 	ts_platform_assert(logconfig != NULL);
 
-	uint64 time = ts_platform_time();
+	uint64_t time = ts_platform_time();
 	if (logconfig->_enabled && (time - logconfig->_last_report_time >= logconfig->_reporting_interval)) {
 		_ts_log_report(logconfig);
 		logconfig->_last_report_time = ts_platform_time();
@@ -435,7 +435,7 @@ TsStatus_t _ts_log_resize(TsLogConfigRef_t log, int new_max_entries) {
 
 			ts_message_set_message_at(entries, i, entry);
 		}
-		//TODO: send the message
+		ts_service_enqueue(service, report);
 	}
 
 	return TsStatusOk;
