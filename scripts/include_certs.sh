@@ -46,7 +46,7 @@ check_success "openssl command failed"
 
 sed -n "/${cert_prefix}_certificate/,/}/ w cacert" cacert.temp
 check_success "sed command failed"
-sed -i "s/unsigned char ${cert_prefix}_certificate/static const unsigned char cacert_buf/" cacert
+sed -i .temp "s/unsigned char ${cert_prefix}_certificate/static const unsigned char cacert_buf/" cacert
 check_success "sed command to generate cacert failed"
 echo '#define VERIZON_CA_H' | cat - cacert > temp && mv temp cacert
 echo '#ifndef VERIZON_CA_H' | cat - cacert > temp && mv temp cacert
@@ -61,7 +61,7 @@ openssl x509 -C -in $2 >clcert.temp
 check_success "openssl command failed for parsig client certificate"
 sed -n "/${cert_prefix}_certificate/,/}/ w clcert" clcert.temp
 check_success "sed command failed"
-sed -i "s/unsigned char ${cert_prefix}_certificate/static const unsigned char client_cert/" clcert
+sed -i .temp "s/unsigned char ${cert_prefix}_certificate/static const unsigned char client_cert/" clcert
 check_success "sed command to generate cacert failed"
 echo '#define VERIZON_CL_H' | cat - clcert > temp && mv temp clcert
 echo '#ifndef VERIZON_CL_H' | cat - clcert > temp && mv temp clcert
