@@ -58,6 +58,7 @@ typedef struct TsLogConfig {
 	TsLogEntryRef_t _start;		// first entry in memory
 	TsLogEntryRef_t _newest;	// newest entry (oldest one, if it exists, should be after this)
 	TsLogEntryRef_t _end;		// after the last entry in memory
+	uint64 _last_report_time;	// the last time we reported logs back to the provider
 } TsLogConfig_t;
 
 

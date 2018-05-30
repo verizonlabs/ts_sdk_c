@@ -20,6 +20,7 @@ TsStatus_t ts_logconfig_create(TsLogConfigRef_t *logconfig) {
 	(*logconfig)->_level = 0;
 	(*logconfig)->_min_interval = 1000;
 	(*logconfig)->_reporting_interval = 3600;
+	(*logconfig)->_last_report_time = 0;
 
 	// Allocate some space for messages
 	_ts_log_create(*logconfig, 100);
@@ -184,6 +185,12 @@ TsStatus_t ts_logconfig_handle(TsLogConfigRef_t logconfig, TsMessageRef_t messag
 TsStatus_t ts_logconfig_tick(TsLogConfigRef_t logconfig, uint32_t budget) {
 	ts_status_trace("ts_logconfig_tick");
 	ts_platform_assert(logconfig != NULL);
+
+	uint64 time = ts_platform_time();
+	if (logconfig->_enabled && (time - logconfig->_last_report_time >= logconfig->_reporting_interval)) {
+		_ts_log_report(logconfig);
+		logconfig->_last_report_time = ts_platform_time();
+	}
 	return TsStatusOk;
 }
 
@@ -386,6 +393,28 @@ TsStatus_t _ts_log_resize(TsLogConfigRef_t log, int new_max_entries) {
 		log->_newest = log->_end - 1;
 
 		platform_free(old_start);
+	}
+
+	TsStatus_t _ts_log_report(TsLogConfigRef_t log) {
+		if (log->_end == log->_start) {
+			// nothing to report
+			return TsStatusOk;
+		}
+
+		ts_platform_assert((log->_newest >= log->_start) && (log->_newest < log->_end));
+
+		TsMessageRef_t report;
+		TsStatus_t status = ts_message_create(&report);
+		if (status != TsStatusOk) {
+			return status;
+		}
+
+		//TODO: transactionid is uuid
+		//TODO: harmonize kind codes
+		ts_message_set_string(report, "kind", "ts.event.log");
+		ts_message_set_int(report, "action", "update");
+
+
 	}
 
 	return TsStatusOk;
