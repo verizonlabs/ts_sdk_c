@@ -2,6 +2,7 @@
 #include "ts_platform.h"
 #include "ts_service.h"
 #include "ts_firewall.h"
+#include "ts_log.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -26,10 +27,10 @@ TsServiceVtable_t ts_service_ts_cbor = {
 
 // Callback used by ts_firewall to issue alert messages over the connection.
 
-static TsServiceRef_t _alertService;
+static TsServiceRef_t _messageSendingService;
 static TsStatus_t _send_message_callback( TsMessageRef_t message, char *kind ) {
-	if (_alertService != NULL && message != NULL) {
-		return ts_enqueue_typed( _alertService, kind, message );
+	if (_messageSendingService != NULL && message != NULL) {
+		return ts_enqueue_typed( _messageSendingService, kind, message );
 	} else {
 		return TsStatusErrorPreconditionFailed;
 	}
@@ -47,10 +48,17 @@ static TsStatus_t ts_create( TsServiceRef_t * service ) {
 		if( status != TsStatusOk ) {
 			ts_status_alarm( "ts_service_create: failed to create installed firewall, '%s'\n", ts_status_string(status));
 		}
-		else {
-			_alertService = *service;
-		}
 	}
+
+	_messageSendingService = *service;
+
+	// TODO: make this a state variable
+	TsLogConfigRef_t logconfig;
+	TsStatus_t status = ts_logconfig_create(&logconfig, _send_message_callback);
+	if ( status != TsStatusOk ) {
+		ts_status_alarm( "ts_service_create: failed to create log config, '%s'\n", ts_status_string(status));
+	}
+
 	return TsStatusOk;
 }
 

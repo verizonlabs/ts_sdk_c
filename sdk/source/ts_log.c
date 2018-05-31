@@ -12,7 +12,7 @@
  * - TsStatusOk
  * - TsStatusError[Code]
  */
-TsStatus_t ts_logconfig_create(TsLogConfigRef_t *logconfig) {
+TsStatus_t ts_logconfig_create(TsLogConfigRef_t *logconfig, TsStatus_t (*messageCallback)(TsMessageRef_t, char *)) {
 	ts_status_trace("ts_logconfig_create");
 	ts_platform_assert(logconfig != NULL);
 	*logconfig = (TsLogConfigRef_t)ts_platform_malloc(sizeof(TsLogConfig_t));
@@ -21,9 +21,10 @@ TsStatus_t ts_logconfig_create(TsLogConfigRef_t *logconfig) {
 	(*logconfig)->_min_interval = 1000;
 	(*logconfig)->_reporting_interval = 3600;
 	(*logconfig)->_last_report_time = 0;
+	(*logconfig)->_messageCallback = messageCallback;
 
 	// Allocate some space for messages
-	_ts_log_create(*logconfig, 100);
+	_ts_log_create(*logconfig, 15);
 
 	return TsStatusOk;
 }
@@ -435,7 +436,9 @@ TsStatus_t _ts_log_resize(TsLogConfigRef_t log, int new_max_entries) {
 
 			ts_message_set_message_at(entries, i, entry);
 		}
-		ts_service_enqueue(service, report);
+
+		// Send it off
+		log->_messageCallback(report, "ts.event.log");
 	}
 
 	return TsStatusOk;

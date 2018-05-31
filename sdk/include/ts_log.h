@@ -59,6 +59,7 @@ typedef struct TsLogConfig {
 	TsLogEntryRef_t _newest;	// newest entry (oldest one, if it exists, should be after this)
 	TsLogEntryRef_t _end;		// after the last entry in memory
 	uint64 _last_report_time;	// the last time we reported logs back to the provider
+	TsStatus_t (*_messageCallback)(TsMessageRef_t, char *);	// pointer to function for sending the log message
 } TsLogConfig_t;
 
 
@@ -82,12 +83,14 @@ typedef enum {
  * Create a log configuration object.
  * @param logconfig
  * [on/out] Pointer to a TsLogConfigRef_t in which the new config will be stored.
+ * @param messageCallback
+ * [in] Pointer to a function that will send a TsMessage with a specified kind.
  * @return
  * The return status (TsStatus_t) of the function, see ts_status.h for more information.
  * - TsStatusOk
  * - TsStatusError[Code]
  */
-TsStatus_t ts_logconfig_create(TsLogConfigRef_t *);
+TsStatus_t ts_logconfig_create(TsLogConfigRef_t *, TsStatus_t (*messageCallback)(TsMessageRef_t, char *));
 
 /**
  * Destroy a log configuration object.
