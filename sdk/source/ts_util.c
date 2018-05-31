@@ -2,6 +2,7 @@
 
 #include "ts_util.h"
 #include "ts_platform.h"
+#include <string.h>
 
 // Use the ts_random entry point to generate random hex bytes.
 // Set - Set bits in the output as specified by set bits here
@@ -14,14 +15,14 @@ static void _fourrandomhexbytes( char * out, uint32_t set, uint32_t mask) {
 
 	tmp = set | (tmp & mask);
 
-	snprintf(out, 9, "%08x", tmp);
+	snprintf(out, 9, "%08lx", tmp);
 }
 
 // Make a UUID. Out must have room for 36 characters + 1 null termination (UUID_SIZE).
 void ts_uuid( char * out ) {
 	char hex[9];
 
-	memset(out, "\0", UUID_SIZE);
+	memset(out, 0, UUID_SIZE);
 
 	_fourrandomhexbytes(hex, 0x0, 0xffffffff);
 	strncpy(out, hex, 9);
