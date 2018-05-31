@@ -29,7 +29,21 @@
  */
 typedef struct TsLogConfig * TsLogConfigRef_t;
 
+typedef enum {
+	TsLogLevelInfo = 0, // informational messages
+	TsLogLevelWarning,  // warning messages
+	TsLogLevelError,    // error messages
+	TsLogLevelAlert,    // firewall alert messages
+	_TsLogLevelLast,    // not a level, used for index limits
+} TsLogLevel_t;
 
+typedef enum {
+	TsCategorySecurityProfile = 0, 	// security profile events--not used on device side
+	TsCategoryFirewall, 			// firewall alerts and changes
+	TsCategoryCredential, 			// device credential events
+	TsCategoryDiagnostic,			// diagnostic messages
+	_TsCategoryLast,				// not a level, used for index limits
+} TsLogCategory_t;
 
 /**
  * A single log entry.
@@ -58,26 +72,9 @@ typedef struct TsLogConfig {
 	TsLogEntryRef_t _start;		// first entry in memory
 	TsLogEntryRef_t _newest;	// newest entry (oldest one, if it exists, should be after this)
 	TsLogEntryRef_t _end;		// after the last entry in memory
-	uint64 _last_report_time;	// the last time we reported logs back to the provider
+	uint64_t _last_report_time;	// the last time we reported logs back to the provider
 	TsStatus_t (*_messageCallback)(TsMessageRef_t, char *);	// pointer to function for sending the log message
 } TsLogConfig_t;
-
-
-typedef enum {
-	TsLogLevelInfo = 0, // informational messages
-	TsLogLevelWarning,  // warning messages
-	TsLogLevelError,    // error messages
-	TsLogLevelAlert,    // firewall alert messages
-	_TsLogLevelLast,    // not a level, used for index limits
-} TsLogLevel_t;
-
-typedef enum {
-	TsCategorySecurityProfile = 0, 	// security profile events--not used on device side
-	TsCategoryFirewall, 			// firewall alerts and changes
-	TsCategoryCredential, 			// device credential events
-	TsCategoryDiagnostic,			// diagnostic messages
-	_TsCategoryLast,				// not a level, used for index limits
-} TsLogCategory_t;
 
 /**
  * Create a log configuration object.
