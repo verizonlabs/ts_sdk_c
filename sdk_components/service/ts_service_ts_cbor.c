@@ -42,6 +42,8 @@ static TsStatus_t ts_create( TsServiceRef_t * service ) {
 	ts_platform_assert( service != NULL );
 	ts_platform_assert( *service != NULL );
 
+	_messageSendingService = *service;
+
 	// create firewall if supported
 	if( ts_firewall != NULL ) {
 		TsStatus_t status = ts_firewall_create( &((*service)->_firewall) , _send_message_callback);
@@ -50,11 +52,7 @@ static TsStatus_t ts_create( TsServiceRef_t * service ) {
 		}
 	}
 
-	_messageSendingService = *service;
-
-	// TODO: make this a state variable
-	TsLogConfigRef_t logconfig;
-	TsStatus_t status = ts_logconfig_create(&logconfig, _send_message_callback);
+	TsStatus_t status = ts_logconfig_create(&((*service)->_logconfig) , _send_message_callback);
 	if ( status != TsStatusOk ) {
 		ts_status_alarm( "ts_service_create: failed to create log config, '%s'\n", ts_status_string(status));
 	}
@@ -70,6 +68,11 @@ static TsStatus_t ts_destroy( TsServiceRef_t service ) {
 	// destroy firewall, if already created
 	if( service->_firewall != NULL ) {
 		ts_firewall_destroy( service->_firewall );
+	}
+
+	// destroy log config, if already created
+	if ( service->_logconfig != NULL ) {
+		ts_logconfig_destroy( service->_logconfig );
 	}
 	return TsStatusOk;
 }
