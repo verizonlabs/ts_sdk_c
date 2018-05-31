@@ -397,6 +397,9 @@ TsStatus_t _ts_log_resize(TsLogConfigRef_t log, int new_max_entries) {
 	}
 
 	TsStatus_t _ts_log_report(TsLogConfigRef_t log) {
+
+		char transactionid[UUID_SIZE];
+
 		if (log->_end == log->_start) {
 			// nothing to report
 			return TsStatusOk;
@@ -411,8 +414,9 @@ TsStatus_t _ts_log_resize(TsLogConfigRef_t log, int new_max_entries) {
 			return status;
 		}
 
-		//TODO: transactionid is uuid
 		//TODO: harmonize kind codes
+		ts_uuid(transactionid);
+		ts_message_set_string(report, "transactionid", transactionid);
 		ts_message_set_string(report, "kind", "ts.event.log");
 		ts_message_set_int(report, "action", "update");
 		ts_message_create_array(report, "entries", &entries);
