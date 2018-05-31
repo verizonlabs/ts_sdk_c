@@ -439,6 +439,8 @@ TsStatus_t _ts_log_resize(TsLogConfigRef_t log, int new_max_entries) {
 
 		// Send it off
 		log->_messageCallback(report, "ts.event.log");
+
+		ts_message_destroy(report);
 	}
 
 	return TsStatusOk;

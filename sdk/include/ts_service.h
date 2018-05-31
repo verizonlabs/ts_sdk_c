@@ -187,6 +187,7 @@ typedef struct TsService {
 	TsServiceHandler_t  _handlers[TS_SERVICE_MAX_HANDLERS];
 	TsTransportRef_t    _transport;
 	TsFirewallRef_t     _firewall;
+	TsLogConfigRef_t	_logconfig;
 } TsService_t;
 
 /**

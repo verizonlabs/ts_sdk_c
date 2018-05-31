@@ -71,8 +71,19 @@ TsStatus_t ts_service_tick( TsServiceRef_t service, uint32_t budget ) {
 	// determine remaining timer budget
 	uint32_t interval = (uint32_t)(ts_platform_time() - timestamp);
 	if( interval >= budget ) {
-		ts_status_debug( "ts_service_tick: budget exceeded, ignoring,...\n" );
+		ts_status_debug( "ts_service_tick: after calling service tick, budget exceeded, ignoring,...\n" );
 		interval = 0;
+	}
+
+	if (service->_logconfig != NULL) {
+		status = ts_logconfig_tick(service->_logconfig, budget - interval);
+
+		interval = (uint32_t)(ts_platform_time() - timestamp);
+		if (interval >= budget) {
+			ts_status_debug(
+					"ts_service_tick: after calling logconfig tick, budget exceeded, ignoring,...\n");
+			interval = 0;
+		}
 	}
 
 	// perform transport tick within remaining budget
