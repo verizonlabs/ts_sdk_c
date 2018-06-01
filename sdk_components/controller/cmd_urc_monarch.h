@@ -146,11 +146,7 @@ static at_cmd_desc query_cmd_list[NUM_MODEM_INFO_CMDS] = {
 		.resp = {
 			{
 				.exp_resp = "\r\n+CGPADDR: "MODEM_PDP_CTX"," \
-					     "\"%u.%u.%u.%u\"," \
-					     "\"%u.%u.%u.%u." \
-					     "%u.%u.%u.%u." \
-					     "%u.%u.%u.%u." \
-					     "%u.%u.%u.%u\"\r\n",
+					     "\"%u.%u.%u.%u\"\r\n",
 				.resp_cb = parse_ipv4_addr
 			},
 			{
