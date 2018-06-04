@@ -402,59 +402,58 @@ TsStatus_t _ts_log_resize(TsLogConfigRef_t log, int new_max_entries) {
 
 		ts_platform_free(old_start, 0);
 	}
-
 	return TsStatusOk;
+}
 
-	TsStatus_t _ts_log_report(TsLogConfigRef_t log) {
+TsStatus_t _ts_log_report(TsLogConfigRef_t log) {
 
-		char transactionid[UUID_SIZE];
+	char transactionid[UUID_SIZE];
 
-		if (log->_end == log->_start) {
-			// nothing to report
-			return TsStatusOk;
-		}
-
-		ts_platform_assert(
-				(log->_newest >= log->_start) && (log->_newest < log->_end));
-
-		TsMessageRef_t report;
-		TsMessageRef_t entries;
-		TsStatus_t status = ts_message_create(&report);
-		if (status != TsStatusOk) {
-			return status;
-		}
-
-		//TODO: harmonize kind codes
-		ts_uuid(transactionid);
-		ts_message_set_string(report, "transactionid", transactionid);
-		ts_message_set_string(report, "kind", "ts.event.log");
-		ts_message_set_string(report, "action", "update");
-		ts_message_create_array(report, "entries", &entries);
-		//TODO: implement resizeable message arrays!
-		int i;
-		int size = log->_end - log->_start;
-		TsLogEntryRef_t current = log->_newest + 1;
-		for (i = 0; i < size; i++, current++) {
-			TsMessageRef_t entry;
-
-			if (current >= log->_end) { // wrap around
-				current = log->_start;
-			}
-
-			ts_message_create(&entry);
-			ts_message_set_string(entry, "kind", "ts.event.logentry");
-			ts_message_set_int(entry, "level", current->level);
-			ts_message_set_int(entry, "category", current->category);
-			ts_message_set_int(entry, "time", current->time);
-			ts_message_set_string(entry, "body", current->body);
-
-			ts_message_set_message_at(entries, i, entry);
-		}
-
-		// Send it off
-		log->_messageCallback(report, "ts.event.log");
-
-		ts_message_destroy(report);
+	if (log->_end == log->_start) {
+		// nothing to report
 		return TsStatusOk;
 	}
+
+	ts_platform_assert(
+			(log->_newest >= log->_start) && (log->_newest < log->_end));
+
+	TsMessageRef_t report;
+	TsMessageRef_t entries;
+	TsStatus_t status = ts_message_create(&report);
+	if (status != TsStatusOk) {
+		return status;
+	}
+
+	//TODO: harmonize kind codes
+	ts_uuid(transactionid);
+	ts_message_set_string(report, "transactionid", transactionid);
+	ts_message_set_string(report, "kind", "ts.event.log");
+	ts_message_set_string(report, "action", "update");
+	ts_message_create_array(report, "entries", &entries);
+	//TODO: implement resizeable message arrays!
+	int i;
+	int size = log->_end - log->_start;
+	TsLogEntryRef_t current = log->_newest + 1;
+	for (i = 0; i < size; i++, current++) {
+		TsMessageRef_t entry;
+
+		if (current >= log->_end) { // wrap around
+			current = log->_start;
+		}
+
+		ts_message_create(&entry);
+		ts_message_set_string(entry, "kind", "ts.event.logentry");
+		ts_message_set_int(entry, "level", current->level);
+		ts_message_set_int(entry, "category", current->category);
+		ts_message_set_int(entry, "time", current->time);
+		ts_message_set_string(entry, "body", current->body);
+
+		ts_message_set_message_at(entries, i, entry);
+	}
+
+	// Send it off
+	log->_messageCallback(report, "ts.event.log");
+
+	ts_message_destroy(report);
+	return TsStatusOk;
 }
