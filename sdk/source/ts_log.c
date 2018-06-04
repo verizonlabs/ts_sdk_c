@@ -324,6 +324,7 @@ TsStatus_t _ts_log_destroy(TsLogConfigRef_t log) {
 		ts_platform_free(current->body, 0);
 	}
 	ts_platform_free(log->_start, 0);
+	return TsStatusOk;
 }
 
 void _ts_log_shallow_copy(TsLogEntryRef_t src, TsLogEntryRef_t dest) {
@@ -402,6 +403,8 @@ TsStatus_t _ts_log_resize(TsLogConfigRef_t log, int new_max_entries) {
 		ts_platform_free(old_start, 0);
 	}
 
+	return TsStatusOk;
+
 	TsStatus_t _ts_log_report(TsLogConfigRef_t log) {
 
 		char transactionid[UUID_SIZE];
@@ -411,7 +414,8 @@ TsStatus_t _ts_log_resize(TsLogConfigRef_t log, int new_max_entries) {
 			return TsStatusOk;
 		}
 
-		ts_platform_assert((log->_newest >= log->_start) && (log->_newest < log->_end));
+		ts_platform_assert(
+				(log->_newest >= log->_start) && (log->_newest < log->_end));
 
 		TsMessageRef_t report;
 		TsMessageRef_t entries;
@@ -424,7 +428,7 @@ TsStatus_t _ts_log_resize(TsLogConfigRef_t log, int new_max_entries) {
 		ts_uuid(transactionid);
 		ts_message_set_string(report, "transactionid", transactionid);
 		ts_message_set_string(report, "kind", "ts.event.log");
-		ts_message_set_int(report, "action", "update");
+		ts_message_set_string(report, "action", "update");
 		ts_message_create_array(report, "entries", &entries);
 		//TODO: implement resizeable message arrays!
 		int i;
@@ -451,7 +455,6 @@ TsStatus_t _ts_log_resize(TsLogConfigRef_t log, int new_max_entries) {
 		log->_messageCallback(report, "ts.event.log");
 
 		ts_message_destroy(report);
+		return TsStatusOk;
 	}
-
-	return TsStatusOk;
 }
