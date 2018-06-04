@@ -38,6 +38,8 @@ typedef struct TsFirewall {
 	TsMessageRef_t _default_domains;
 	TsMessageRef_t _rules;
 	TsMessageRef_t _domains;
+	uint64_t _statistics_reporting_interval;
+	uint64_t _last_report_time;
 } TsFirewall_t;
 
 /**

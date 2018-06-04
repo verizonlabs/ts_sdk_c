@@ -70,25 +70,39 @@ TsStatus_t ts_service_tick( TsServiceRef_t service, uint32_t budget ) {
 
 	// determine remaining timer budget
 	uint32_t interval = (uint32_t)(ts_platform_time() - timestamp);
+
 	if( interval >= budget ) {
 		ts_status_debug( "ts_service_tick: after calling service tick, budget exceeded, ignoring,...\n" );
 		interval = 0;
 	}
 
+	// logging tick
 	if (service->_logconfig != NULL) {
 		status = ts_logconfig_tick(service->_logconfig, budget - interval);
-
 		interval = (uint32_t)(ts_platform_time() - timestamp);
 		if (interval >= budget) {
 			ts_status_debug(
-					"ts_service_tick: after calling logconfig tick, budget exceeded, ignoring,...\n");
+						"ts_service_tick: after calling logconfig tick, budget exceeded, ignoring,...\n");
 			interval = 0;
 		}
 	}
 
+	// firewall tick
+	if (service->_firewall != NULL) {
+		status = ts_firewall_tick(service->_firewall, budget - interval);
+		interval = (uint32_t)(ts_platform_time() - timestamp);
+		if (interval >= budget) {
+			ts_status_debug(
+					"ts_service_tick: after calling firewall tick, budget exceeded, ignoring,...\n");
+			interval = 0;
+		}
+	}
+
+	ts_status_debug("After calling firewall tick, remaining timer budget is %d\n");
+
 	// perform transport tick within remaining budget
 	// TODO - return may require user action, e.g., TsStatusErrorConnectionReset - or add processing here.
-	return ts_transport_tick( service->_transport, budget - interval);
+	return ts_transport_tick(service->_transport, budget - interval);
 }
 
 TsStatus_t ts_service_set_server_cert_hostname( TsServiceRef_t service, const char * hostname ) {
