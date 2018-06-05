@@ -407,10 +407,12 @@ TsStatus_t _ts_log_resize(TsLogConfigRef_t log, int new_max_entries) {
 
 TsStatus_t _ts_log_report(TsLogConfigRef_t log) {
 
+	ts_status_trace("_ts_log_report");
 	char transactionid[UUID_SIZE];
 
 	if (log->_end == log->_start) {
 		// nothing to report
+		ts_status_debug("_ts_log_report: empty log, nothing to send");
 		return TsStatusOk;
 	}
 
