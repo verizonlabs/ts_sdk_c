@@ -461,6 +461,10 @@ TsStatus_t ts_message_set_message_at( TsMessageRef_t array, size_t index, TsMess
 	return ts_message_set_at( array, index, value );
 }
 
+TsStatus_t ts_message_dump( TsMessageRef_t message ) {
+	return _ts_message_encode_debug( message, 0 );
+}
+
 /* ts_message_encode */
 /* encode will attempt to fill the given buffer with the encoded data found in the given message. */
 TsStatus_t ts_message_encode( TsMessageRef_t message, TsEncoder_t encoder, uint8_t * buffer, size_t * buffer_size ) {
@@ -1357,6 +1361,7 @@ static TsStatus_t _ts_message_encode_ts_cbor_value( CborEncoder * encoder, int d
 static TsStatus_t _ts_message_encode_ts_cbor( TsMessageRef_t message, CborEncoder * encoder, int depth, uint8_t * buffer, size_t buffer_size ) {
 
 	TsCborValueType_t type;
+
 	switch( message->type ) {
 	case TsTypeNull:
 		cbor_encode_text_stringz( encoder, message->name );

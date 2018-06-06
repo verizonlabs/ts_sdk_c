@@ -209,6 +209,9 @@ TsStatus_t ts_message_decode(TsMessageRef_t message, TsEncoder_t encoder, uint8_
 TsStatus_t ts_message_decode_json(TsMessageRef_t message, cJSON *value);
 TsStatus_t ts_message_decode_cbor(TsMessageRef_t message, CborValue *value);
 
+// debugging
+TsStatus_t ts_message_dump(TsMessageRef_t message);
+
 #ifdef __cplusplus
 }
 #endif
