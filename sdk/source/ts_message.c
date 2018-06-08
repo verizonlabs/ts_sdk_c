@@ -1234,7 +1234,7 @@ static TsStatus_t _ts_message_encode_ts_cbor_key( CborEncoder * encoder, int dep
 	if( depth <= 1 ) {
 
 		bool found = false;
-		for( int i = 0; i < sizeof(_ts_cbor_key_mapping); i++ ) {
+		for( int i = 0; i < _ts_cbor_key_mapping_size; i++ ) {
 			if( strcmp( name, _ts_cbor_key_mapping[i].name ) == 0 ) {
 				found = true;
 				cbor_encode_int( encoder, _ts_cbor_key_mapping[i].value );
