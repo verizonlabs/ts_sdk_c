@@ -47,6 +47,8 @@ typedef struct TsFirewall {
  */
 typedef struct TsCallbackContext {
 	bool alerts_enabled;
+	bool alert_in_progress;
+	TsMessageRef_t alert_to_send;
 	int alert_threshold_inbound;
 	int alert_threshold_outbound;
 	int inbound_rejections;
