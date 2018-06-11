@@ -1208,6 +1208,8 @@ static char * _ts_cbor_kind_mapping[] = {
 	"ts.event.firewall",
 };
 
+static size_t _ts_cbor_kind_mapping_size = sizeof(_ts_cbor_kind_mapping) / sizeof(char *);
+
 static char * _ts_cbor_action_mapping[] = {
 	"activate",
 	"suspend",
@@ -1219,12 +1221,14 @@ static char * _ts_cbor_action_mapping[] = {
 	"delete",
 };
 
+static size_t _ts_cbor_action_mapping_size = sizeof(_ts_cbor_action_mapping) / sizeof(char *);
+
 static TsStatus_t _ts_message_encode_ts_cbor_key( CborEncoder * encoder, int depth, char * name, TsCborValueType_t * type ) {
 
 	if( depth <= 1 ) {
 
 		bool found = false;
-		for( int i = 0; i < sizeof(_ts_cbor_key_mapping); i++ ) {
+		for( int i = 0; i < _ts_cbor_key_mapping_size; i++ ) {
 			if( strcmp( name, _ts_cbor_key_mapping[i].name ) == 0 ) {
 				found = true;
 				cbor_encode_int( encoder, _ts_cbor_key_mapping[i].value );
@@ -1341,6 +1345,7 @@ static TsStatus_t _ts_message_encode_ts_cbor_value( CborEncoder * encoder, int d
 static TsStatus_t _ts_message_encode_ts_cbor( TsMessageRef_t message, CborEncoder * encoder, int depth, uint8_t * buffer, size_t buffer_size ) {
 
 	TsCborValueType_t type;
+
 	switch( message->type ) {
 	case TsTypeNull:
 		cbor_encode_text_stringz( encoder, message->name );
@@ -1381,7 +1386,6 @@ static TsStatus_t _ts_message_encode_ts_cbor( TsMessageRef_t message, CborEncode
 		for( int i = 0; i < (int)length; i++ ) {
 
 			TsMessageRef_t xmessage = message->value._xfields[ i ];
-			TsCborValueType_t xtype;
 			switch( xmessage->type ) {
 			case TsTypeInteger:
 				cbor_encode_int( &array, xmessage->value._xinteger );
@@ -1603,7 +1607,7 @@ TsStatus_t _ts_message_decode_ts_cbor( TsMessageRef_t message, int depth, CborVa
 
 				int64_t data;
 				cbor_value_get_int64( value, &data );
-				if( data > 0 && data <= sizeof( _ts_cbor_key_mapping )) {
+				if( data > 0 && data <= _ts_cbor_key_mapping_size ) {
 
 					key = _ts_cbor_key_mapping[ data - 1 ].name;
 					key_type = _ts_cbor_key_mapping[ data - 1 ].type;
@@ -1663,7 +1667,7 @@ TsStatus_t _ts_message_decode_ts_cbor( TsMessageRef_t message, int depth, CborVa
 				break;
 
 			case TsCborValueTypeAction: {
-				if( data > 0 && data <= sizeof( _ts_cbor_action_mapping )) {
+				if( data > 0 && data <= _ts_cbor_action_mapping_size ) {
 					ts_message_set_string( message, key, _ts_cbor_action_mapping[ data - 1 ] );
 				} else {
 					status = TsStatusErrorBadRequest;
@@ -1671,7 +1675,7 @@ TsStatus_t _ts_message_decode_ts_cbor( TsMessageRef_t message, int depth, CborVa
 				break;
 			}
 			case TsCborValueTypeKind: {
-				if( data > 0 && data <= sizeof( _ts_cbor_kind_mapping )) {
+				if( data > 0 && data <= _ts_cbor_kind_mapping_size ) {
 					ts_message_set_string( message, key, _ts_cbor_kind_mapping[ data - 1 ] );
 				} else {
 					status = TsStatusErrorBadRequest;
