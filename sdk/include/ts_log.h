@@ -65,6 +65,7 @@ typedef struct TsLogEntry * TsLogEntryRef_t;
 
 typedef struct TsLogConfig {
 	bool _enabled;
+	bool _log_in_progress;
 	int _level;
 	int _max_entries;  			// maximum number of entries in the log
 	int _min_interval; 			// minimum interval between repeated identical messages, in milliseconds

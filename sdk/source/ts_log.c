@@ -9,6 +9,8 @@ TsStatus_t _ts_log_destroy(TsLogConfigRef_t);
 TsStatus_t _ts_log_resize(TsLogConfigRef_t, int);
 TsStatus_t _ts_log_report(TsLogConfigRef_t);
 
+//#define TEST_CONFIG 1
+
 /**
  * Create a log configuration object.
  * @param logconfig
@@ -23,6 +25,7 @@ TsStatus_t ts_logconfig_create(TsLogConfigRef_t *logconfig, TsStatus_t (*message
 	ts_platform_assert(logconfig != NULL);
 	*logconfig = (TsLogConfigRef_t)ts_platform_malloc(sizeof(TsLogConfig_t));
 	(*logconfig)->_enabled = false;
+	(*logconfig)->_log_in_progress = false;
 	(*logconfig)->_level = 0;
 	(*logconfig)->_min_interval = 1000;
 	(*logconfig)->_reporting_interval = 3600;
@@ -31,6 +34,10 @@ TsStatus_t ts_logconfig_create(TsLogConfigRef_t *logconfig, TsStatus_t (*message
 
 	// Allocate some space for messages
 	_ts_log_create(*logconfig, 15);
+
+#ifdef TEST_CONFIG
+	(*logconfig)->_enabled = true;
+#endif
 
 	return TsStatusOk;
 }
@@ -211,22 +218,24 @@ TsStatus_t ts_logconfig_tick(TsLogConfigRef_t logconfig, uint32_t budget) {
  * [in] Logging level. 0 = info, 1 = warning, 2 = error, 3 = alert.
  * @param category
  * [in] Category of message: 0 = security_profile, 1 = firewall, 2 = credential, 3 = diagnostic
- * @param message
+ * @param text
  * [in] The text of the log message.
  * @return
  * The return status (TsStatus_t) of the function, see ts_status.h for more information.
  * - TsStatusOk
  * - TsStatusError[Code]
  */
-TsStatus_t ts_log(TsLogConfigRef_t log, TsLogLevel_t level, TsLogCategory_t category, char *message) {
-	ts_status_trace("ts_log");
-	ts_status_debug("ts_log: level = %d, category = %d, message = %s\n", level, category, message);
-	ts_platform_assert(level >= 0 && level < _TsLogLevelLast);
+TsStatus_t ts_log(TsLogConfigRef_t log, TsLogLevel_t level, TsLogCategory_t category, char *text) {
+	//ts_status_trace("ts_log");
+	//ts_status_debug("ts_log: level = %d, category = %d, text = %s\n", level, category, text);
+	ts_platform_assert(level >= 0);
+	ts_platform_assert(level < _TsLogLevelLast);
 	ts_platform_assert(log != NULL);
-	ts_platform_assert(category >= 0 && category < _TsCategoryLast);
-	ts_platform_assert(message != NULL);
+	ts_platform_assert(category >= 0);
+	ts_platform_assert(category < _TsCategoryLast);
+	ts_platform_assert(text != NULL);
 
-	if (!(log->_enabled) || log->_max_entries < 1) {
+	if (!(log->_enabled) || (log->_log_in_progress) || (log->_max_entries < 1)) {
 		// We're not logging at all
 		return TsStatusOk;
 	}
@@ -236,6 +245,8 @@ TsStatus_t ts_log(TsLogConfigRef_t log, TsLogLevel_t level, TsLogCategory_t cate
 		return TsStatusOk;
 	}
 
+	log->_log_in_progress = true;
+
 	uint64_t time = ts_platform_time();
 
 	// Check to see if we're spamming identical messages too frequently
@@ -243,8 +254,9 @@ TsStatus_t ts_log(TsLogConfigRef_t log, TsLogLevel_t level, TsLogCategory_t cate
 		uint64_t previous = log->_newest->time;
 		if ((time - previous > 0) && (time - previous < log->_min_interval)) {
 			if (log->_newest->level == level && log->_newest->category == category) {
-				if (strncmp(log->_newest->body, message, LOG_MESSAGE_MAX_LENGTH) == 0) {
-					ts_status_debug("ts_log: Log messages identical within interval %d\n", log->_min_interval);
+				if (strncmp(log->_newest->body, text, LOG_MESSAGE_MAX_LENGTH) == 0) {
+					//ts_status_debug("ts_log: Log messages identical within interval %d\n", log->_min_interval);
+					log->_log_in_progress = false;
 					return TsStatusOk;
 				}
 			}
@@ -252,14 +264,18 @@ TsStatus_t ts_log(TsLogConfigRef_t log, TsLogLevel_t level, TsLogCategory_t cate
 	}
 
 	// Can we get the space for the message body?
-	int length = strnlen(message, LOG_MESSAGE_MAX_LENGTH);
+	// note, strnlen excludes the terminating null; we add it back in
+
+	int length = strnlen(text, LOG_MESSAGE_MAX_LENGTH - 1) + 1;
 	char *new_body = (char *)ts_platform_malloc(length);
 	if (new_body == NULL) {
+		log->_log_in_progress = false;
 		return TsStatusErrorOutOfMemory;
 	}
 
 	// We're good; record away
-	strncpy(new_body, message, LOG_MESSAGE_MAX_LENGTH);
+
+	strncpy(new_body, text, length);
 
 	TsLogEntryRef_t new = log->_newest + 1;
 	if (new >= log->_start + log->_max_entries) {
@@ -284,6 +300,7 @@ TsStatus_t ts_log(TsLogConfigRef_t log, TsLogLevel_t level, TsLogCategory_t cate
 		// There was a message here before; free its body
 		ts_platform_free(old_body, 0);
 	}
+	log->_log_in_progress = false;
 	return TsStatusOk;
 }
 
@@ -416,6 +433,9 @@ TsStatus_t _ts_log_report(TsLogConfigRef_t log) {
 		return TsStatusOk;
 	}
 
+	// TODO: check here? Use a mutex?
+	log->_log_in_progress = true;
+
 	ts_platform_assert(
 			(log->_newest >= log->_start) && (log->_newest < log->_end));
 
@@ -423,10 +443,10 @@ TsStatus_t _ts_log_report(TsLogConfigRef_t log) {
 	TsMessageRef_t entries;
 	TsStatus_t status = ts_message_create(&report);
 	if (status != TsStatusOk) {
+		log->_log_in_progress = false;
 		return status;
 	}
 
-	//TODO: harmonize kind codes
 	ts_uuid(transactionid);
 	ts_message_set_string(report, "transactionid", transactionid);
 	ts_message_set_string(report, "kind", "ts.event.log");
@@ -451,11 +471,14 @@ TsStatus_t _ts_log_report(TsLogConfigRef_t log) {
 		ts_message_set_string(entry, "body", current->body);
 
 		ts_message_set_message_at(entries, i, entry);
+		ts_message_destroy(entry);
 	}
 
 	// Send it off
+	ts_message_dump(report);
 	log->_messageCallback(report, "ts.event.log");
 
 	ts_message_destroy(report);
+	log->_log_in_progress = false;
 	return TsStatusOk;
 }

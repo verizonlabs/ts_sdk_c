@@ -22,6 +22,7 @@
 
 #include "ts_status.h"
 #include "ts_message.h"
+#include "ts_log.h"
 
 /**
  * The firewall object reference
@@ -54,6 +55,7 @@ typedef struct TsCallbackContext {
 	int inbound_rejections;
 	int outbound_rejections;
 	TsStatus_t (*alert_callback) (TsMessageRef_t, char *);
+	TsLogConfigRef_t log;
 } TsCallbackContext_t;
 
 /**
@@ -119,6 +121,19 @@ typedef struct TsFirewallVtable {
 	TsStatus_t (*handle)(TsFirewallRef_t, TsMessageRef_t );
 
 	/**
+	 * Register a logging instance for the firewall to use when logging events.
+	 *
+	 * @param log_config
+	 * The TsLogConfigRef_t pointing to the logging configuration to use.
+	 *
+	 * @return
+	 * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+	 * - TsStatusOk
+	 * - TsStatusError[Code]
+	 */
+	TsStatus_t (*set_log)(TsLogConfigRef_t);
+
+	/**
 	* Get firewall Stats
 	* @return
 	* The collection of statistics for the firewall
@@ -137,6 +152,7 @@ extern const TsFirewallVtable_t *ts_firewall;
 #define ts_firewall_destroy     ts_firewall->destroy
 #define ts_firewall_tick        ts_firewall->tick
 #define ts_firewall_handle      ts_firewall->handle
+#define ts_firewall_set_log		ts_firewall->set_log
 #define ts_firewall_stats		ts_firewall->stats
 
 #ifdef __cplusplus
