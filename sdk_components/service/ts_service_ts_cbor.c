@@ -25,7 +25,7 @@ TsServiceVtable_t ts_service_ts_cbor = {
 	.dequeue = ts_dequeue,
 };
 
-// Callback used by ts_firewall to issue alert messages over the connection.
+// Callback used by ts_firewall and ts_log to issue alert messages over the connection.
 
 static TsServiceRef_t _messageSendingService;
 static TsStatus_t _send_message_callback( TsMessageRef_t message, char *kind ) {
@@ -44,17 +44,19 @@ static TsStatus_t ts_create( TsServiceRef_t * service ) {
 
 	_messageSendingService = *service;
 
+	// create logconfig
+	TsStatus_t status = ts_logconfig_create(&((*service)->_logconfig) , _send_message_callback);
+	if ( status != TsStatusOk ) {
+		ts_status_alarm( "ts_service_create: failed to create log config, '%s'\n", ts_status_string(status));
+	}
+
 	// create firewall if supported
 	if( ts_firewall != NULL ) {
 		TsStatus_t status = ts_firewall_create( &((*service)->_firewall) , _send_message_callback);
 		if( status != TsStatusOk ) {
 			ts_status_alarm( "ts_service_create: failed to create installed firewall, '%s'\n", ts_status_string(status));
 		}
-	}
-
-	TsStatus_t status = ts_logconfig_create(&((*service)->_logconfig) , _send_message_callback);
-	if ( status != TsStatusOk ) {
-		ts_status_alarm( "ts_service_create: failed to create log config, '%s'\n", ts_status_string(status));
+		ts_firewall_set_log((*service)->_logconfig);
 	}
 
 	return TsStatusOk;
@@ -126,7 +128,8 @@ static TsStatus_t ts_enqueue_typed( TsServiceRef_t service, char* type, TsMessag
 	const uint8_t id[ TS_DRIVER_MAX_ID_SIZE ];
 	ts_connection_get_spec_id( service->_transport->_connection, id, TS_DRIVER_MAX_ID_SIZE );
 
-	if (strcmp(type, "ts.event.firewall.alert") == 0) {
+	if (strcmp(type, "ts.event.firewall.alert") == 0
+			|| strcmp(type, "ts.event.log") == 0) {
 		// The message is ready-made in this case. The alert callback caller owns it.
 		// TODO: Should some of the logic to generate UUID, kind, etc. be up here? Stats case could use the UUID generator
 		return ts_encode_and_send_message(service, id, data);

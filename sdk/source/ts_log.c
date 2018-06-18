@@ -439,8 +439,7 @@ TsStatus_t _ts_log_report(TsLogConfigRef_t log) {
 	ts_platform_assert(
 			(log->_newest >= log->_start) && (log->_newest < log->_end));
 
-	TsMessageRef_t report;
-	TsMessageRef_t entries;
+	TsMessageRef_t report, fields, entries;
 	TsStatus_t status = ts_message_create(&report);
 	if (status != TsStatusOk) {
 		log->_log_in_progress = false;
@@ -451,8 +450,9 @@ TsStatus_t _ts_log_report(TsLogConfigRef_t log) {
 	ts_message_set_string(report, "transactionid", transactionid);
 	ts_message_set_string(report, "kind", "ts.event.log");
 	ts_message_set_string(report, "action", "update");
-	ts_message_create_array(report, "entries", &entries);
-	//TODO: implement resizeable message arrays!
+
+	ts_message_create_message(report, "fields", &fields);
+	ts_message_create_array(fields, "entries", &entries);
 	int i;
 	int size = log->_end - log->_start;
 	TsLogEntryRef_t current = log->_newest + 1;
