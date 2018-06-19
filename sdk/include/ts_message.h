@@ -65,10 +65,11 @@
 // total number of nodes available for messages 
 #define TS_MESSAGE_MAX_NODES        (TS_MESSAGE_MAX_BRANCHES * TS_MESSAGE_MAX_ROOTS)
 
-// maximum size of a string attribute 
-// i.e., length of a uuid with dashes (36) plus termination 
+// length of a UUID plus dashes
 #define TS_MESSAGE_UUID_SIZE        36
-#define TS_MESSAGE_MAX_STRING_SIZE  TS_MESSAGE_UUID_SIZE + 1
+
+// maximum size of a string attribute
+#define TS_MESSAGE_MAX_STRING_SIZE  256 // TS_MESSAGE_UUID_SIZE + 1
 
 // maximum size of a key (i.e., field name) 
 #define TS_MESSAGE_MAX_KEY_SIZE     24
@@ -117,7 +118,7 @@ typedef union {
 	int _xinteger;
 	float _xfloat;
 	bool _xboolean;
-	char _xstring[TS_MESSAGE_MAX_STRING_SIZE];
+	TsString_t _xstring;
 	// TODO - switch to linked list 
 	TsMessageRef_t _xfields[TS_MESSAGE_MAX_BRANCHES];
 } TsField_t;

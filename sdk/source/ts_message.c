@@ -7,6 +7,7 @@
 
 #include "ts_status.h"
 #include "ts_message.h"
+#include "ts_platform.h"
 
 /* static memory model, e.g., for debug (warning - affects bss directly) */
 /* TS_MESSAGE_STATIC_MEMORY define. */
@@ -27,6 +28,7 @@ static TsStatus_t _ts_message_encode_json( TsMessageRef_t, uint8_t *, size_t );
 static TsStatus_t _ts_message_encode_cbor( TsMessageRef_t, CborEncoder *, uint8_t *, size_t );
 static TsStatus_t _ts_message_encode_ts_cbor( TsMessageRef_t, CborEncoder *, int, uint8_t *, size_t );
 static TsStatus_t _ts_message_decode_ts_cbor( TsMessageRef_t, int, CborValue * );
+static TsStatus_t _ts_set_string_value( TsString_t, TsMessageRef_t );
 
 TsStatus_t ts_message_report() {
 #ifdef TS_MESSAGE_STATIC_MEMORY
@@ -120,7 +122,7 @@ TsStatus_t ts_message_create_copy( TsMessageRef_t message, TsMessageRef_t * valu
 			break;
 
 		case TsTypeString:
-			snprintf(( *value )->value._xstring, TS_MESSAGE_MAX_STRING_SIZE, "%s", message->value._xstring );
+			return _ts_set_string_value( message->value._xstring, *value );
 			break;
 
 		case TsTypeMessage:
@@ -148,6 +150,23 @@ TsStatus_t ts_message_create_copy( TsMessageRef_t message, TsMessageRef_t * valu
 
 	/* return result */
 	return status;
+}
+
+/* Utility function for setting string values. */
+static TsStatus_t _ts_set_string_value( TsString_t src, TsMessageRef_t value ) {
+	// Is there already something there?
+	if ((value->type == TsTypeString)
+			&& (value->value._xstring != NULL)) {
+		// TODO: get length estimate with strnlen, but only in debug?
+		ts_platform_free(value->value._xstring, 0);
+	}
+	int length = strnlen(src, TS_MESSAGE_MAX_STRING_SIZE - 1) + 1;
+	value->value._xstring = ts_platform_malloc(length);
+	if (value->value._xstring == NULL) {
+		return TsStatusErrorOutOfMemory;
+	}
+	snprintf(value->value._xstring, TS_MESSAGE_MAX_STRING_SIZE, "%s", src);
+	return TsStatusOk;
 }
 
 /* ts_message_create_message */
@@ -215,7 +234,10 @@ TsStatus_t ts_message_destroy( TsMessageRef_t message ) {
 
 	/* and destroy along with children */
 	if( message->references <= 0 ) {
-
+		if ( message -> type == TsTypeString ) {
+			// TODO: get a length estimate with strnlen, but only in debug?
+			ts_platform_free( message->value._xstring, 0 );
+		}
 		if( message->type == TsTypeArray || message->type == TsTypeMessage ) {
 			for( int i = 0; i < TS_MESSAGE_MAX_BRANCHES; i++ ) {
 				if( message->value._xfields[ i ] != NULL) {
@@ -443,9 +465,15 @@ TsStatus_t ts_message_set_float_at( TsMessageRef_t array, size_t index, float va
 }
 
 TsStatus_t ts_message_set_string_at( TsMessageRef_t array, size_t index, char * value ) {
-	TsMessage_t item = { .type = TsTypeString };
-	snprintf( item.value._xstring, TS_MESSAGE_MAX_STRING_SIZE, "%s", value );
+	TsMessage_t item = { .type = TsTypeString, .value._xstring = NULL };
+	// TODO: avoid the double allocation from creating a dummy item here
+	TsStatus_t retval = _ts_set_string_value ( value, &item );
+	if ( retval != TsStatusOk ) {
+		return retval;
+	}
 	return ts_message_set_at( array, index, &item );
+	// TODO: get profiling estimate with strnlen, but only in debug?
+	ts_platform_free(item.value._xstring, 0);
 }
 
 TsStatus_t ts_message_set_bool_at( TsMessageRef_t array, size_t index, bool value ) {
@@ -821,11 +849,7 @@ static TsStatus_t _ts_message_set( TsMessageRef_t message, TsPathNode_t field, T
 
 		case TsTypeString:
 
-			snprintf( branch->value._xstring, TS_MESSAGE_MAX_STRING_SIZE, "%s", (char *) value );
-			if( strlen( branch->value._xstring ) < strlen((char *) value )) {
-				ts_status_debug( "issue detected during set (%s), string truncated; the given string is too large\n",
-					field );
-			}
+			_ts_set_string_value ( (TsString_t) value, branch );
 			break;
 
 		case TsTypeMessage:
