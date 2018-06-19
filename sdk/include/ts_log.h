@@ -57,7 +57,7 @@ typedef struct TsLogEntry {
 
 typedef struct TsLogEntry * TsLogEntryRef_t;
 
-#define LOG_MESSAGE_MAX_LENGTH 1024
+#define LOG_MESSAGE_MAX_LENGTH 256
 
 /**
  * The log config object.

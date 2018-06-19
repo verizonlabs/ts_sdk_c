@@ -9,7 +9,7 @@ TsStatus_t _ts_log_destroy(TsLogConfigRef_t);
 TsStatus_t _ts_log_resize(TsLogConfigRef_t, int);
 TsStatus_t _ts_log_report(TsLogConfigRef_t);
 
-//#define TEST_CONFIG 1
+#define TEST_CONFIG 1
 
 /**
  * Create a log configuration object.
@@ -55,7 +55,7 @@ TsStatus_t ts_logconfig_destroy(TsLogConfigRef_t logconfig) {
 	ts_status_trace("ts_logconfig_destroy");
 	ts_platform_assert(logconfig != NULL);
 	_ts_log_destroy(logconfig);
-	ts_platform_free(logconfig, 0);
+	ts_platform_free(logconfig, sizeof(TsLogConfig_t));
 	return TsStatusOk;
 }
 
@@ -275,7 +275,7 @@ TsStatus_t ts_log(TsLogConfigRef_t log, TsLogLevel_t level, TsLogCategory_t cate
 
 	// We're good; record away
 
-	strncpy(new_body, text, length);
+	strlcpy(new_body, text, length);
 
 	TsLogEntryRef_t new = log->_newest + 1;
 	if (new >= log->_start + log->_max_entries) {
@@ -298,6 +298,7 @@ TsStatus_t ts_log(TsLogConfigRef_t log, TsLogLevel_t level, TsLogCategory_t cate
 	}
 	else {
 		// There was a message here before; free its body
+		// TODO: use strlen to get a size estimate here, but only in debug?
 		ts_platform_free(old_body, 0);
 	}
 	log->_log_in_progress = false;
@@ -338,9 +339,9 @@ TsStatus_t _ts_log_create(TsLogConfigRef_t log, int new_max_entries) {
 TsStatus_t _ts_log_destroy(TsLogConfigRef_t log) {
 	TsLogEntryRef_t current = log->_start;
 	for (; current < log->_end; current++) {
-		ts_platform_free(current->body, 0);
+		ts_platform_free(current->body, sizeof(TsLogEntry_t));
 	}
-	ts_platform_free(log->_start, 0);
+	ts_platform_free(log->_start, sizeof(TsLogConfig_t));
 	return TsStatusOk;
 }
 
@@ -383,6 +384,7 @@ TsStatus_t _ts_log_resize(TsLogConfigRef_t log, int new_max_entries) {
 			if (old_current < log->_start) {
 				old_current = log->_end - 1;
 			}
+			// TODO: use strlen to get a proper size estimate here, but only in debug?
 			ts_platform_free(old_current->body, 0);
 		}
 		// Set the new log parameters. The log starts out full.
@@ -393,7 +395,7 @@ TsStatus_t _ts_log_resize(TsLogConfigRef_t log, int new_max_entries) {
 		log->_end = new + new_max_entries;
 		log->_newest = log->_end - 1;
 
-		ts_platform_free(old_start, 0);
+		ts_platform_free(old_start, sizeof(TsLogEntry_t));
 	} else {
 		// There is enough room to hold all the old messages.
 		// Work forwards from the oldest entry,
@@ -417,7 +419,7 @@ TsStatus_t _ts_log_resize(TsLogConfigRef_t log, int new_max_entries) {
 		log->_end = new + old_entries;
 		log->_newest = log->_end - 1;
 
-		ts_platform_free(old_start, 0);
+		ts_platform_free(old_start, sizeof(TsLogEntry_t));
 	}
 	return TsStatusOk;
 }
