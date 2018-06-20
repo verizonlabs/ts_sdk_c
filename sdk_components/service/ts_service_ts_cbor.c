@@ -3,6 +3,7 @@
 #include "ts_service.h"
 #include "ts_firewall.h"
 #include "ts_log.h"
+#include "ts_version.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -381,6 +382,27 @@ static TsStatus_t handler( TsTransportRef_t transport, void * state, TsPath_t pa
 					ts_status_alarm( "ts_service_handler: firewall request on unavailable service,...\n" );
 					status = TsStatusErrorNotImplemented;
 				}
+
+			} else if( strcmp( kind, "ts.event.logconfig" ) == 0 ) {
+
+				// logconfig, note that the message will be modified 'in-place'
+				// and must be returned with the correct status
+				if( service->_logconfig != NULL ) {
+
+					status = ts_logconfig_handle( service->_logconfig, message );
+
+				} else {
+
+					ts_status_alarm( "ts_service_handler: logconfig request on unavailable service,...\n" );
+					status = TsStatusErrorNotImplemented;
+				}
+
+			} else if( strcmp( kind, "ts.event.version" ) == 0 ) {
+
+				// version request, note that the message will be modified 'in-place'
+				// and must be returned with the correct status
+
+				status = ts_version_handle( message );
 
 			} else if( ( strcmp( kind, "ts.device" ) == 0 ) || ( strcmp( kind, "ts.element" ) == 0 ) ) {
 
