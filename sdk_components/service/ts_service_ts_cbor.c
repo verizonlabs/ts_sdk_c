@@ -3,6 +3,7 @@
 #include "ts_service.h"
 #include "ts_firewall.h"
 #include "ts_log.h"
+#include "ts_version.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -116,7 +117,8 @@ static TsStatus_t ts_encode_and_send_message(TsServiceRef_t service, const uint8
 		ts_transport_speak( service->_transport, (TsPath_t)topic, buffer, buffer_size );
 
 		// clean-up and return
-		ts_platform_free( buffer, buffer_size );
+
+		ts_platform_free( buffer, mtu );
 		return TsStatusOk;
 }
 
@@ -197,7 +199,7 @@ static TsStatus_t ts_enqueue( TsServiceRef_t service, TsMessageRef_t sensor ) {
 	ts_transport_speak( service->_transport, (TsPath_t)topic, buffer, buffer_size );
 
 	// clean-up and return
-	ts_platform_free( buffer, buffer_size );
+	ts_platform_free( buffer, mtu );
 	ts_message_destroy( message );
 
 	return TsStatusOk;
@@ -382,6 +384,27 @@ static TsStatus_t handler( TsTransportRef_t transport, void * state, TsPath_t pa
 					status = TsStatusErrorNotImplemented;
 				}
 
+			} else if( strcmp( kind, "ts.event.logconfig" ) == 0 ) {
+
+				// logconfig, note that the message will be modified 'in-place'
+				// and must be returned with the correct status
+				if( service->_logconfig != NULL ) {
+
+					status = ts_logconfig_handle( service->_logconfig, message );
+
+				} else {
+
+					ts_status_alarm( "ts_service_handler: logconfig request on unavailable service,...\n" );
+					status = TsStatusErrorNotImplemented;
+				}
+
+			} else if( strcmp( kind, "ts.event.version" ) == 0 ) {
+
+				// version request, note that the message will be modified 'in-place'
+				// and must be returned with the correct status
+
+				status = ts_version_handle( message );
+
 			} else if( ( strcmp( kind, "ts.device" ) == 0 ) || ( strcmp( kind, "ts.element" ) == 0 ) ) {
 
 				// provisioning, note that the message will be modified 'in-place'
@@ -446,7 +469,7 @@ static TsStatus_t handler( TsTransportRef_t transport, void * state, TsPath_t pa
 	ts_transport_speak( transport, (TsPath_t)topic, response_buffer, response_buffer_size );
 
 	// clean-up and return
-	ts_platform_free( response_buffer, response_buffer_size );
+	ts_platform_free( response_buffer, mtu );
 	ts_message_destroy( message );
 	return TsStatusOk;
 }

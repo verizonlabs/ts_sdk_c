@@ -10,6 +10,7 @@ TsStatus_t _ts_log_resize(TsLogConfigRef_t, int);
 TsStatus_t _ts_log_report(TsLogConfigRef_t);
 
 #define TEST_CONFIG 1
+#define DEBUG_MEMORY 1
 
 /**
  * Create a log configuration object.
@@ -299,7 +300,11 @@ TsStatus_t ts_log(TsLogConfigRef_t log, TsLogLevel_t level, TsLogCategory_t cate
 	else {
 		// There was a message here before; free its body
 		// TODO: use strlen to get a size estimate here, but only in debug?
-		ts_platform_free(old_body, 0);
+		int length = 0;
+#ifdef DEBUG_MEMORY
+		length = strnlen(old_body, LOG_MESSAGE_MAX_LENGTH - 1) + 1;
+#endif
+		ts_platform_free(old_body, length);
 	}
 	log->_log_in_progress = false;
 	return TsStatusOk;
@@ -384,8 +389,11 @@ TsStatus_t _ts_log_resize(TsLogConfigRef_t log, int new_max_entries) {
 			if (old_current < log->_start) {
 				old_current = log->_end - 1;
 			}
-			// TODO: use strlen to get a proper size estimate here, but only in debug?
-			ts_platform_free(old_current->body, 0);
+			int length = 0;
+#ifdef DEBUG_MEMORY
+			length = strnlen(old_current->body, LOG_MESSAGE_MAX_LENGTH - 1) + 1;
+#endif
+			ts_platform_free(old_current->body, length);
 		}
 		// Set the new log parameters. The log starts out full.
 		TsLogEntryRef_t old_start = log->_start;
@@ -431,7 +439,6 @@ TsStatus_t _ts_log_report(TsLogConfigRef_t log) {
 
 	if (log->_end == log->_start) {
 		// nothing to report
-		ts_status_debug("_ts_log_report: empty log, nothing to send");
 		return TsStatusOk;
 	}
 
