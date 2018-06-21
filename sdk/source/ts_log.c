@@ -439,7 +439,6 @@ TsStatus_t _ts_log_report(TsLogConfigRef_t log) {
 
 	if (log->_end == log->_start) {
 		// nothing to report
-		ts_status_debug("_ts_log_report: empty log, nothing to send");
 		return TsStatusOk;
 	}
 
