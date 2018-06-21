@@ -117,7 +117,8 @@ static TsStatus_t ts_encode_and_send_message(TsServiceRef_t service, const uint8
 		ts_transport_speak( service->_transport, (TsPath_t)topic, buffer, buffer_size );
 
 		// clean-up and return
-		ts_platform_free( buffer, buffer_size );
+
+		ts_platform_free( buffer, mtu );
 		return TsStatusOk;
 }
 
@@ -198,7 +199,7 @@ static TsStatus_t ts_enqueue( TsServiceRef_t service, TsMessageRef_t sensor ) {
 	ts_transport_speak( service->_transport, (TsPath_t)topic, buffer, buffer_size );
 
 	// clean-up and return
-	ts_platform_free( buffer, buffer_size );
+	ts_platform_free( buffer, mtu );
 	ts_message_destroy( message );
 
 	return TsStatusOk;
@@ -468,7 +469,7 @@ static TsStatus_t handler( TsTransportRef_t transport, void * state, TsPath_t pa
 	ts_transport_speak( transport, (TsPath_t)topic, response_buffer, response_buffer_size );
 
 	// clean-up and return
-	ts_platform_free( response_buffer, response_buffer_size );
+	ts_platform_free( response_buffer, mtu );
 	ts_message_destroy( message );
 	return TsStatusOk;
 }
