@@ -5,6 +5,7 @@
 #include "ts_util.h"
 
 TsStatus_t _ts_log_create(TsLogConfigRef_t, int);
+TsStatus_t _ts_log_empty(TsLogConfigRef_t);
 TsStatus_t _ts_log_destroy(TsLogConfigRef_t);
 TsStatus_t _ts_log_resize(TsLogConfigRef_t, int);
 TsStatus_t _ts_log_report(TsLogConfigRef_t);
@@ -29,7 +30,7 @@ TsStatus_t ts_logconfig_create(TsLogConfigRef_t *logconfig, TsStatus_t (*message
 	(*logconfig)->_log_in_progress = false;
 	(*logconfig)->_level = 0;
 	(*logconfig)->_min_interval = 1000;
-	(*logconfig)->_reporting_interval = 3600;
+	(*logconfig)->_reporting_interval = 15;
 	(*logconfig)->_last_report_time = 0;
 	(*logconfig)->_messageCallback = messageCallback;
 
@@ -202,7 +203,7 @@ TsStatus_t ts_logconfig_tick(TsLogConfigRef_t logconfig, uint32_t budget) {
 	ts_platform_assert(logconfig != NULL);
 
 	uint64_t time = ts_platform_time();
-	if (logconfig->_enabled && (time - logconfig->_last_report_time >= logconfig->_reporting_interval)) {
+	if (logconfig->_enabled && (time - logconfig->_last_report_time >= logconfig->_reporting_interval * 1000)) {
 		_ts_log_report(logconfig);
 		logconfig->_last_report_time = ts_platform_time();
 	}
@@ -341,12 +342,24 @@ TsStatus_t _ts_log_create(TsLogConfigRef_t log, int new_max_entries) {
 	return TsStatusOk;
 }
 
-TsStatus_t _ts_log_destroy(TsLogConfigRef_t log) {
+// Empty out all the log message bodies and reset to the empty state.
+TsStatus_t _ts_log_empty(TsLogConfigRef_t log) {
 	TsLogEntryRef_t current = log->_start;
 	for (; current < log->_end; current++) {
-		ts_platform_free(current->body, sizeof(TsLogEntry_t));
+		int length = 0;
+#ifdef DEBUG_MEMORY
+		length = strnlen(current->body, LOG_MESSAGE_MAX_LENGTH - 1) + 1;
+#endif
+		ts_platform_free(current->body, length);
 	}
-	ts_platform_free(log->_start, sizeof(TsLogConfig_t));
+	log->_end = log->_start;
+	log->_newest = log->_start - 1; // back this up so the next message will be first
+	return TsStatusOk;
+}
+
+TsStatus_t _ts_log_destroy(TsLogConfigRef_t log) {
+	_ts_log_empty(log);
+	ts_platform_free(log->_start, sizeof(TsLogConfig_t) * log->_max_entries);
 	return TsStatusOk;
 }
 
@@ -448,46 +461,55 @@ TsStatus_t _ts_log_report(TsLogConfigRef_t log) {
 	ts_platform_assert(
 			(log->_newest >= log->_start) && (log->_newest < log->_end));
 
-	TsMessageRef_t report, fields, entries;
-	TsStatus_t status = ts_message_create(&report);
-	if (status != TsStatusOk) {
-		log->_log_in_progress = false;
-		return status;
-	}
-
-	ts_uuid(transactionid);
-	ts_message_set_string(report, "transactionid", transactionid);
-	ts_message_set_string(report, "kind", "ts.event.log");
-	ts_message_set_string(report, "action", "update");
-
-	ts_message_create_message(report, "fields", &fields);
-	ts_message_create_array(fields, "entries", &entries);
-	int i;
+	int i, j;
+	// Total number of entries
 	int size = log->_end - log->_start;
+	// The log is a ring buffer, so the oldest message is after the newest
 	TsLogEntryRef_t current = log->_newest + 1;
-	for (i = 0; i < size; i++, current++) {
-		TsMessageRef_t entry;
 
-		if (current >= log->_end) { // wrap around
-			current = log->_start;
+	// Report needs to be broken into multiple chunks, so the messages aren't too large
+	for (j = 0; j < size; ) {
+		TsMessageRef_t report, fields, entries;
+		TsStatus_t status = ts_message_create(&report);
+		if (status != TsStatusOk) {
+			log->_log_in_progress = false;
+			return status;
 		}
 
-		ts_message_create(&entry);
-		ts_message_set_string(entry, "kind", "ts.event.logentry");
-		ts_message_set_int(entry, "level", current->level);
-		ts_message_set_int(entry, "category", current->category);
-		ts_message_set_int(entry, "time", current->time);
-		ts_message_set_string(entry, "body", current->body);
+		ts_uuid(transactionid);
+		ts_message_set_string(report, "transactionid", transactionid);
+		ts_message_set_string(report, "kind", "ts.event.log");
+		ts_message_set_string(report, "action", "update");
 
-		ts_message_set_message_at(entries, i, entry);
-		ts_message_destroy(entry);
+		ts_message_create_message(report, "fields", &fields);
+		ts_message_create_array(fields, "entries", &entries);
+
+		for (i = 0; i < REPORT_LENGTH && j < size; i++, j++, current++) {
+			TsMessageRef_t entry;
+
+			if (current >= log->_end) { // wrap around
+				current = log->_start;
+			}
+
+			ts_message_create(&entry);
+			ts_message_set_string(entry, "kind", "ts.event.logentry");
+			ts_message_set_int(entry, "level", current->level);
+			ts_message_set_int(entry, "category", current->category);
+			ts_message_set_int(entry, "time", current->time);
+			ts_message_set_string(entry, "body", current->body);
+
+			ts_message_set_message_at(entries, i, entry);
+			ts_message_destroy(entry);
+		}
+
+		// Send it off
+		ts_message_dump(report);
+		log->_messageCallback(report, "ts.event.log");
+
+		ts_message_destroy(report);
 	}
 
-	// Send it off
-	ts_message_dump(report);
-	log->_messageCallback(report, "ts.event.log");
-
-	ts_message_destroy(report);
+	_ts_log_empty(log);
 	log->_log_in_progress = false;
 	return TsStatusOk;
 }
