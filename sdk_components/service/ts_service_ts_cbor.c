@@ -143,7 +143,7 @@ static TsStatus_t ts_enqueue_typed( TsServiceRef_t service, char* type, TsMessag
 
 	if (strcmp(type, "ts.event.firewall.statistics") == 0) {
 		ts_message_set_string( message, "kind", "ts.event.firewall.statistics" );
-		ts_message_set_message( message, "statistics", data );
+		ts_message_set_message( message, "fields", data );
 	}
 
 	ts_encode_and_send_message(service, id, message);
