@@ -124,7 +124,15 @@ static TsStatus_t ts_create( TsTransportRef_t * transport ) {
 
 	// initialize mqtt intermediate buffers
 	mqtt->_read_buffer = ts_platform_malloc( mtu );
+	if (mqtt->_read_buffer == NULL) {
+		ts_status_alarm("ts_transport_create: could not allocate read buffer\n");
+		return TsStatusErrorOutOfMemory;
+	}
 	mqtt->_write_buffer = ts_platform_malloc( mtu );
+	if (mqtt->_write_buffer == NULL) {
+		ts_status_alarm("ts_transport_create: could not allocate write buffer\n");
+		return TsStatusErrorOutOfMemory;
+	}
 	mqtt->_read_write_buffer_size = mtu;
 
 	// initialize mqtt spec parameters

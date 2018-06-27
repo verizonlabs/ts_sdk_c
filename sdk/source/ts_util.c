@@ -1,7 +1,8 @@
 // Copyright (C) 2017, 2018 Verizon, Inc. All rights reserved.
 
-#include "ts_util.h"
 #include "ts_platform.h"
+#include "ts_util.h"
+#include "ts_status.h"
 #include <string.h>
 
 // Use the ts_random entry point to generate random hex bytes.
@@ -42,4 +43,20 @@ void ts_uuid( char * out ) {
 
 	_fourrandomhexbytes(hex, 0x0, 0xffffffff);
 	strncat(out, hex, 8);
+}
+
+// Try to allocate a buffer with progressively smaller sizes until we succeed (or reach a limit).
+uint8_t *ts_get_buffer(size_t* size, size_t minimum) {
+	uint8_t *buffer = NULL;
+	while (buffer == NULL && (*size) >= minimum) {
+		buffer = (uint8_t*) ts_platform_malloc( *size );
+		if (buffer == NULL) {
+			ts_status_debug("buffer allocation failed at size = %d\n", *size);
+			(*size) /= 2;
+			if ((*size) >= minimum) {
+				ts_status_debug("   retrying at size %d...\n", *size);
+			}
+		}
+	}
+	return buffer;
 }
