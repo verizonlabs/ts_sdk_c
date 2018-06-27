@@ -4,6 +4,7 @@
 #include "ts_firewall.h"
 #include "ts_log.h"
 #include "ts_version.h"
+#include "ts_util.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -89,16 +90,23 @@ static TsStatus_t ts_tick( TsServiceRef_t service, uint32_t budget ) {
 	return TsStatusOk;
 }
 
+#define MIN_MTU 512
+
 static TsStatus_t ts_encode_and_send_message(TsServiceRef_t service, const uint8_t id[ TS_DRIVER_MAX_ID_SIZE ], TsMessageRef_t message) {
 		// encode copy to send buffer
 		// i.e., encode and send unsolicited message
 		// get mtu from controller (via connection)
-		uint32_t mtu;
-		ts_connection_get_spec_mtu( service->_transport->_connection, &mtu);
+		size_t mtu;
+		ts_connection_get_spec_mtu( service->_transport->_connection, (uint32_t *) &mtu);
 
 		// allocate data buffer and encode data
-		uint8_t * buffer = (uint8_t*)ts_platform_malloc( mtu );
-		size_t buffer_size = (size_t)(mtu - 4);
+		uint8_t * buffer = ts_get_buffer( &mtu, MIN_MTU );
+		if (buffer == NULL) {
+			ts_status_alarm("ts_encode_and_send_message: could not allocate buffer\n");
+			return TsStatusErrorOutOfMemory;
+		}
+
+		size_t buffer_size = mtu - 4;
 		ts_message_encode(message, TsEncoderTsCbor, buffer + 4, &buffer_size);
 
 		// encode envelope
@@ -175,11 +183,16 @@ static TsStatus_t ts_enqueue( TsServiceRef_t service, TsMessageRef_t sensor ) {
 	// encode copy to send buffer
 	// i.e., encode and send unsolicited message
 	// get mtu from controller (via connection)
-	uint32_t mtu;
-	ts_connection_get_spec_mtu( service->_transport->_connection, &mtu);
+	size_t mtu;
+	ts_connection_get_spec_mtu( service->_transport->_connection, (uint32_t *) &mtu);
 
 	// allocate data buffer and encode data
-	uint8_t * buffer = (uint8_t*)ts_platform_malloc( mtu );
+	uint8_t * buffer = ts_get_buffer( &mtu, MIN_MTU );
+	if (buffer == NULL) {
+		ts_status_alarm("ts_enqueue: could not allocate buffer\n");
+		return TsStatusErrorOutOfMemory;
+	}
+
 	size_t buffer_size = (size_t)(mtu - 4);
 	ts_message_encode(message, TsEncoderTsCbor, buffer + 4, &buffer_size);
 
@@ -449,7 +462,12 @@ static TsStatus_t handler( TsTransportRef_t transport, void * state, TsPath_t pa
 	ts_connection_get_spec_mtu( transport->_connection, &mtu);
 
 	// allocate data buffer
-	uint8_t * response_buffer = (uint8_t*)ts_platform_malloc( mtu );
+	uint8_t * response_buffer = ts_get_buffer( (size_t *)&mtu, MIN_MTU );
+	if (response_buffer == NULL) {
+		ts_status_alarm("ts_service_handler: could not allocate response buffer\n");
+		return TsStatusErrorOutOfMemory;
+	}
+
 	size_t response_buffer_size = (size_t)(mtu - 4);
 
 	// encode response message
