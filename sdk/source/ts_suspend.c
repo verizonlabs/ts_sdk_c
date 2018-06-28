@@ -89,7 +89,6 @@ static TsStatus_t _ts_handle_get( TsMessageRef_t fields ) {
 }
 
 static TsStatus_t _ts_handle_set( TsMessageRef_t fields ) {
-	TsMessageRef_t contents;
 	if (ts_message_get_bool(fields, "firewall", &_suspend_firewall) == TsStatusOk) {
 		if (_suspend_firewall) {
 			ts_status_debug("_ts_handle_set: suspending firewall\n");
