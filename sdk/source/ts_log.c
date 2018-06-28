@@ -3,6 +3,7 @@
 #include "ts_platform.h"
 #include "ts_log.h"
 #include "ts_util.h"
+#include "ts_suspend.h"
 
 TsStatus_t _ts_log_create(TsLogConfigRef_t, int);
 TsStatus_t _ts_log_empty(TsLogConfigRef_t);
@@ -203,7 +204,8 @@ TsStatus_t ts_logconfig_tick(TsLogConfigRef_t logconfig, uint32_t budget) {
 	ts_platform_assert(logconfig != NULL);
 
 	uint64_t time = ts_platform_time();
-	if (logconfig->_enabled && (time - logconfig->_last_report_time >= logconfig->_reporting_interval * 1000)) {
+	if (!ts_logconfig_suspended() && logconfig->_enabled
+			&& (time - logconfig->_last_report_time >= logconfig->_reporting_interval * 1000)) {
 		_ts_log_report(logconfig);
 		logconfig->_last_report_time = ts_platform_time();
 	}
@@ -237,7 +239,8 @@ TsStatus_t ts_log(TsLogConfigRef_t log, TsLogLevel_t level, TsLogCategory_t cate
 	ts_platform_assert(category < _TsCategoryLast);
 	ts_platform_assert(text != NULL);
 
-	if (!(log->_enabled) || (log->_log_in_progress) || (log->_max_entries < 1)) {
+	if (ts_logconfig_suspended() || !(log->_enabled)
+			|| (log->_log_in_progress) || (log->_max_entries < 1)) {
 		// We're not logging at all
 		return TsStatusOk;
 	}
