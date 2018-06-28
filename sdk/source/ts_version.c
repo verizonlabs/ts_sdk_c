@@ -1,9 +1,4 @@
-/*
- * ts_version.c
- *
- *  Created on: Jun 20, 2018
- *      Author: v635298
- */
+/// Copyright (C) 2017, 2018 Verizon, Inc. All rights reserved.
 
 #include "ts_version.h"
 #include "ts_platform.h"
