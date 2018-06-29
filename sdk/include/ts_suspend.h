@@ -37,11 +37,4 @@ TsStatus_t ts_suspend_handle(TsMessageRef_t);
  */
 bool ts_firewall_suspended();
 
-/**
- * Is logging suspended?
- * @return
- * True if logging is suspended, false otherwise.
- */
-bool ts_logconfig_suspended();
-
 #endif /* TS_SUSPEND_H_ */

@@ -8,10 +8,9 @@ static TsStatus_t _ts_handle_get( TsMessageRef_t fields );
 static TsStatus_t _ts_handle_set( TsMessageRef_t fields );
 
 static bool _suspend_firewall = false;
-static bool _suspend_logconfig = false;
-static TsLogConfigRef_t logconfig = NULL;
+static TsLogConfigRef_t _logconfig = NULL;
 
-#define SUSPEND_LOG(s) if (logconfig != NULL) { ts_log(logconfig, TsLogLevelInfo, TsCategoryDiagnostic, s); }
+#define SUSPEND_LOG(s) if (_logconfig != NULL) { ts_log(_logconfig, TsLogLevelInfo, TsCategoryDiagnostic, s); }
 
 /**
  * Set the logconfig used to log suspension events.
@@ -23,7 +22,7 @@ static TsLogConfigRef_t logconfig = NULL;
  * - TsStatusError[Code]
  */
 TsStatus_t ts_suspend_set_logconfig(TsLogConfigRef_t config) {
-	logconfig = config;
+	_logconfig = config;
 	return TsStatusOk;
 }
 
@@ -101,7 +100,7 @@ static TsStatus_t _ts_handle_get( TsMessageRef_t fields ) {
 	}
 	if (ts_message_has(fields, "logconfig", &contents) == TsStatusOk) {
 		ts_status_debug("_ts_handle_get: get logconfig suspend\n");
-		ts_message_set_bool(fields, "logconfig", _suspend_logconfig);
+		ts_message_set_bool(fields, "logconfig", ts_logconfig_suspended(_logconfig));
 	}
 	return TsStatusOk;
 }
@@ -121,12 +120,12 @@ static TsStatus_t _ts_handle_set( TsMessageRef_t fields ) {
 			ts_status_debug("_ts_handle_set: suspending logging\n");
 			// log before suspending the logging
 			SUSPEND_LOG("Logging suspended\n");
-			_suspend_logconfig = logsuspend;
+			ts_logconfig_set_suspended(_logconfig, logsuspend);
 		}
 		else {
 			ts_status_debug("_ts_handle_set: resuming logging\n");
 			// log after resuming the logging
-			_suspend_logconfig = logsuspend;
+			ts_logconfig_set_suspended(_logconfig, logsuspend);
 			SUSPEND_LOG("Logging resumed\n");
 		}
 	}
@@ -135,8 +134,4 @@ static TsStatus_t _ts_handle_set( TsMessageRef_t fields ) {
 
 bool ts_firewall_suspended() {
 	return _suspend_firewall;
-}
-
-bool ts_logconfig_suspended() {
-	return _suspend_logconfig;
 }
