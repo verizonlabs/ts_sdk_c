@@ -35,6 +35,7 @@ typedef struct TsFirewall * TsFirewallRef_t;
 
 typedef struct TsFirewall {
 	bool _enabled;
+	bool _suspended;
 	TsMessageRef_t _default_rules;
 	TsMessageRef_t _default_domains;
 	TsMessageRef_t _rules;
@@ -140,6 +141,32 @@ typedef struct TsFirewallVtable {
 	*/
 	TsMessageRef_t (*stats)();
 
+	/**
+	 * Suspend/resume the firewall.
+	 *
+	 * @param firewall
+	 * [in] TsFirewallRef_t referring to the firewall to suspend/resume.
+	 * @param suspend
+	 * [in] True if the firewall is being suspended, false if it is being resumed.
+	 *
+	 * @return
+	 * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+	 * - TsStatusOk
+	 * - TsStatusError[Code]
+	 */
+	TsStatus_t (*set_suspend)( TsFirewallRef_t, bool );
+
+	/**
+	 * Query whether the firewall is suspended.
+	 *
+	 * @param firewall
+	 * [in] TsFirewallRef_t referring to the firewall state.
+	 *
+	 * @return
+	 * True if the firewall is suspended, false if not.
+	 */
+	bool (*suspended)( TsFirewallRef_t );
+
 } TsFirewallVtable_t;
 
 #ifdef __cplusplus
@@ -154,6 +181,8 @@ extern const TsFirewallVtable_t *ts_firewall;
 #define ts_firewall_handle      ts_firewall->handle
 #define ts_firewall_set_log		ts_firewall->set_log
 #define ts_firewall_stats		ts_firewall->stats
+#define ts_firewall_set_suspend	ts_firewall->set_suspend
+#define ts_firewall_suspended	ts_firewall->suspended
 
 #ifdef __cplusplus
 }
