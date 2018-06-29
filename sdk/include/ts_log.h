@@ -169,4 +169,16 @@ TsStatus_t ts_logconfig_set_suspended(TsLogConfigRef_t logconfig, bool suspended
  */
 bool ts_logconfig_suspended(TsLogConfigRef_t);
 
+
+/**
+ * Set the logconfig used to log suspension events, and that we'll be suspending/resuming.
+ * @param logconfig
+ * [in] The log configuration to use for logging suspension events.
+ * @return
+ * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+ * - TsStatusOk
+ * - TsStatusError[Code]
+ */
+TsStatus_t ts_suspend_set_logconfig(TsLogConfigRef_t);
+
 #endif /* TS_LOG_H */

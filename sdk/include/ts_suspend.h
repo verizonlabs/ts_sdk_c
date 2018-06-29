@@ -30,11 +30,4 @@
  */
 TsStatus_t ts_suspend_handle(TsMessageRef_t);
 
-/**
- * Is the firewall suspended?
- * @return
- * True if the firewall is suspended, false otherwise.
- */
-bool ts_firewall_suspended();
-
 #endif /* TS_SUSPEND_H_ */

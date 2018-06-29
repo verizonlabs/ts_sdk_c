@@ -3,7 +3,6 @@
 #include "ts_platform.h"
 #include "ts_log.h"
 #include "ts_util.h"
-#include "ts_suspend.h"
 
 TsStatus_t _ts_log_create(TsLogConfigRef_t, int);
 TsStatus_t _ts_log_empty(TsLogConfigRef_t);
@@ -38,6 +37,8 @@ TsStatus_t ts_logconfig_create(TsLogConfigRef_t *logconfig, TsStatus_t (*message
 
 	// Allocate some space for messages
 	_ts_log_create(*logconfig, 15);
+
+	ts_suspend_set_logconfig(*logconfig);
 
 #ifdef TEST_CONFIG
 	(*logconfig)->_enabled = true;
@@ -197,6 +198,7 @@ bool ts_logconfig_suspended(TsLogConfigRef_t logconfig) {
 	if (logconfig != NULL) {
 		return logconfig->_suspended;
 	}
+	return false;
 }
 
 /**

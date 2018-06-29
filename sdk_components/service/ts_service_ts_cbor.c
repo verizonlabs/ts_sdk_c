@@ -5,6 +5,7 @@
 #include "ts_log.h"
 #include "ts_version.h"
 #include "ts_util.h"
+#include "ts_suspend.h"
 #include <stdio.h>
 #include <string.h>
 

@@ -3,18 +3,19 @@
 #include "ts_suspend.h"
 #include "ts_platform.h"
 #include "ts_log.h"
+#include "ts_firewall.h"
 
 static TsStatus_t _ts_handle_get( TsMessageRef_t fields );
 static TsStatus_t _ts_handle_set( TsMessageRef_t fields );
 
-static bool _suspend_firewall = false;
+static TsFirewallRef_t _firewall = NULL;
 static TsLogConfigRef_t _logconfig = NULL;
 
 #define SUSPEND_LOG(s) if (_logconfig != NULL) { ts_log(_logconfig, TsLogLevelInfo, TsCategoryDiagnostic, s); }
 
 /**
- * Set the logconfig used to log suspension events.
- * @param logconfig
+ * Set the logconfig used to log suspension events, and that we'll be suspending/resuming.
+ * @param config
  * [in] The log configuration to use for logging suspension events.
  * @return
  * The return status (TsStatus_t) of the function, see ts_status.h for more information.
@@ -25,6 +26,22 @@ TsStatus_t ts_suspend_set_logconfig(TsLogConfigRef_t config) {
 	_logconfig = config;
 	return TsStatusOk;
 }
+
+
+/**
+ * Set the firewall that we'll be suspending/resuming.
+ * @param firewall
+ * [in] The firewall that we'll be suspending/resuming.
+ * @return
+ * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+ * - TsStatusOk
+ * - TsStatusError[Code]
+ */
+TsStatus_t ts_suspend_set_firewall(TsFirewallRef_t firewall) {
+	_firewall = firewall;
+	return TsStatusOk;
+}
+
 
 /**
  * Handle a suspension message.
@@ -96,7 +113,7 @@ static TsStatus_t _ts_handle_get( TsMessageRef_t fields ) {
 	TsMessageRef_t contents;
 	if (ts_message_has(fields, "firewall", &contents) == TsStatusOk) {
 		ts_status_debug("_ts_handle_get: get firewall suspend\n");
-		ts_message_set_bool(fields, "firewall", _suspend_firewall);
+		ts_message_set_bool(fields, "firewall", ts_firewall_suspended(_firewall));
 	}
 	if (ts_message_has(fields, "logconfig", &contents) == TsStatusOk) {
 		ts_status_debug("_ts_handle_get: get logconfig suspend\n");
@@ -106,32 +123,33 @@ static TsStatus_t _ts_handle_get( TsMessageRef_t fields ) {
 }
 
 static TsStatus_t _ts_handle_set( TsMessageRef_t fields ) {
-	if (ts_message_get_bool(fields, "firewall", &_suspend_firewall) == TsStatusOk) {
-		if (_suspend_firewall) {
+	bool firewall_suspend;
+	if (ts_message_get_bool(fields, "firewall", &firewall_suspend) == TsStatusOk) {
+		if (firewall_suspend) {
 			ts_status_debug("_ts_handle_set: suspending firewall\n");
+			SUSPEND_LOG("Firewall suspended\n");
 		}
 		else {
 			ts_status_debug("_ts_handle_set: resuming firewall\n");
+			SUSPEND_LOG("Firewall resumed\n");
 		}
+		ts_firewall_set_suspended(_firewall, firewall_suspend);
 	}
-	bool logsuspend;
-	if (ts_message_get_bool(fields, "logconfig", &logsuspend) == TsStatusOk) {
-		if (logsuspend) {
+	bool log_suspend;
+	if (ts_message_get_bool(fields, "logconfig", &log_suspend) == TsStatusOk) {
+		if (log_suspend) {
 			ts_status_debug("_ts_handle_set: suspending logging\n");
 			// log before suspending the logging
 			SUSPEND_LOG("Logging suspended\n");
-			ts_logconfig_set_suspended(_logconfig, logsuspend);
+			ts_logconfig_set_suspended(_logconfig, log_suspend);
 		}
 		else {
 			ts_status_debug("_ts_handle_set: resuming logging\n");
 			// log after resuming the logging
-			ts_logconfig_set_suspended(_logconfig, logsuspend);
+			ts_logconfig_set_suspended(_logconfig, log_suspend);
 			SUSPEND_LOG("Logging resumed\n");
 		}
 	}
 	return TsStatusOk;
 }
 
-bool ts_firewall_suspended() {
-	return _suspend_firewall;
-}
