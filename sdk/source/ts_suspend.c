@@ -52,7 +52,7 @@ TsStatus_t ts_suspend_set_firewall(TsFirewallRef_t firewall) {
 TsStatus_t ts_suspend_test(bool firewall, bool logconfig) {
 	TsMessageRef_t testMessage;
 	ts_message_create(&testMessage);
-	ts_message_set_string(testMessage, "action", "update");
+	ts_message_set_string(testMessage, "action", "set");
 	ts_message_set_string(testMessage, "kind", "ts.event.suspend");
 	TsMessageRef_t fields;
 	ts_message_create_message(testMessage, "fields", &fields);
