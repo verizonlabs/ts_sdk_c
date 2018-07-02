@@ -42,6 +42,34 @@ TsStatus_t ts_suspend_set_firewall(TsFirewallRef_t firewall) {
 	return TsStatusOk;
 }
 
+#ifdef TEST_SUSPEND
+/**
+ * Generate and handle a test suspension message.
+ * @param firewall true to suspend firewall, false to resume
+ * @param logconfig true to suspend logging, false to resume
+ * @return
+ */
+TsStatus_t ts_suspend_test(bool firewall, bool logconfig) {
+	TsMessageRef_t testMessage;
+	ts_message_create(&testMessage);
+	ts_message_set_string(testMessage, "action", "update");
+	ts_message_set_string(testMessage, "kind", "ts.event.suspend");
+	TsMessageRef_t fields;
+	ts_message_create_message(testMessage, "fields", &fields);
+	ts_message_set_bool(fields, "firewall", firewall);
+	ts_message_set_bool(fields, "logconfig", logconfig);
+
+	TsStatus_t result = ts_suspend_handle(testMessage);
+	if (result == TsStatusOk) {
+		ts_status_debug("ts_handle_test_suspension: successfully handled message with firewall = %d, logconfig = %d\n");
+	} else {
+		ts_status_debug("ts_handle_test_suspension: handle returned error, %s\n", ts_status_string(result));
+	}
+
+	ts_message_destroy(testMessage);
+	return result;
+}
+#endif /*TEST_SUSPEND*/
 
 /**
  * Handle a suspension message.
@@ -73,7 +101,7 @@ TsStatus_t ts_suspend_handle(TsMessageRef_t message) {
 
 				if (strcmp(action, "set") == 0) {
 
-					// this object is read-only
+					// set the suspend fields
 					ts_status_info(
 							"ts_suspend_handle: delegate to set handler\n");
 					return _ts_handle_set(fields);
