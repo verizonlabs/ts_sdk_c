@@ -19,7 +19,7 @@
 #include "ts_status.h"
 #include "ts_message.h"
 
-#define TEST_SUSPEND
+//#define TEST_SUSPEND
 
 /**
  * Handle a version query message.

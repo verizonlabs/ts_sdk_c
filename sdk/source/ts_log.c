@@ -10,8 +10,8 @@ TsStatus_t _ts_log_destroy(TsLogConfigRef_t);
 TsStatus_t _ts_log_resize(TsLogConfigRef_t, int);
 TsStatus_t _ts_log_report(TsLogConfigRef_t);
 
-#define TEST_CONFIG 1
-#define DEBUG_MEMORY 1
+//#define TEST_CONFIG 1
+//#define DEBUG_MEMORY_SIZES 1
 
 /**
  * Create a log configuration object.
@@ -319,7 +319,7 @@ TsStatus_t ts_log(TsLogConfigRef_t log, TsLogLevel_t level, TsLogCategory_t cate
 		// There was a message here before; free its body
 		// TODO: use strlen to get a size estimate here, but only in debug?
 		int length = 0;
-#ifdef DEBUG_MEMORY
+#ifdef DEBUG_MEMORY_SIZES
 		length = strnlen(old_body, LOG_MESSAGE_MAX_LENGTH - 1) + 1;
 #endif
 		ts_platform_free(old_body, length);
@@ -364,7 +364,7 @@ TsStatus_t _ts_log_empty(TsLogConfigRef_t log) {
 	TsLogEntryRef_t current = log->_start;
 	for (; current < log->_end; current++) {
 		int length = 0;
-#ifdef DEBUG_MEMORY
+#ifdef DEBUG_MEMORY_SIZES
 		length = strnlen(current->body, LOG_MESSAGE_MAX_LENGTH - 1) + 1;
 #endif
 		ts_platform_free(current->body, length);
@@ -420,7 +420,7 @@ TsStatus_t _ts_log_resize(TsLogConfigRef_t log, int new_max_entries) {
 				old_current = log->_end - 1;
 			}
 			int length = 0;
-#ifdef DEBUG_MEMORY
+#ifdef DEBUG_MEMORY_SIZES
 			length = strnlen(old_current->body, LOG_MESSAGE_MAX_LENGTH - 1) + 1;
 #endif
 			ts_platform_free(old_current->body, length);
