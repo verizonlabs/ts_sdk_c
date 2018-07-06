@@ -32,7 +32,7 @@
  */
 TsStatus_t ts_suspend_handle(TsMessageRef_t);
 
-#ifdef TEST_SUSPEND
+//#ifdef TEST_SUSPEND
 /**
  * Generate and handle a test message.
  * @param firewall true = suspend firewall, false = resume firewall
