@@ -5,6 +5,7 @@
 #include "ts_log.h"
 #include "ts_version.h"
 #include "ts_util.h"
+#include "ts_suspend.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -418,7 +419,14 @@ static TsStatus_t handler( TsTransportRef_t transport, void * state, TsPath_t pa
 
 				status = ts_version_handle( message );
 
-			} else if( ( strcmp( kind, "ts.device" ) == 0 ) || ( strcmp( kind, "ts.element" ) == 0 ) ) {
+			} else if ( strcmp( kind, "ts.event.suspend" ) == 0 ) {
+
+				// ODS suspend messages, note that the message will be modified 'in-place'
+				// and must be returned with the correct status
+
+				status = ts_suspend_handle( message );
+			}
+			else if( ( strcmp( kind, "ts.device" ) == 0 ) || ( strcmp( kind, "ts.element" ) == 0 ) ) {
 
 				// provisioning, note that the message will be modified 'in-place'
 				// and must be returned with the correct status

@@ -1,6 +1,7 @@
 // Copyright (C) 2017, 2018 Verizon, Inc. All rights reserved.
 #include "ts_platform.h"
 #include "ts_service.h"
+#include "ts_suspend.h"
 
 TsStatus_t ts_service_create( TsServiceRef_t * service ) {
 
@@ -52,6 +53,11 @@ TsStatus_t ts_service_destroy( TsServiceRef_t service ) {
 	return TsStatusOk;
 }
 
+#ifdef TEST_SUSPEND
+	static int ticks = 0;
+	bool suspend = false;
+#endif
+
 TsStatus_t ts_service_tick( TsServiceRef_t service, uint32_t budget ) {
 
 	ts_status_trace( "ts_service_tick\n" );
@@ -99,6 +105,15 @@ TsStatus_t ts_service_tick( TsServiceRef_t service, uint32_t budget ) {
 	}
 
 	ts_status_debug("After calling firewall tick, remaining timer budget is %d\n");
+
+#ifdef TEST_SUSPEND
+	ticks++;
+	if (ticks >= 2) {
+		suspend = !suspend;
+		ts_suspend_test(suspend, suspend);
+		ticks = 0;
+	}
+#endif /* TEST_SUSPEND */
 
 	// perform transport tick within remaining budget
 	// TODO - return may require user action, e.g., TsStatusErrorConnectionReset - or add processing here.

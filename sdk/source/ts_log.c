@@ -27,6 +27,7 @@ TsStatus_t ts_logconfig_create(TsLogConfigRef_t *logconfig, TsStatus_t (*message
 	ts_platform_assert(logconfig != NULL);
 	*logconfig = (TsLogConfigRef_t)ts_platform_malloc(sizeof(TsLogConfig_t));
 	(*logconfig)->_enabled = false;
+	(*logconfig)->_suspended = false;
 	(*logconfig)->_log_in_progress = false;
 	(*logconfig)->_level = 0;
 	(*logconfig)->_min_interval = 1000;
@@ -36,6 +37,8 @@ TsStatus_t ts_logconfig_create(TsLogConfigRef_t *logconfig, TsStatus_t (*message
 
 	// Allocate some space for messages
 	_ts_log_create(*logconfig, 15);
+
+	ts_suspend_set_logconfig(*logconfig);
 
 #ifdef TEST_CONFIG
 	(*logconfig)->_enabled = true;
@@ -186,6 +189,18 @@ TsStatus_t ts_logconfig_handle(TsLogConfigRef_t logconfig, TsMessageRef_t messag
 	return status;
 }
 
+TsStatus_t ts_logconfig_set_suspended(TsLogConfigRef_t logconfig, bool suspended) {
+	logconfig->_suspended = suspended;
+	return TsStatusOk;
+}
+
+bool ts_logconfig_suspended(TsLogConfigRef_t logconfig) {
+	if (logconfig != NULL) {
+		return logconfig->_suspended;
+	}
+	return false;
+}
+
 /**
  * Provide the log config with time according to the time budget recommendation.
  * This is typically called from ts_service. It may be used to send log messages.
@@ -203,7 +218,8 @@ TsStatus_t ts_logconfig_tick(TsLogConfigRef_t logconfig, uint32_t budget) {
 	ts_platform_assert(logconfig != NULL);
 
 	uint64_t time = ts_platform_time();
-	if (logconfig->_enabled && (time - logconfig->_last_report_time >= logconfig->_reporting_interval * 1000)) {
+	if (!ts_logconfig_suspended(logconfig) && logconfig->_enabled
+			&& (time - logconfig->_last_report_time >= logconfig->_reporting_interval * 1000)) {
 		_ts_log_report(logconfig);
 		logconfig->_last_report_time = ts_platform_time();
 	}
@@ -237,7 +253,8 @@ TsStatus_t ts_log(TsLogConfigRef_t log, TsLogLevel_t level, TsLogCategory_t cate
 	ts_platform_assert(category < _TsCategoryLast);
 	ts_platform_assert(text != NULL);
 
-	if (!(log->_enabled) || (log->_log_in_progress) || (log->_max_entries < 1)) {
+	if (ts_logconfig_suspended(log) || !(log->_enabled)
+			|| (log->_log_in_progress) || (log->_max_entries < 1)) {
 		// We're not logging at all
 		return TsStatusOk;
 	}

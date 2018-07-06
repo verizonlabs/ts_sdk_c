@@ -66,6 +66,7 @@ typedef struct TsLogEntry * TsLogEntryRef_t;
 
 typedef struct TsLogConfig {
 	bool _enabled;
+	bool _suspended;
 	bool _log_in_progress;
 	int _level;
 	int _max_entries;  			// maximum number of entries in the log
@@ -139,7 +140,45 @@ TsStatus_t ts_logconfig_tick(TsLogConfigRef_t, uint32_t);
  * [in] Category of message: 0 = security_profile, 1 = firewall, 2 = credential, 3 = diagnostic
  * @param message
  * [in] The text of the log message.
+ * @return
+ * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+ * - TsStatusOk
+ * - TsStatusError[Code]
  */
 TsStatus_t ts_log(TsLogConfigRef_t log, TsLogLevel_t level, TsLogCategory_t category, char *message);
+
+/**
+ * Suspend or resume logging.
+ * @param logconfig
+ * [in] TsLogConfigRef_t representing the log.
+ * @param suspended
+ * [in] Whether to suspend or resume logging.
+ * @return
+ * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+ * - TsStatusOk
+ * - TsStatusError[Code]
+ */
+TsStatus_t ts_logconfig_set_suspended(TsLogConfigRef_t logconfig, bool suspended);
+
+/**
+ * Is logging suspended?
+ * @param logconfig
+ * [in] TsLogConfigRef_t representing the log.
+ * @return
+ * True if logging is suspended, false otherwise.
+ */
+bool ts_logconfig_suspended(TsLogConfigRef_t);
+
+
+/**
+ * Set the logconfig used to log suspension events, and that we'll be suspending/resuming.
+ * @param logconfig
+ * [in] The log configuration to use for logging suspension events.
+ * @return
+ * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+ * - TsStatusOk
+ * - TsStatusError[Code]
+ */
+TsStatus_t ts_suspend_set_logconfig(TsLogConfigRef_t);
 
 #endif /* TS_LOG_H */

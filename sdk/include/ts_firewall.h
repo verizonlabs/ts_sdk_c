@@ -35,6 +35,7 @@ typedef struct TsFirewall * TsFirewallRef_t;
 
 typedef struct TsFirewall {
 	bool _enabled;
+	bool _suspended;
 	TsMessageRef_t _default_rules;
 	TsMessageRef_t _default_domains;
 	TsMessageRef_t _rules;
@@ -140,7 +141,46 @@ typedef struct TsFirewallVtable {
 	*/
 	TsMessageRef_t (*stats)();
 
+	/**
+	 * Suspend/resume the firewall.
+	 *
+	 * @param firewall
+	 * [in] TsFirewallRef_t referring to the firewall to suspend/resume.
+	 * @param suspend
+	 * [in] True if the firewall is being suspended, false if it is being resumed.
+	 *
+	 * @return
+	 * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+	 * - TsStatusOk
+	 * - TsStatusError[Code]
+	 */
+	TsStatus_t (*set_suspended)( TsFirewallRef_t, bool );
+
+	/**
+	 * Query whether the firewall is suspended.
+	 *
+	 * @param firewall
+	 * [in] TsFirewallRef_t referring to the firewall state.
+	 *
+	 * @return
+	 * True if the firewall is suspended, false if not.
+	 */
+	bool (*suspended)( TsFirewallRef_t );
+
 } TsFirewallVtable_t;
+
+
+/**
+ * Set the firewall that we'll be suspending/resuming.
+ * @param firewall
+ * [in] The firewall that we'll be suspending/resuming.
+ * @return
+ * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+ * - TsStatusOk
+ * - TsStatusError[Code]
+ */
+TsStatus_t ts_suspend_set_firewall(TsFirewallRef_t);
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -148,12 +188,14 @@ extern "C" {
 
 extern const TsFirewallVtable_t *ts_firewall;
 
-#define ts_firewall_create      ts_firewall->create
-#define ts_firewall_destroy     ts_firewall->destroy
-#define ts_firewall_tick        ts_firewall->tick
-#define ts_firewall_handle      ts_firewall->handle
-#define ts_firewall_set_log		ts_firewall->set_log
-#define ts_firewall_stats		ts_firewall->stats
+#define ts_firewall_create      	ts_firewall->create
+#define ts_firewall_destroy     	ts_firewall->destroy
+#define ts_firewall_tick        	ts_firewall->tick
+#define ts_firewall_handle      	ts_firewall->handle
+#define ts_firewall_set_log			ts_firewall->set_log
+#define ts_firewall_stats			ts_firewall->stats
+#define ts_firewall_set_suspended	ts_firewall->set_suspended
+#define ts_firewall_suspended		ts_firewall->suspended
 
 #ifdef __cplusplus
 }
