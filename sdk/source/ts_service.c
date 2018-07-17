@@ -187,7 +187,9 @@ TsStatus_t ts_service_dial( TsServiceRef_t service, TsAddress_t address ) {
 	if (status == TsStatusOk) {
 		TsMessageRef_t versionMessage;
 		if (ts_version_make_update( &versionMessage ) == TsStatusOk) {
+			ts_message_dump(versionMessage);
 			ts_service_enqueue_typed(service, "ts.event.version", versionMessage);
+			ts_message_destroy(versionMessage);
 		}
 	}
 	return status;
