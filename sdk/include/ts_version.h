@@ -43,6 +43,6 @@ TsStatus_t ts_version_handle(TsMessageRef_t);
  * - TsStatusOk
  * - TsStatusError[Code]
  */
-TsStatus_t ts_version_make_update(*TsMessageRef_t);
+TsStatus_t ts_version_make_update(TsMessageRef_t *);
 
 #endif /* TS_VERSION_H_ */

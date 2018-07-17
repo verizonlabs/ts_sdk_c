@@ -2,6 +2,7 @@
 #include "ts_platform.h"
 #include "ts_service.h"
 #include "ts_suspend.h"
+#include "ts_version.h"
 
 TsStatus_t ts_service_create( TsServiceRef_t * service ) {
 
