@@ -1216,6 +1216,11 @@ static char * _ts_cbor_kind_mapping[] = {
 	"ts.event.logentry",
 	"ts.event.logconfig",
 	"ts.event.firewall.statistics",
+	"ts.event.location",
+	"ts.event.credential",
+	"ts.event.cert",
+	"ts.event.suspend",
+	"ts.event.version",
 };
 
 static size_t _ts_cbor_kind_mapping_size = sizeof(_ts_cbor_kind_mapping) / sizeof(char *);
@@ -1275,13 +1280,15 @@ static TsStatus_t _ts_message_encode_ts_cbor_value( CborEncoder * encoder, int d
 
 	if( depth <= 1 ) {
 
+		int i;
+
 		switch( type ) {
 		case TsCborValueTypeUUID: {
 
 			int uuid_size = 16;
 			uint8_t uuid[ 16 ];
 			if( strlen(value) != TS_MESSAGE_UUID_SIZE ) {
-				ts_status_alarm( "ts_message_encode_ts_cbor: no mapping found for given UUID, %s, ignoring,...\n", value );
+				ts_status_alarm( "ts_message_encode_ts_cbor: UUID is wrong size, %s, mapping as string,...\n", value );
 				cbor_encode_text_stringz( encoder, value );
 			} else {
 				int value_index = 0;
@@ -1304,49 +1311,29 @@ static TsStatus_t _ts_message_encode_ts_cbor_value( CborEncoder * encoder, int d
 		}
 
 		case TsCborValueTypeKind:
-			if( strcmp( value, "ts.element" ) == 0 ) {
-				cbor_encode_int( encoder, 1 );
-			} else if( strcmp( value, "ts.event" ) == 0 ) {
-				cbor_encode_int( encoder, 2 );
-			} else if( strcmp( value, "ts.event.diagnostic" ) == 0 ) {
-				cbor_encode_int( encoder, 3 );
-			} else if( strcmp( value, "ts.event.firewall" ) == 0 ) {
-				cbor_encode_int( encoder, 4 );
-			} else if( strcmp( value, "ts.event.firewall.alert" ) == 0 ) {
-				cbor_encode_int( encoder, 5 );
-			} else if( strcmp( value, "ts.event.log" ) == 0 ) {
-				cbor_encode_int( encoder, 6 );
-			} else if( strcmp( value, "ts.event.logentry" ) == 0 ) {
-				cbor_encode_int( encoder, 7 );
-			}  else if( strcmp( value, "ts.event.logconfig" ) == 0 ) {
-				cbor_encode_int( encoder, 8 );
-			} else if( strcmp( value, "ts.event.firewall.statistics" ) == 0 ) {
-				cbor_encode_int( encoder, 9 );
-			} else {
-				ts_status_alarm( "ts_message_encode_ts_cbor: no mapping found for malformed Kind, %s, ignoring,...\n", value );
+			for (i = 0; i < _ts_cbor_kind_mapping_size; i++) {
+				if ( strcmp( value, _ts_cbor_kind_mapping[i] ) == 0 ) {
+					cbor_encode_int( encoder, i + 1 );
+					break;
+				}
+			}
+
+			if ( i >= _ts_cbor_kind_mapping_size ) {
+				ts_status_alarm( "ts_message_encode_ts_cbor: no mapping found for kind %s, encoding as string,...\n", value );
 				cbor_encode_text_stringz( encoder, value );
 			}
 			break;
 
 		case TsCborValueTypeAction:
-			if( strcmp( value, "activate" ) == 0 ) {
-				cbor_encode_int( encoder, 1 );
-			} else if( strcmp( value, "suspend" ) == 0 ) {
-				cbor_encode_int( encoder, 2 );
-			} else if( strcmp( value, "resume" ) == 0 ) {
-				cbor_encode_int( encoder, 3 );
-			} else if( strcmp( value, "deactivate" ) == 0 ) {
-				cbor_encode_int( encoder, 4 );
-			} else if( strcmp( value, "get" ) == 0 ) {
-				cbor_encode_int( encoder, 5 );
-			} else if( strcmp( value, "set" ) == 0 ) {
-				cbor_encode_int( encoder, 6 );
-			} else if( strcmp( value, "update" ) == 0 ) {
-				cbor_encode_int( encoder, 7 );
-			} else if( strcmp( value, "delete" ) == 0 ) {
-				cbor_encode_int( encoder, 8 );
-			} else {
-				ts_status_alarm( "ts_message_encode_ts_cbor: no mapping found for malformed Action, %s, ignoring,...\n", value );
+			for (i = 0; i < _ts_cbor_action_mapping_size; i++) {
+				if ( strcmp( value, _ts_cbor_action_mapping[i] ) == 0 ) {
+					cbor_encode_int( encoder, i + 1 );
+					break;
+				}
+			}
+
+			if ( i >= _ts_cbor_action_mapping_size ) {
+				ts_status_alarm( "ts_message_encode_ts_cbor: no mapping found for action %s, encoding as string,...\n", value );
 				cbor_encode_text_stringz( encoder, value );
 			}
 			break;
