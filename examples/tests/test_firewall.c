@@ -9,7 +9,7 @@ int main() {
 
 	// create new firewall
 	TsFirewallRef_t firewall;
-	ts_status_debug( "test_firewall: create firewall, %s\n", ts_status_string( ts_firewall_create( &firewall ) ) );
+	ts_status_debug( "test_firewall: create firewall, %s\n", ts_status_string( ts_firewall_create( &firewall , NULL ) ) );
 
 	// test simple configuration setting
 	char * xmessage =
