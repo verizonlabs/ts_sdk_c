@@ -294,7 +294,7 @@ TsStatus_t ts_log(TsLogConfigRef_t log, TsLogLevel_t level, TsLogCategory_t cate
 
 	// We're good; record away
 
-	strlcpy(new_body, text, length);
+	snprintf(new_body, length, "%s", text);
 
 	TsLogEntryRef_t new = log->_newest + 1;
 	if (new >= log->_start + log->_max_entries) {
