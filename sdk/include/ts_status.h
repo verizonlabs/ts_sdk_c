@@ -48,6 +48,40 @@ typedef enum {
 	TsStatusErrorNoResourceAvailable,   // there are no hardware resources available for the request
 	TsStatusErrorConnectionReset,       // connection reset
 
+	// File related
+	TsStatusErrorBootError, //
+	TsStatusErrorMediaInvalid, //
+	TsStatusErrorFatReadError, //
+	TsStatusErrorNotAFile, //
+	TsStatusErrorAccessError, //
+	TsStatusErrorNotOpen, //
+	TsStatusErrorFileCorrupt, //
+	TsStatusErrorEndOfFile, //
+	TsStatusErrorNoMoreSpace, //
+	TsStatusErrorAlreadyCreated, //
+	TsStatusErrorInvalidName, //
+	TsStatusErrorInvalidPath, //
+	TsStatusErrorNotDirectory, //
+	TsStatusErrorNoMoreEntries, //
+	TsStatusErrorDirNotEmpty, //
+	TsStatusErrorMediaNotOpened, //
+	TsStatusErrorPtrError, //
+	TsStatusErrorInvalidAttr, //
+	TsStatusErrorCallerError, //
+	TsStatusErrorBufferError, //
+	TsStatusErrorWriteProtect, //
+	TsStatusErrorInvalidOption, //
+	TsStatusErrorSectorInvalid, //
+	TsStatusErrorIo_Error, //
+	TsStatusErrorNotEnoughMemory, //
+	TsStatusErrorErrorFixed, //
+	TsStatusErrorErrorNotFixed, //
+	TsStatusErrorNotAvailable, //
+	TsStatusErrorInvalidChecksum, //
+	TsStatusErrorReadContinue, //
+	TsStatusErrorInvalidState //
+
+
 } TsStatus_t;
 
 typedef enum {
