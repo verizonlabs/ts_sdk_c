@@ -103,7 +103,7 @@ static TsStatus_t ts_create(TsSecurityRef_t * security) {
 	}
 
 	// then, allocate and initialize security
-	TsSecurityMocanaRef_t mocana = (TsSecurityMocanaRef_t) (ts_platform_malloc(sizeof(TsSecurityMocanaRef_t)));
+	TsSecurityMocanaRef_t mocana = (TsSecurityMocanaRef_t) (ts_platform_malloc(sizeof(TsSecurityMocana_t)));
 	*security = (TsSecurityRef_t)mocana;
 	(*security)->_controller = controller;
 	(*security)->_profile = NULL;
