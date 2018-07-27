@@ -12,6 +12,8 @@
 #include "ts_platform.h"
 #include "ts_security.h"
 
+static TsStatus_t ts_initialize();
+
 static TsStatus_t ts_create(TsSecurityRef_t *);
 static TsStatus_t ts_destroy(TsSecurityRef_t);
 static TsStatus_t ts_tick(TsSecurityRef_t, uint32_t);
@@ -31,6 +33,8 @@ static TsStatus_t ts_read(TsSecurityRef_t, const uint8_t *, size_t *, uint32_t);
 static TsStatus_t ts_write(TsSecurityRef_t, const uint8_t *, size_t *, uint32_t);
 
 TsSecurityVtable_t ts_security_mocana = {
+	.initialize = ts_initialize,
+
 	.create = ts_create,
 	.destroy = ts_destroy,
 	.tick = ts_tick,
@@ -80,6 +84,14 @@ static MSTATUS myCertStatusCallback(sbyte4 connectionInstance,
 	struct certChain* pCertChain,
 	MSTATUS validationstatus) {
 	return 0;
+}
+
+static TsStatus_t ts_initialize() {
+	MSTATUS status = MOCANA_initMocana();
+	if (status != OK) {
+		return TsStatusErrorInternalServerError;
+	}
+	return TsStatusOk;
 }
 
 static TsStatus_t ts_create(TsSecurityRef_t * security) {

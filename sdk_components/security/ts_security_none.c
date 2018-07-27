@@ -3,6 +3,8 @@
 #include "ts_security.h"
 #include "ts_controller.h"
 
+static TsStatus_t ts_initialize();
+
 static TsStatus_t ts_create(TsSecurityRef_t *);
 static TsStatus_t ts_destroy(TsSecurityRef_t);
 static TsStatus_t ts_tick(TsSecurityRef_t, uint32_t);
@@ -22,6 +24,8 @@ static TsStatus_t ts_read(TsSecurityRef_t, const uint8_t *, size_t *, uint32_t);
 static TsStatus_t ts_write(TsSecurityRef_t, const uint8_t *, size_t *, uint32_t);
 
 TsSecurityVtable_t ts_security_none = {
+	.initialize = ts_initialize,
+
 	.create = ts_create,
 	.destroy = ts_destroy,
 	.tick = ts_tick,
@@ -40,6 +44,10 @@ TsSecurityVtable_t ts_security_none = {
 	.read = ts_read,
 	.write = ts_write,
 };
+
+static TsStatus_t ts_initialize() {
+	return TsStatusOk;
+}
 
 static TsStatus_t ts_create(TsSecurityRef_t * security) {
 	ts_status_trace("ts_security_create: none\n");

@@ -37,6 +37,8 @@
 #endif
 */
 
+static TsStatus_t ts_initialize();
+
 static TsStatus_t ts_create(TsSecurityRef_t *);
 static TsStatus_t ts_destroy(TsSecurityRef_t);
 static TsStatus_t ts_tick(TsSecurityRef_t, uint32_t);
@@ -64,6 +66,8 @@ const char * mbedtls_secret = "my-little-secret";
 int mbedtls_hardware_poll(void *, unsigned char *, size_t, size_t *);
 
 TsSecurityVtable_t ts_security_mbedtls = {
+	.initialize = ts_initialize,
+
 	.create = ts_create,
 	.destroy = ts_destroy,
 	.tick = ts_tick,
@@ -107,6 +111,10 @@ typedef struct TsSecurityEmbed {
 	TsProfileRef_t              _profile;
 
 } TsSecurityEmbed_t;
+
+static TsStatus_t ts_initialize() {
+	return TsStatusOk;
+}
 
 static TsStatus_t ts_create(TsSecurityRef_t *security) {
 	

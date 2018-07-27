@@ -24,6 +24,8 @@ int main( int argc, char *argv[] ) {
 	// initialize platform (see ts_platform.h)
 	ts_platform_initialize();
 
+	ts_security_initialize();
+
 	// initialize status reporting level (see ts_status.h)
 	ts_status_set_level( TsStatusLevelDebug );
 	ts_status_debug( "simple: initializing,...\n");

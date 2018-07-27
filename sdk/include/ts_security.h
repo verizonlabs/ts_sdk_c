@@ -68,6 +68,15 @@ typedef struct TsSecurity {
 typedef struct TsSecurityVtable {
 
 	/**
+	 * Perform one-time static initialization of the security subsystem, if any.
+	 * @return
+	 * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+	 * - TsStatusOk
+	 * - TsStatusError[Code]
+	 */
+	TsStatus_t (*initialize)();
+
+	/**
 	 * Allocate and initialize a new security object. This function is typically called from ts_connection.
 	 *
 	 * @param security
@@ -274,6 +283,8 @@ extern "C" {
 
 // security depends on ts_controller
 extern const TsSecurityVtable_t * ts_security;
+
+#define ts_security_initialize		ts_security->initialize
 
 #define ts_security_create			ts_security->create
 #define ts_security_destroy			ts_security->destroy
