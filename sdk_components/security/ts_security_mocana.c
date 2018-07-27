@@ -1,12 +1,13 @@
 // Copyright (C) 2017, 2018 Verizon, Inc. All rights reserved.
 #if defined( TS_SECURITY_MOCANA )
 #include <math.h>
-#include "common/mstdlib.h"
-#include "common/mocana.h"
+
 #include "common/moptions.h"
 #include "common/mtypes.h"
 #include "common/merrors.h"
 #include "common/mtcp.h"
+#include "common/mocana.h"
+
 #include "crypto/hw_accel.h"
 #include "crypto/cert_store.h"
 #include "ssl/ssl.h"
