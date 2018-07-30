@@ -339,7 +339,7 @@ static TsStatus_t ts_connect(TsSecurityRef_t security, TsAddress_t address) {
 	// perform handshake (note this will require tick() on embedded systems)
 	mstatus = SSL_negotiateConnection( mocana->_connection_instance );
 	if( mstatus < OK ) {
-		ts_status_debug( "*** mstatus = %d\n", mstatus );
+		ts_status_alarm( "ts_security_connect: ssl handshake failed, %d\n", mstatus );
 		TCP_CLOSE_SOCKET( mocana->_socket );
 		return TsStatusErrorInternalServerError;
 	}
