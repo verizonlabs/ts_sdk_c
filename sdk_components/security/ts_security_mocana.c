@@ -10,7 +10,10 @@
 
 #include "crypto/hw_accel.h"
 #include "crypto/cert_store.h"
+#include "crypto/pubcrypto.h"
 #include "ssl/ssl.h"
+
+#include "crypto/keyblob.h"
 
 #include "ts_platform.h"
 #include "ts_security.h"
