@@ -270,7 +270,7 @@ static TsStatus_t ts_set_client_key(TsSecurityRef_t security, const uint8_t * cl
     	return TsStatusErrorInternalServerError;
 
     status = CRYPTO_deserializeKey (
-            clkey, clkey_size, pSupported, algCount, &asymKey);
+            (uint8_t *)clkey, clkey_size, pSupported, algCount, &asymKey);
     if (0 != status)
     	return TsStatusErrorInternalServerError;
 
@@ -418,12 +418,13 @@ static TsStatus_t ts_read(TsSecurityRef_t security, const uint8_t * buffer, size
 	ubyte4 budget_in_ms = budget / TS_TIME_MSEC_TO_USEC;
 	size_t received = 0;
 
+	MSTATUS result = OK;
 	if (budget_in_ms > 0) {
-		MSTATUS result = SSL_recv( mocana->_connection_instance, buffer, (sbyte4)(*buffer_size), &received, budget_in_ms );
+		result = SSL_recv( mocana->_connection_instance, (uint8_t *)buffer, (sbyte4)(*buffer_size), &received, budget_in_ms );
 	}
 	else {
 		// Don't call SSL_recv() with a zero budget, since that is a special value that means "no timeout"
-		MSTATUS result = ERR_TCP_READ_TIMEOUT;
+		result = ERR_TCP_READ_TIMEOUT;
 	}
 
 	switch( result ) {
