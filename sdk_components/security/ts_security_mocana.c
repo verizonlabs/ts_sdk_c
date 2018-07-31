@@ -13,6 +13,7 @@
 #include "crypto/pubcrypto.h"
 #include "ssl/ssl.h"
 
+#include "crypto/rsa.h"
 #include "crypto/keyblob.h"
 
 #include "ts_platform.h"
