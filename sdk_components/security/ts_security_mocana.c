@@ -13,7 +13,14 @@
 #include "crypto/pubcrypto.h"
 #include "ssl/ssl.h"
 
+#include "common/vlong.h"
+#include "common/mrtos.h"
 #include "crypto/rsa.h"
+#ifdef __ENABLE_MOCANA_ECC__
+#include "crypto/primefld.h"
+#include "crypto/primeec.h"
+#endif
+
 #include "crypto/keyblob.h"
 
 #include "ts_platform.h"
