@@ -415,16 +415,36 @@ static TsStatus_t ts_read(TsSecurityRef_t security, const uint8_t * buffer, size
 
 	TsSecurityMocanaRef_t mocana = (TsSecurityMocanaRef_t) (security);
 
+	ubyte4 budget_in_ms = budget / TS_TIME_MSEC_TO_USEC;
 	size_t received = 0;
-	MSTATUS result = SSL_recv( mocana->_connection_instance, buffer, (sbyte4)(*buffer_size), &received, budget );
+
+	if (budget_in_ms > 0) {
+		MSTATUS result = SSL_recv( mocana->_connection_instance, buffer, (sbyte4)(*buffer_size), &received, budget_in_ms );
+	}
+	else {
+		// Don't call SSL_recv() with a zero budget, since that is a special value that means "no timeout"
+		MSTATUS result = ERR_TCP_READ_TIMEOUT;
+	}
+
 	switch( result ) {
 	case ERR_TCP_WOULDBLOCK:
-		return TsStatusOkReadPending;
+		// fallthrough
+
+	// TODO - should we treat read timeout as pending read status?
+	case ERR_TCP_READ_TIMEOUT:
+		if( received == 0 ) {
+			*buffer_size = 0;
+			return TsStatusOkReadPending;
+		}
+		result = OK;
+		// fallthrough
+
 	default:
 		if( result < OK ) {
 			return TsStatusErrorInternalServerError;
 		}
 		*buffer_size = received;
+		break;
 	}
 	return TsStatusOk;
 }
