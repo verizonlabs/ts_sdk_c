@@ -10,11 +10,7 @@
 
 #include "crypto/hw_accel.h"
 #include "crypto/cert_store.h"
-#include "crypto/pubcrypto.h"
 #include "ssl/ssl.h"
-
-#include "crypto/rsa.h"
-#include "crypto/keyblob.h"
 
 #include "ts_platform.h"
 #include "ts_security.h"
@@ -238,41 +234,8 @@ static TsStatus_t ts_set_client_key(TsSecurityRef_t security, const uint8_t * cl
 		}
 	}
 
-    AsymmetricKey asymKey;
-
-#define ALG_COUNT 1
-	ubyte algCount = 1;
-
-#if (defined(__ENABLE_MOCANA_ECC__))
-	algCount = 1;
-#endif
-
-    MKeySerialize pSupported[ALG_COUNT] = {
-		KeySerializeRsa,
-#if (defined(__ENABLE_MOCANA_ECC__))
-		KeySerializeEcc,
-#endif
-	};
-
-    sbyte4 status = 0;
-    ubyte* pKeyBlob = NULL;
-    ubyte4 keyBlobLength = 0;
-
-    status = CRYPTO_initAsymmetricKey (&asymKey);
-    if (0 != status)
-    	return TsStatusErrorInternalServerError;
-
-    status = CRYPTO_deserializeKey (
-            clkey, clkey_size, pSupported, algCount, &asymKey);
-    if (0 != status)
-    	return TsStatusErrorInternalServerError;
-
-    status = KEYBLOB_makeKeyBlobEx(&asymKey, &pKeyBlob, &keyBlobLength);
-    if (0 != status)
-    	return TsStatusErrorInternalServerError;
-
-	mocana->_clkey = pKeyBlob;
-	mocana->_clkey_size = keyBlobLength;
+	mocana->_clkey = clkey;
+	mocana->_clkey_size = ckley_size;
 
 	if( mocana->_clcert != NULL && mocana->_clcert_size != 0 ) {
 		MSTATUS status = CERT_STORE_addIdentity( mocana->_cert_store, mocana->_clcert, (ubyte4)(mocana->_clcert_size), mocana->_clkey, (ubyte4)(mocana->_clkey_size) );
