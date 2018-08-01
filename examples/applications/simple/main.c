@@ -76,7 +76,7 @@ int main( int argc, char *argv[] ) {
 	// enter run loop,...
 	ts_status_debug( "simple: entering run-loop,...\n");
 	uint64_t timestamp = ts_platform_time();
-	uint32_t interval = 5 * TS_TIME_SEC_TO_USEC;
+	uint32_t interval = 1 * TS_TIME_SEC_TO_USEC;
 	bool running = true;
 	do {
 
