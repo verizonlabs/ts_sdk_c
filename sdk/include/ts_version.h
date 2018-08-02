@@ -34,4 +34,15 @@
  */
 TsStatus_t ts_version_handle(TsMessageRef_t);
 
+/**
+ * Create an update message containing version info.
+ * @param new
+ * [out] Pointer to a TsMessageRef_t that will point to the new message.
+ * @return
+ * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+ * - TsStatusOk
+ * - TsStatusError[Code]
+ */
+TsStatus_t ts_version_make_update(TsMessageRef_t *);
+
 #endif /* TS_VERSION_H_ */
