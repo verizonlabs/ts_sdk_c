@@ -10,9 +10,6 @@ TsStatus_t _ts_log_destroy(TsLogConfigRef_t);
 TsStatus_t _ts_log_resize(TsLogConfigRef_t, int);
 TsStatus_t _ts_log_report(TsLogConfigRef_t);
 
-//#define TEST_CONFIG 1
-//#define DEBUG_MEMORY_SIZES 1
-
 /**
  * Create a log configuration object.
  * @param logconfig
@@ -40,7 +37,7 @@ TsStatus_t ts_logconfig_create(TsLogConfigRef_t *logconfig, TsStatus_t (*message
 
 	ts_suspend_set_logconfig(*logconfig);
 
-#ifdef TEST_CONFIG
+#ifdef TEST_LOGGING
 	(*logconfig)->_enabled = true;
 #endif
 

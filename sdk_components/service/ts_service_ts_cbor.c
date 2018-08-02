@@ -82,11 +82,23 @@ static TsStatus_t ts_destroy( TsServiceRef_t service ) {
 	return TsStatusOk;
 }
 
+#ifdef TEST_LOGGING
+static int tick_counter = 0;
+#endif
+
 static TsStatus_t ts_tick( TsServiceRef_t service, uint32_t budget ) {
 
 	ts_status_trace("ts_service_tick\n");
 
 	// TODO - check diagnostics timeout
+
+#ifdef TEST_LOGGING
+	tick_counter++;
+	if (tick_counter >= 5) {
+		ts_log(service->_logconfig, TsLogLevelInfo, TsCategoryDiagnostic, "This is a test message");
+		tick_counter = 0;
+	}
+#endif
 
 	return TsStatusOk;
 }

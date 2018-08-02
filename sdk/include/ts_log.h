@@ -24,6 +24,9 @@
 #include "ts_status.h"
 #include "ts_message.h"
 
+#define TEST_LOGGING 1
+//#define DEBUG_MEMORY_SIZES 1
+
 /**
  * The log config reference
  */
