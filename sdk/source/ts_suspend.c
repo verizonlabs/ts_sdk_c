@@ -152,7 +152,7 @@ static TsStatus_t _ts_handle_get( TsMessageRef_t fields ) {
 
 static TsStatus_t _ts_handle_set( TsMessageRef_t fields ) {
 	bool firewall_suspend;
-	if (ts_message_get_bool(fields, "firewall", &firewall_suspend) == TsStatusOk) {
+	if ( _firewall != NULL && ts_message_get_bool(fields, "firewall", &firewall_suspend) == TsStatusOk ) {
 		if (firewall_suspend) {
 			ts_status_debug("_ts_handle_set: suspending firewall\n");
 			SUSPEND_LOG("Firewall suspended\n");
