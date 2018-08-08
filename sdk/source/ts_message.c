@@ -1216,6 +1216,11 @@ static char * _ts_cbor_kind_mapping[] = {
 	"ts.event.logentry",
 	"ts.event.logconfig",
 	"ts.event.firewall.statistics",
+	"ts.event.location",
+	"ts.event.credential",
+	"ts.event.cert",
+	"ts.event.suspend",
+	"ts.event.version",
 };
 
 static size_t _ts_cbor_kind_mapping_size = sizeof(_ts_cbor_kind_mapping) / sizeof(char *);
