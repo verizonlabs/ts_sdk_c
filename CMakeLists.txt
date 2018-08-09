@@ -31,11 +31,11 @@ endif()
 message( STATUS "## Build Type            (Debug|Release) : ${CMAKE_BUILD_TYPE}" )
 
 # component selection
-add_definitions( -DTS_SERVICE_TS_JSON )     # TS_JSON, TS_CBOR or CUSTOM
+add_definitions( -DTS_SERVICE_TS_CBOR )     # TS_JSON, TS_CBOR or CUSTOM
 add_definitions( -DTS_TRANSPORT_MQTT )      # MQTT or CUSTOM
-add_definitions( -DTS_SECURITY_MBED )       # MBED, MOCANA, NONE or CUSTOM
-add_definitions( -DTS_CONTROLLER_NONE )     # MONARCH, NONE or CUSTOM
-add_definitions( -DTS_FIREWALL_NONE )       # NONE or CUSTOM (rarely used)
+add_definitions( -DTS_SECURITY_CUSTOM )       # MBED, MOCANA, NONE or CUSTOM
+add_definitions( -DTS_CONTROLLER_CUSTOM )     # MONARCH, NONE or CUSTOM
+add_definitions( -DTS_FIREWALL_CUSTOM )       # NONE or CUSTOM (rarely used)
 add_definitions( -DTS_MUTEX_NONE )          # NONE or CUSTOM (rarely used)
 
 # build vendor libraries
@@ -62,6 +62,10 @@ if( DEFINITIONS MATCHES TS_SECURITY_MBED )
 
 elseif( DEFINITIONS MATCHES TS_SECURITY_MOCANA )
     target_link_libraries( ts_sdk mocana )
+
+	if ( DEFINITIONS MATCHES TS_FIREWALL_CUSTOM )
+		target_link_libraries ( ts_sdk mfirewall )
+	endif()
 
 endif()
 
