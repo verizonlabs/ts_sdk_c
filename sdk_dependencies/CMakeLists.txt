@@ -10,7 +10,7 @@ if( DEFINITIONS MATCHES TS_SECURITY_MOCANA )
     add_subdirectory( mocana )
 
     if ( DEFINITIONS MATCHES TS_FIREWALL_CUSTOM )
-        add_subdirectory( mocana/projects/raspbian/nanowall/nanowallk )
+        add_subdirectory( mocana/projects/raspbian/nanowall/mfirewall )
     endif()
 
 endif()
