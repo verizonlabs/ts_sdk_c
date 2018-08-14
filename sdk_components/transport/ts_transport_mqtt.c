@@ -187,6 +187,7 @@ static TsStatus_t ts_tick( TsTransportRef_t transport, uint32_t budget ) {
 		}
 	} else {
 		ts_status_alarm( "ts_transport_tick: not connected.\n" );
+		return TsStatusErrorConnectionReset;
 	}
 
 	// report budget status and return

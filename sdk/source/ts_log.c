@@ -66,7 +66,7 @@ TsStatus_t ts_logconfig_destroy(TsLogConfigRef_t logconfig) {
 
 static TsStatus_t _ts_handle_set( TsLogConfigRef_t logconfig, TsMessageRef_t fields ) {
 	int new_max_entries;
-	if (ts_message_get_bool(fields, "enabled", &(logconfig->_enabled))
+	if (ts_message_get_bool(fields, "enable", &(logconfig->_enabled))
 			== TsStatusOk) {
 		ts_status_debug("_ts_handle_set: enabled = %d\n", logconfig->_enabled);
 	}

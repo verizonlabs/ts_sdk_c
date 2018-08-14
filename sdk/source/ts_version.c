@@ -2,6 +2,7 @@
 
 #include "ts_version.h"
 #include "ts_platform.h"
+#include "ts_util.h"
 
 static TsStatus_t _ts_handle_get( TsMessageRef_t fields );
 
@@ -69,6 +70,31 @@ TsStatus_t ts_version_handle(TsMessageRef_t message) {
 		status = TsStatusErrorBadRequest;
 	}
 	return status;
+}
+
+TsStatus_t ts_version_make_update( TsMessageRef_t *new ) {
+
+	ts_status_trace("ts_version_make_update");
+	TsStatus_t status = ts_message_create(new);
+	if (status != TsStatusOk) {
+		return status;
+	}
+	char uuid[UUID_SIZE];
+	ts_uuid(uuid);
+	ts_message_set_string(*new, "transactionid", uuid);
+	ts_message_set_string(*new, "kind", "ts.event.version");
+	ts_message_set_string(*new, "action", "update");
+	TsMessageRef_t fields;
+	status = ts_message_create_message(*new, "fields", &fields);
+	if (status != TsStatusOk) {
+		ts_message_destroy(*new);
+		return status;
+	}
+	ts_message_set_string(fields, "sdk_version", TS_SDK_VERSION);
+	ts_message_set_string(fields, "ods_version", TS_ODS_VERSION);
+	ts_message_set_string(fields, "hardware_version", TS_HARDWARE_VERSION);
+
+	return TsStatusOk;
 }
 
 static TsStatus_t _ts_handle_get( TsMessageRef_t fields ) {

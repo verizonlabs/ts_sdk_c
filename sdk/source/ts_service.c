@@ -2,6 +2,7 @@
 #include "ts_platform.h"
 #include "ts_service.h"
 #include "ts_suspend.h"
+#include "ts_version.h"
 
 TsStatus_t ts_service_create( TsServiceRef_t * service ) {
 
@@ -180,7 +181,18 @@ TsStatus_t ts_service_dial( TsServiceRef_t service, TsAddress_t address ) {
 	ts_platform_assert( service != NULL );
 	ts_platform_assert( service->_transport != NULL );
 
-	return ts_transport_dial( service->_transport, address );
+	TsStatus_t status = ts_transport_dial( service->_transport, address );
+
+	// Send an update message representing version information
+	if (status == TsStatusOk) {
+		TsMessageRef_t versionMessage;
+		if (ts_version_make_update( &versionMessage ) == TsStatusOk) {
+			ts_message_dump(versionMessage);
+			ts_service_enqueue_typed(service, "ts.event.version", versionMessage);
+			ts_message_destroy(versionMessage);
+		}
+	}
+	return status;
 }
 
 TsStatus_t ts_service_hangup( TsServiceRef_t service ) {
