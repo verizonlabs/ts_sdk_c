@@ -65,13 +65,13 @@ static TsStatus_t _ts_handle_set( TsLogConfigRef_t logconfig, TsMessageRef_t fie
 	int new_max_entries;
 	if (ts_message_get_bool(fields, "enable", &(logconfig->_enabled))
 			== TsStatusOk) {
-		ts_status_debug("_ts_handle_set: enabled = %d\n", logconfig->_enabled);
+		ts_status_debug("_ts_handle_set: enable = %d\n", logconfig->_enabled);
 	}
-	if (ts_message_get_int(fields, "level", &(logconfig->_level))
+	if (ts_message_get_int(fields, "level", &(logconfig->_level ))
 			== TsStatusOk) {
 		ts_status_debug("_ts_handle_set: level = %d\n", logconfig->_level);
 	}
-	if (ts_message_get_int(fields, "max_entries", &(new_max_entries))
+	if (ts_message_get_int(fields, "maxSize", &(new_max_entries))
 			== TsStatusOk) {
 		ts_status_debug("_ts_handle_set: max_entries = %d\n", new_max_entries);
 		if (new_max_entries > 0) {
@@ -81,11 +81,11 @@ static TsStatus_t _ts_handle_set( TsLogConfigRef_t logconfig, TsMessageRef_t fie
 			return TsStatusErrorBadRequest;
 		}
 	}
-	if (ts_message_get_int(fields, "min_interval", &(logconfig->_min_interval))
+	if (ts_message_get_int(fields, "minInterval", &(logconfig->_min_interval))
 			== TsStatusOk) {
 		ts_status_debug("_ts_handle_set: min_interval = %d\n", logconfig->_min_interval);
 	}
-	if (ts_message_get_int(fields, "reporting_interval", &(logconfig->_reporting_interval))
+	if (ts_message_get_int(fields, "reportingInterval", &(logconfig->_reporting_interval))
 			== TsStatusOk) {
 		ts_status_debug("_ts_handle_set: reporting_interval = %d\n", logconfig->_reporting_interval);
 	}
@@ -145,7 +145,9 @@ TsStatus_t ts_logconfig_handle(TsLogConfigRef_t logconfig, TsMessageRef_t messag
 		if (status == TsStatusOk) {
 
 			TsMessageRef_t fields;
+			TsMessageRef_t logging;
 			status = ts_message_get_message(message, "fields", &fields);
+			status = ts_message_get_message(fields, "logging", &logging);
 			if (status == TsStatusOk) {
 
 				if (strcmp(action, "set") == 0) {
@@ -153,14 +155,14 @@ TsStatus_t ts_logconfig_handle(TsLogConfigRef_t logconfig, TsMessageRef_t messag
 					// set or update a rule or domain
 					ts_status_debug(
 							"ts_logconfig_handle: delegate to set handler\n");
-					status = _ts_handle_set(logconfig, fields);
+					status = _ts_handle_set(logconfig, logging);
 
 				} else if (strcmp(action, "get") == 0) {
 
 					// get a rule or list of rules
 					ts_status_debug(
 							"ts_logconfig_handle: delegate to get handler\n");
-					status = _ts_handle_get(logconfig, fields);
+					status = _ts_handle_get(logconfig, logging);
 
 				} else {
 
