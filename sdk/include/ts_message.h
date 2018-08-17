@@ -69,7 +69,11 @@
 #define TS_MESSAGE_UUID_SIZE        36
 
 // maximum size of a string attribute
+
 #define TS_MESSAGE_MAX_STRING_SIZE  4096
+
+//i.e., lenght of cert size is 3000 ( > 2048)
+#define TS_MESSAGE_MAX_CERT_SIZE  3000
 
 // maximum size of a key (i.e., field name) 
 #define TS_MESSAGE_MAX_KEY_SIZE     24
@@ -88,6 +92,7 @@ typedef enum {
 	TsTypeFloat,    // float* 
 	TsTypeBoolean,  // stdbool, bool* 
 	TsTypeString,   // zero terminated byte array (i.e., char *) 
+	TsTypeCert,	// zero terminated byte array max limit is 3K (i.e., char *) 
 	TsTypeMessage,  // TsMessage_t*[N], where N is the number of fields 
 	TsTypeArray,    // TsMessage_t*[N], where N is the number of elements 
 	TsTypeNull      // no value 
@@ -177,6 +182,7 @@ TsStatus_t ts_message_set_null(TsMessageRef_t message, TsPathNode_t field);
 TsStatus_t ts_message_set_int(TsMessageRef_t message, TsPathNode_t field, int value);
 TsStatus_t ts_message_set_float(TsMessageRef_t message, TsPathNode_t field, float value);
 TsStatus_t ts_message_set_string(TsMessageRef_t message, TsPathNode_t field, char *value);
+TsStatus_t ts_message_set_cert( TsMessageRef_t message, TsPathNode_t field, char * value );
 TsStatus_t ts_message_set_bool(TsMessageRef_t message, TsPathNode_t field, bool value);
 TsStatus_t ts_message_set_array(TsMessageRef_t message, TsPathNode_t field, TsMessageRef_t value);
 TsStatus_t ts_message_set_message(TsMessageRef_t message, TsPathNode_t field, TsMessageRef_t value);

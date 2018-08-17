@@ -314,6 +314,11 @@ TsStatus_t ts_message_set_string( TsMessageRef_t message, TsPathNode_t field, ch
 	return _ts_message_set( message, field, TsTypeString, value );
 }
 
+/* ts_message_set_cert */
+TsStatus_t ts_message_set_cert( TsMessageRef_t message, TsPathNode_t field, char * value ) {
+	return _ts_message_set( message, field, TsTypeCert, value );
+}
+
 /* ts_message_set_bool */
 TsStatus_t ts_message_set_bool( TsMessageRef_t message, TsPathNode_t field, bool value ) {
 	return _ts_message_set( message, field, TsTypeBoolean, &value );
@@ -847,6 +852,15 @@ static TsStatus_t _ts_message_set( TsMessageRef_t message, TsPathNode_t field, T
 			branch->value._xboolean = *((bool *) ( value ));
 			break;
 
+		case TsTypeCert:
+
+			snprintf( branch->value._xstring, TS_MESSAGE_MAX_CERT_SIZE, "%s", (char *) value );
+			if( strlen( branch->value._xstring ) < strlen((char *) value )) {
+				ts_status_debug( "issue detected during set (%s), string truncated; the given string is too large\n",
+					field );
+			}
+			break;
+
 		case TsTypeString:
 
 			_ts_set_string_value ( (TsString_t) value, branch );
@@ -1245,6 +1259,8 @@ static char * _ts_cbor_kind_mapping[] = {
 	"ts.event.cert",
 	"ts.event.suspend",
 	"ts.event.version",
+	"ts.event.cert.renew",
+	"ts.event.cert.revoke",
 };
 
 static size_t _ts_cbor_kind_mapping_size = sizeof(_ts_cbor_kind_mapping) / sizeof(char *);

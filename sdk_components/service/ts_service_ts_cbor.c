@@ -4,6 +4,7 @@
 #include "ts_firewall.h"
 #include "ts_log.h"
 #include "ts_version.h"
+#include "ts_cert.h"
 #include "ts_util.h"
 #include "ts_suspend.h"
 #include <stdio.h>
@@ -51,6 +52,12 @@ static TsStatus_t ts_create( TsServiceRef_t * service ) {
 	TsStatus_t status = ts_logconfig_create(&((*service)->_logconfig) , _send_message_callback);
 	if ( status != TsStatusOk ) {
 		ts_status_alarm( "ts_service_create: failed to create log config, '%s'\n", ts_status_string(status));
+	}
+
+	// create scepconfig
+	status = ts_scepconfig_create(&((*service)->_scepconfig) , _send_message_callback);
+	if ( status != TsStatusOk ) {
+		ts_status_alarm( "ts_service_create: failed to create scep config, '%s'\n", ts_status_string(status));
 	}
 
 	// create firewall if supported
@@ -153,6 +160,7 @@ static TsStatus_t ts_enqueue_typed( TsServiceRef_t service, char* type, TsMessag
 
 	if (strcmp(type, "ts.event.firewall.alert") == 0
 			|| strcmp(type, "ts.event.log") == 0
+			|| strcmp(type, "ts.event.cert") == 0
 			|| strcmp(type, "ts.event.version") == 0) {
 		// The message is ready-made in this case. The alert callback caller owns it.
 		// TODO: Should some of the logic to generate UUID, kind, etc. be up here? Stats case could use the UUID generator
@@ -424,6 +432,45 @@ static TsStatus_t handler( TsTransportRef_t transport, void * state, TsPath_t pa
 					ts_status_alarm( "ts_service_handler: logconfig request on unavailable service,...\n" );
 					status = TsStatusErrorNotImplemented;
 				}
+
+			} else if( strcmp( kind, "ts.event.credential" ) == 0 ) {
+					ts_status_debug( "ts_service_handler: scepconfig request...\n" );
+
+				// scepconfig, note that the message will be modified 'in-place'
+				// and must be returned with the correct status
+				if( service->_scepconfig != NULL ) {
+
+					status = ts_scepconfig_handle( service->_scepconfig, message );
+
+				} else {
+
+					ts_status_alarm( "ts_service_handler: scepconfig request on unavailable service,...\n" );
+					status = TsStatusErrorNotImplemented;
+				}
+			} else if( strcmp( kind, "ts.event.cert" ) == 0 ) {
+				ts_status_debug("ts_event.cert: ts-cbor\n");
+
+				// cert acknowledgement
+				// and must be returned with the correct status
+
+				status = ts_handle_certack( message );
+				return status;
+
+			} else if( strcmp( kind, "ts.event.cert.renew" ) == 0 ) {
+				ts_status_debug("ts_event.cert.renew: ts-cbor\n");
+
+				// cert renew request, note that the message will be modified 'in-place'
+				// and must be returned with the correct status
+
+				status = ts_certrenew_handle( message );
+
+			} else if( strcmp( kind, "ts.event.cert.rewoke" ) == 0 ) {
+				ts_status_debug("ts_event.cert.rewoke: ts-cbor\n");
+
+				// cert rewoke request, note that the message will be modified 'in-place'
+				// and must be returned with the correct status
+
+				status = ts_certrewoke_handle( message );
 
 			} else if( strcmp( kind, "ts.event.version" ) == 0 ) {
 
