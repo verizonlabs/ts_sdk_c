@@ -31,8 +31,8 @@ int main( int argc, char *argv[] ) {
 	ts_status_debug( "simple: initializing,...\n");
 
 	// initialize hostname
-	char * hostname_and_port = "simpm.thingspace.verizon.com:8883";
-	char * host = "simpm.thingspace.verizon.com";
+	char * hostname_and_port = "63.98.10.34:8883";
+	char * host = "63.98.10.34";
 	char * port = "8883";
 #if defined(TS_PLATFORM_UNIX)
 	if( usage( argc, argv, &hostname_and_port, &host, &port ) != TsStatusOk ) {
