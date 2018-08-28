@@ -1,5 +1,6 @@
 // Copyright (c) 2018 Verizon Inc. All rights reserved
 #include "ts_status.h"
+#include "unistd.h"
 #include "string.h"
 #include "ts_file.h"
 
@@ -126,6 +127,7 @@ int main(void)
 
          iret = ts_file_readline(&handle,text_line, sizeof(text_line));
          printf("Line read status %d len %d>>>%s<\n",iret, strlen(text_line),text_line);
+       sleep(1);
 
        }	
 
@@ -134,10 +136,16 @@ int main(void)
         // Close the file
 
 	iret = ts_file_close(&handle);
-	printf("READ Close  error %d..\n\r", iret);
-	// Delete the test file
 
-	// Delete the test file again - ERROR
+
+        // Writeline test
+	iret =  ts_file_create("newline.txt");
+	printf("Create file  returns  error %d..\n\r", iret);
+	iret =  ts_file_open(&handle, "newline.txt", TS_FILE_OPEN_FOR_WRITE);
+         iret = ts_file_writeline(&handle,"Line 1\n");
+         iret = ts_file_writeline(&handle,"Line 222222\n");
+         iret = ts_file_writeline(&handle,"Line 3\n");
+	iret = ts_file_close(&handle);
 
 
 
