@@ -1,5 +1,6 @@
 // Copyright (c) 2018 Verizon Inc. All rights reserved
 #include "ts_status.h"
+#include "string.h"
 #include "ts_file.h"
 
 int main(void)
@@ -87,6 +88,10 @@ int main(void)
 	iret =  ts_file_open(&handle, TFILE_NAME, TS_FILE_OPEN_FOR_READ);
 	printf("Open file  for READ error %d..\n\r", iret);
 
+	// Size the file                  
+	actualRead=0;
+	iret = ts_file_size(&handle, &actualRead);
+	printf("SIZE 1 file  returns  error %d  LENGTH size %d..\n\r", iret, actualRead);
 	// Read a couple of line from it
 	actualRead=0;
 	iret = ts_file_read(&handle,readbuf, 100, &actualRead);
@@ -108,7 +113,25 @@ int main(void)
 
 	printf("READ data after seek >>%s<<\n\r", readbuf);
 
-	// Close the file
+
+       // Read an existing file by line
+	iret = ts_file_close(&handle);
+
+      ts_file_directory_default_set("..");  // up from subdir
+	iret =  ts_file_open(&handle, "line.txt", TS_FILE_OPEN_FOR_READ);
+
+       iret = TsStatusOk;
+       char text_line[3];
+       while(iret==TsStatusOk) {
+
+         iret = ts_file_readline(&handle,text_line, sizeof(text_line));
+         printf("Line read status %d len %d>>>%s<\n",iret, strlen(text_line),text_line);
+
+       }	
+
+
+
+        // Close the file
 
 	iret = ts_file_close(&handle);
 	printf("READ Close  error %d..\n\r", iret);
