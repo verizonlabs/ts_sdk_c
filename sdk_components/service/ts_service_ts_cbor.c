@@ -54,11 +54,13 @@ static TsStatus_t ts_create( TsServiceRef_t * service ) {
 		ts_status_alarm( "ts_service_create: failed to create log config, '%s'\n", ts_status_string(status));
 	}
 
+#ifdef TS_SCEP_CUSTOM
 	// create scepconfig
 	status = ts_scepconfig_create(&((*service)->_scepconfig) , _send_message_callback);
 	if ( status != TsStatusOk ) {
 		ts_status_alarm( "ts_service_create: failed to create scep config, '%s'\n", ts_status_string(status));
 	}
+#endif
 
 	// create firewall if supported
 	if( ts_firewall != NULL ) {
@@ -420,7 +422,7 @@ static TsStatus_t handler( TsTransportRef_t transport, void * state, TsPath_t pa
 					ts_status_alarm( "ts_service_handler: logconfig request on unavailable service,...\n" );
 					status = TsStatusErrorNotImplemented;
 				}
-
+#ifdef TS_SCEP_CUSTOM
 			} else if( strcmp( kind, "ts.event.credential" ) == 0 ) {
 					ts_status_debug( "ts_service_handler: scepconfig request...\n" );
 
@@ -459,6 +461,7 @@ static TsStatus_t handler( TsTransportRef_t transport, void * state, TsPath_t pa
 				// and must be returned with the correct status
 
 				status = ts_certrewoke_handle( message );
+#endif
 
 			} else if( strcmp( kind, "ts.event.version" ) == 0 ) {
 
