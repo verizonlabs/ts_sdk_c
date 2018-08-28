@@ -129,7 +129,7 @@ typedef struct TsFileVtable {
  	/**
  	 * Read a file from the file system up to and INCLUDING the end of the line
  	 */
-      TsStatus_t		(*readline)(ts_file_handle* handle_ptr, void* buffer uint32_t* act_size);
+      TsStatus_t		(*readline)(ts_file_handle* handle_ptr, void* buffer, uint32_t size);
 
  	/**
  	 * Returns the size of a file
@@ -139,7 +139,7 @@ typedef struct TsFileVtable {
  	/**
  	 * Write to a line file in the file system. Use supplies the '\n' in the string
  	 */
-      TsStatus_t		(*writeline)(ts_file_handle *handle_ptr, void* buffer);
+      TsStatus_t		(*writeline)(ts_file_handle *handle_ptr, char* buffer);
 	/**
 	 * Handle any assertion, i.e., this function doesnt perform the check, it simply performs the effect, e.g.,
 	 * display the given message and halt, etc.
