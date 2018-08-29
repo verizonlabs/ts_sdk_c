@@ -25,14 +25,24 @@ static TsMessageRef_t sensors;
 static TsStatus_t handler( TsServiceRef_t, TsServiceAction_t, TsMessageRef_t );
 static TsStatus_t usage(int argc, char *argv[], char ** hostname_and_port, char ** host, char ** port );
 
+// Buffers for crypto object allocated dynamically from corresponding files
+static uint8_t* cacert_buf;
+static uint8_t* client_cert;
+static uint8_t client_key;
 
-static uint8_t* caCertBuffPtr;
-static uint8_t* cleintCertBuffOPtr;
-static uint8_t clientKeyBuffPtr;
+static uint32_t size_cacert_buf;
+static uint32_t size_client_cert;
+static uint32_t size_client_key;
 
-static loadFileIntoRam(char* file_name, uint8_t buffer);
+#define MFG_CERT_PATH "/usr/share/thingspace/conf"
+#define CA_CERT_FILE "cacert.der"
+#define CLIENT_CERT_FILE "clcert.der"
+#define CLIENT_PRIVATE_KEY "clkey.der"
+
+static loadFileIntoRam(char* file_name, uint8_t** buffer, uint32_t* loaded_size);
 
 int main( int argc, char *argv[] ) {
+	TsStatus_t status;
 
 	// initialize platform (see ts_platform.h)
 	ts_platform_initialize();
@@ -69,10 +79,27 @@ int main( int argc, char *argv[] ) {
 
 	ts_status_debug( "simple: initializing certificates,...\n");
 
-	// Read certs and keys into memory
+	// Read certs and keys into memory - Fatal is can't read them
+	status = loadFileIntoRam(MFG_CERT_PATH, CA_CERT_FILE, &cacert_buf, &size_cacert_buf);
+	if( status != TsStatusOk ) {
+		ts_status_debug("simple: failed to read CA Cert file %s\n", ts_status_string(status));
+		ts_platform_assert(0);
+	}
+	status = sStatus_t loadFileIntoRam(MFG_CERT_PATH, CLIENT_CERT_FILE, &client_cert, &size_client_cert);
+	if( status != TsStatusOk ) {
+		ts_status_debug("simple: failed to read Client Cert File, %s\n", s_status_string(status) );
+		ts_platform_assert(0);
+	}
+	status =loadFileIntoRam(MFG_CERT_PATH , CLIENT_PRIVATE_KEY, &client_key, &size_client_key);
+	if( status != TsStatusOk ) {
+		ts_status_debug("simple: failed to Client Private Key %s\n", ts_status_string(status));
+		ts_platform_assert(0);
+	}
+
+
 
 	ts_service_set_server_cert_hostname( service, (const char *)host );
-	ts_service_set_server_cert( service, cacert_buf, sizeof( cacert_buf ) );
+	ts_service_set_server_cert( service, cacert_buf, sizeof( cacert_buf xxx) );
 	ts_service_set_client_cert( service, client_cert, sizeof( client_cert ) );
 	ts_service_set_client_key( service, client_key, sizeof( client_key ) );
 
@@ -237,12 +264,8 @@ int main() {
 
 // Loads a crypto object into memory from a files. Sizes the file and malloc needed memory
 // Certificate storage and keys - base credentials
-#define MFG_CERT_PATH /usr/share/thingspace/conf
-#error "fix rthese and set up the file"
-#define CA_CERT_FILE "file1"
-#define CLIENT_CERT_FILE "file2"
-#define CLIENT_PRIVATE_KEY "file3"
-static TsStatus_t loadFileIntoRam(char* directory, char* file_name, uint8_t** buffer)
+
+static TsStatus_t loadFileIntoRam(char* directory, char* file_name, uint8_t** buffer, uint32_t* loaded_size)
 {
   	TsStatus_t iret = TsStatusOk;
 	ts_file_handle handle;
@@ -255,7 +278,7 @@ static TsStatus_t loadFileIntoRam(char* directory, char* file_name, uint8_t** bu
 	if (TsStatusOK != iret)
 		goto error;
 
-	iret =  ts_file_open(&handle, file_name, TS_FILE_OPEN_FOR_WRITE);
+	iret =  ts_file_open(&handle, file_name, TS_FILE_OPEN_FOR_READ);
 	if (TsStatusOK != iret)
 		goto error;
 
@@ -263,17 +286,19 @@ static TsStatus_t loadFileIntoRam(char* directory, char* file_name, uint8_t** bu
 	if (TsStatusOK != iret)
 		goto error;
 
-	addr = ts_platform_malloc( actualRead);
+	addr = ts_platform_malloc( size);
 	if (addr==0)
 		goto error;
 
     *buffer = addr;
 	iret = ts_file_read(&handle,addr, size, &actualRead);
-	if (TsStatusOK != iret) {
+	// Make sure we got the whole thing
+	if (TsStatusOK != iret || size!=actualRead) {
 		ts_platform_free(addr);
 		goto error;
 	}
-
+	// The actual size of the object.  Users generall need to know how big it is
+    *loaded_size = size;
 	ts_file_close(&handle);
 
 
