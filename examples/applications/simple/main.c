@@ -18,6 +18,7 @@ static TsMessageRef_t sensors;
 //static TsStatus_t initialize( TsServiceRef_t* );
 static TsStatus_t handler( TsServiceRef_t, TsServiceAction_t, TsMessageRef_t );
 static TsStatus_t usage(int argc, char *argv[], char ** hostname_and_port, char ** host, char ** port );
+bool cert = false;
 
 int main( int argc, char *argv[] ) {
 
@@ -89,6 +90,20 @@ int main( int argc, char *argv[] ) {
 				ts_status_debug( "simple: ignoring failure to enqueue sensor data, %s\n", ts_status_string(status) );
 				// do nothing
 			}
+			if (cert == true){
+				cert = 0;
+
+				// Send an cert event message representing operation cert information
+				if (status == TsStatusOk) {
+					TsMessageRef_t certMessage;
+					if (ts_cert_make_update( &certMessage ) == TsStatusOk) {
+						ts_message_dump(certMessage);
+						ts_service_enqueue_typed(service, "ts.event.cert", certMessage);
+						ts_message_destroy(certMessage);
+					}
+				}
+			}
+
 		}
 
 		// provide client w/some processing power
