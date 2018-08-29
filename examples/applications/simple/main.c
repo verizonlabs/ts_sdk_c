@@ -83,6 +83,7 @@ int main( int argc, char *argv[] ) {
 	if( status != TsStatusOk ) {
 		ts_status_debug("simple: failed to read CA Cert file %s\n", ts_status_string(status));
 		ts_platform_assert(0);
+	}
 	status = loadFileIntoRam(MFG_CERT_PATH, CLIENT_CERT_FILE, &client_cert, &size_client_cert);
 	if( status != TsStatusOk ) {
 		ts_status_debug("simple: failed to read Client Cert File, %s\n", ts_status_string(status) );
