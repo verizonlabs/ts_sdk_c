@@ -14,7 +14,6 @@
 
 
 
-#define TS_TRANSPORT_MQTT
 #if defined(TS_TRANSPORT_MQTT)
 
 // application sensor cache
@@ -28,7 +27,7 @@ static TsStatus_t usage(int argc, char *argv[], char ** hostname_and_port, char 
 // Buffers for crypto object allocated dynamically from corresponding files
 static uint8_t* cacert_buf;
 static uint8_t* client_cert;
-static uint8_t client_key;
+static uint8_t* client_key;
 
 static uint32_t size_cacert_buf;
 static uint32_t size_client_cert;
@@ -39,7 +38,7 @@ static uint32_t size_client_key;
 #define CLIENT_CERT_FILE "clcert.der"
 #define CLIENT_PRIVATE_KEY "clkey.der"
 
-static loadFileIntoRam(char* file_name, uint8_t** buffer, uint32_t* loaded_size);
+static TsStatus_t loadFileIntoRam(char* directory, char* file_name, uint8_t** buffer, uint32_t* loaded_size);
 
 int main( int argc, char *argv[] ) {
 	TsStatus_t status;
@@ -84,13 +83,12 @@ int main( int argc, char *argv[] ) {
 	if( status != TsStatusOk ) {
 		ts_status_debug("simple: failed to read CA Cert file %s\n", ts_status_string(status));
 		ts_platform_assert(0);
-	}
-	status = sStatus_t loadFileIntoRam(MFG_CERT_PATH, CLIENT_CERT_FILE, &client_cert, &size_client_cert);
+	status = loadFileIntoRam(MFG_CERT_PATH, CLIENT_CERT_FILE, &client_cert, &size_client_cert);
 	if( status != TsStatusOk ) {
-		ts_status_debug("simple: failed to read Client Cert File, %s\n", s_status_string(status) );
+		ts_status_debug("simple: failed to read Client Cert File, %s\n", ts_status_string(status) );
 		ts_platform_assert(0);
 	}
-	status =loadFileIntoRam(MFG_CERT_PATH , CLIENT_PRIVATE_KEY, &client_key, &size_client_key);
+	status = loadFileIntoRam(MFG_CERT_PATH , CLIENT_PRIVATE_KEY, &client_key, &size_client_key);
 	if( status != TsStatusOk ) {
 		ts_status_debug("simple: failed to Client Private Key %s\n", ts_status_string(status));
 		ts_platform_assert(0);
@@ -99,13 +97,13 @@ int main( int argc, char *argv[] ) {
 
 
 	ts_service_set_server_cert_hostname( service, (const char *)host );
-	ts_service_set_server_cert( service, cacert_buf, sizeof( cacert_buf xxx) );
-	ts_service_set_client_cert( service, client_cert, sizeof( client_cert ) );
-	ts_service_set_client_key( service, client_key, sizeof( client_key ) );
+	ts_service_set_server_cert( service, cacert_buf, size_cacert_buf );
+	ts_service_set_client_cert( service, client_cert, size_client_cert );
+	ts_service_set_client_key( service, client_key, size_client_key );
 
 	// connect to thingspace server
 	ts_status_debug( "simple: initializing connection,...\n");
-	TsStatus_t status = ts_service_dial( service, hostname_and_port );
+	status = ts_service_dial( service, hostname_and_port );
 	if( status != TsStatusOk ) {
 		ts_status_debug("simple: failed to dial, %s\n", ts_status_string(status));
 		ts_platform_assert(0);
@@ -275,15 +273,15 @@ static TsStatus_t loadFileIntoRam(char* directory, char* file_name, uint8_t** bu
 	// Set the default directory, then open and size the file. Malloc some ram and read it all it.
 
 	iret = ts_file_directory_default_set(directory);
-	if (TsStatusOK != iret)
+	if (TsStatusOk != iret)
 		goto error;
 
 	iret =  ts_file_open(&handle, file_name, TS_FILE_OPEN_FOR_READ);
-	if (TsStatusOK != iret)
+	if (TsStatusOk != iret)
 		goto error;
 
 	iret = ts_file_size(&handle, &size);
-	if (TsStatusOK != iret)
+	if (TsStatusOk != iret)
 		goto error;
 
 	addr = ts_platform_malloc( size);
@@ -291,10 +289,10 @@ static TsStatus_t loadFileIntoRam(char* directory, char* file_name, uint8_t** bu
 		goto error;
 
     *buffer = addr;
-	iret = ts_file_read(&handle,addr, size, &actualRead);
+	iret = ts_file_read(&handle,addr, size, &actual_size);
 	// Make sure we got the whole thing
-	if (TsStatusOK != iret || size!=actualRead) {
-		ts_platform_free(addr);
+	if (TsStatusOk != iret || size!=actual_size) {
+		ts_platform_free(addr, size);
 		goto error;
 	}
 	// The actual size of the object.  Users generall need to know how big it is
@@ -310,6 +308,7 @@ static TsStatus_t loadFileIntoRam(char* directory, char* file_name, uint8_t** bu
 int freeCryptoMemory ()
 {
 #warning "file this in!!!!"
+	return 0;
 }
 
 
