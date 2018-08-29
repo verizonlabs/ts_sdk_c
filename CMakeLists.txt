@@ -37,6 +37,7 @@ add_definitions( -DTS_SECURITY_MBED )       # MBED, MOCANA, NONE or CUSTOM
 add_definitions( -DTS_CONTROLLER_NONE )     # MONARCH, NONE or CUSTOM
 add_definitions( -DTS_FIREWALL_NONE )       # NONE or CUSTOM (rarely used)
 add_definitions( -DTS_MUTEX_NONE )          # NONE or CUSTOM (rarely used)
+add_definitions( -DTS_SCEP_NONE )         # NONE or CUSTOM (rarely used)
 
 # build vendor libraries
 add_definitions( -D__GLIBC__ )              # TODO, remove tinyCBOR HACK
