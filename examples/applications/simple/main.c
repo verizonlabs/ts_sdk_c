@@ -85,12 +85,12 @@ int main( int argc, char *argv[] ) {
 		ts_status_debug("simple: failed to read CA Cert file %s\n", ts_status_string(status));
 		ts_platform_assert(0);
 	}
-	status = sStatus_t loadFileIntoRam(MFG_CERT_PATH, CLIENT_CERT_FILE, &client_cert, &size_client_cert);
+	status = loadFileIntoRam(MFG_CERT_PATH, CLIENT_CERT_FILE, &client_cert, &size_client_cert);
 	if( status != TsStatusOk ) {
 		ts_status_debug("simple: failed to read Client Cert File, %s\n", s_status_string(status) );
 		ts_platform_assert(0);
 	}
-	status =loadFileIntoRam(MFG_CERT_PATH , CLIENT_PRIVATE_KEY, &client_key, &size_client_key);
+	status = loadFileIntoRam(MFG_CERT_PATH , CLIENT_PRIVATE_KEY, &client_key, &size_client_key);
 	if( status != TsStatusOk ) {
 		ts_status_debug("simple: failed to Client Private Key %s\n", ts_status_string(status));
 		ts_platform_assert(0);
