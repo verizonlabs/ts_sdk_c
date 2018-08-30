@@ -2,11 +2,16 @@
 # Copyright(C) 2018, 2018 Verizon. All rights reserved.
 
 # Script generates DER files from the provided pem format of server certificate,
-# device certificate and device private key and installs them at the relative provided path
+# device certificate and device private key and installs at the directory for read only certificates/keys for TS
 # All the parameters are mandatory and script must be run from the root of the repository
 
-# Must have GNU sed installed
+if [[ $EUID -ne 0 ]]; then
 
+   echo "This script must be run as sudo as it creates a directory in /usr" 
+
+   exit 1
+
+fi
 if [ $# -lt 3 ]; then
   echo "This script takes 3 (T h r e e)  params"
   echo "This script takes 3 (T h r e e)  params"
@@ -44,7 +49,10 @@ else
         cert_dir="."
 	cert_prefix="XXX"
 fi
-
+# Create the directory if needed
+if [ ! -d "${cert_dir}" ]; then
+mkdir  ${cert_dir}
+fi
 #parse ca cert pem formated file
 openssl x509 -C -in $1 > ${cert_dir}cacert.der
 echo "openssl x509 -C -in $1 > ${cert_dir}cacert.der"
