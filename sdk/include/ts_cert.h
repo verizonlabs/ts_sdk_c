@@ -147,8 +147,8 @@ TsStatus_t ts_scepconfig_destroy(TsScepConfigRef_t);
  * The return status (TsStatus_t) of the function, see ts_status.h for more information.
  * - TsStatusOk
  * - TsStatusError[Code]
- */*
-TsStatus_t ts_scepconfig_saveTsScepConfigRef_t* pConfig, char* path, char* filename);
+ */
+TsStatus_t ts_scepconfig_save(TsScepConfigRef_t* pConfig, char* path, char* filename);
 
  /**
   * Restore a scep configuration object from a file
@@ -161,7 +161,7 @@ TsStatus_t ts_scepconfig_saveTsScepConfigRef_t* pConfig, char* path, char* filen
   * The return status (TsStatus_t) of the function, see ts_status.h for more information.
   * - TsStatusOk
   * - TsStatusError[Code]
-  */*
+  */
  TsStatus_t ts_scepconfig_restore(TsScepConfigRef_t* pConfig, char* path, char* filename);
 
 
