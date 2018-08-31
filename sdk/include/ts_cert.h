@@ -148,7 +148,7 @@ TsStatus_t ts_scepconfig_destroy(TsScepConfigRef_t);
  * - TsStatusOk
  * - TsStatusError[Code]
  */
-TsStatus_t ts_scepconfig_save(TsScepConfigRef_t* pConfig, char* path, char* filename);
+TsStatus_t ts_scepconfig_save(TsScepConfigRef_t pConfig, char* path, char* filename);
 
  /**
   * Restore a scep configuration object from a file
@@ -162,7 +162,7 @@ TsStatus_t ts_scepconfig_save(TsScepConfigRef_t* pConfig, char* path, char* file
   * - TsStatusOk
   * - TsStatusError[Code]
   */
- TsStatus_t ts_scepconfig_restore(TsScepConfigRef_t* pConfig, char* path, char* filename);
+ TsStatus_t ts_scepconfig_restore(TsScepConfigRef_t pConfig, char* path, char* filename);
 
 
 #endif /* TS_CERT_H_ */
