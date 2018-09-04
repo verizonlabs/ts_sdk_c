@@ -2,7 +2,7 @@
  * ts_scep.h
  *
  *  Created on: Aug 28, 2018
- *      Author: Admin
+ *      Author: LArry Ciummo
  */
 
 #ifndef ts_scep_H
@@ -74,57 +74,8 @@ typedef struct TsScepVtable {
 	 * Create a directory on the file system
 	 */
 	TsStatus_t 		(*directory_create) (char* directory_name);
+// Example
 
-	/**
-	 * Get the current default directory in the file system.
-	 */
-	TsStatus_t 		(*directory_default_get)(char** returned_path);
-
-	/**
-	 * Set the current default directory in the file system
-	 */
-	TsStatus_t	(*directory_default_set)(char* new_directory);
-
-	/**
-	 * Delete a directory in the file system
-	 */
-	TsStatus_t		(*directory_delete)(char* directory);
-
-	/**
-	 * Close a file.
-	 */
-	TsStatus_t		(*close)(ts_scep_handle*);
-
-	/**
-	 * Create a file on the file system
-	 */
-     TsStatus_t		(*create)(char* file_name);
-
-	/**
-	 * Delete a file from the file system
-	 */
-     TsStatus_t		(*delete)(char* file_name);
-
- 	/**
-
-	 * Open a file on the file system
-	 */
-     TsStatus_t		(*open)(ts_scep_handle *msg, const char *file, int type);
-
-	/**
-	 * Read a file from the file system
-	 */
-     TsStatus_t		(*read)(ts_scep_handle* handle_ptr, void* buffer, uint32_t size,  uint32_t* act_size);
-
-	/**
-	 * Seek to a position in a file
-	 */
-     TsStatus_t		(*seek)(ts_scep_handle* handle_ptr,  uint32_t offset);
-
-	/**
-	 * Write to a file in the file system.
-	 */
-     TsStatus_t		(*write)(ts_scep_handle *handle_ptr, void* buffer, uint32_t size);
 
 	/**
 	 * Handle any assertion, i.e., this function doesnt perform the check, it simply performs the effect, e.g.,
@@ -141,18 +92,7 @@ extern const TsScepVtable_t *ts_scep;
 #define noerror 			xxx->directory_delete
 
 #define ts_scep_directory_delete 			ts_scep->directory_delete
-#define ts_scep_directory_create	        ts_scep->directory_create
-#define ts_scep_directory_default_set 		ts_scep->directory_default_set
-#define ts_scep_directory_default_get 		ts_scep->directory_default_get
-#define ts_scep_initialize  				ts_scep->initialize
-#define ts_scep_close 						ts_scep->close
-#define ts_scep_delete 						ts_scep->delete
-#define ts_scep_open  						ts_scep->open
-#define ts_scep_read 						ts_scep->read
-#define ts_scep_seek  						ts_scep->seek
-#define ts_scep_write 						ts_scep->write
-#define ts_scep_create 						ts_scep->create
-
+// Exasmple
 
 
 #ifdef NDEBUG
