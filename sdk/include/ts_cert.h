@@ -27,6 +27,10 @@ typedef struct TsScepConfig * TsScepConfigRef_t;
 /**
  * The scep config object.
  */
+/*
+ * REMEMBER - If you edit the structure (add/remove fields) change this string below
+ */
+#define SCEP_CONFIG_REV "083018-1"
 
 typedef struct TsScepConfig {
 	bool _enabled;			// Specifies if certificate auto-renewal is enable/disable on the device
@@ -136,5 +140,33 @@ TsStatus_t ts_scepconfig_create(TsScepConfigRef_t *, TsStatus_t (*messageCallbac
  * - TsStatusError[Code]
  */
 TsStatus_t ts_scepconfig_destroy(TsScepConfigRef_t);
+
+/**
+ * Save a scep configuration object to a file
+ * @param scepconfig
+ * [in] TsScepConfigRef_t representing the scep config to be saved.
+ * [in] The d to save the file
+ * [in] The file name to save the file
+ * @return
+ * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+ * - TsStatusOk
+ * - TsStatusError[Code]
+ */
+TsStatus_t ts_scepconfig_save(TsScepConfig_t *pConfig, char* path, char* filename);
+
+ /**
+  * Restore a scep configuration object from a file
+  * @param scepconfig
+  * [in] The d to save the file
+  * [in] The file name to save the file
+  * [out] TsScepConfigRef_t representing the scep config to be loaded into memory.
+  *
+  * @return
+  * The return status (TsStatus_t) of the function, see ts_status.h for more information.
+  * - TsStatusOk
+  * - TsStatusError[Code]
+  */
+ TsStatus_t ts_scepconfig_restore(TsScepConfig_t* pConfig, char* path, char* filename);
+
 
 #endif /* TS_CERT_H_ */
