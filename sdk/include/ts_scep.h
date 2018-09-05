@@ -31,29 +31,18 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include "ts_status.h"
+#include "ts_cert.h"
 
-// #defines here
-#define MAX_FILE_HANDLE 100
 
-// File modes
-#define TS_SCEP_OPEN_FOR_READ                       0
-#define TS_SCEP_OPEN_FOR_WRITE                      1
-/**
  * The file object reference
  */
 typedef struct TsScep *TsScepRef_t;
-/**
- * File Handle
- */
-typedef struct
-{
-	uint32_t data[MAX_FILE_HANDLE];  // how know this is big enough
-} ts_scep_handle;
+e;
 
 /**
  * The file object
  */
-typedef struct TsScpe {
+typedef struct TsScep {
 
 
 } TsScep_t;
@@ -73,8 +62,8 @@ typedef struct TsScepVtable {
 	/**
 	 * Create a directory on the file system
 	 */
-	TsStatus_t 		(*directory_create) (char* directory_name);
-// Example
+	TsStatus_t 		(*enroll) (TsScepConfigRef_t config);
+
 
 
 	/**
@@ -91,9 +80,7 @@ extern const TsScepVtable_t *ts_scep;
 
 #define noerror 			xxx->directory_delete
 
-#define ts_scep_directory_delete 			ts_scep->directory_delete
-// Exasmple
-
+#define ts_scep_enroll			ts_scep->enroll
 
 #ifdef NDEBUG
 #define ts_scep_assert(EX) (void)0
