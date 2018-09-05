@@ -167,6 +167,8 @@ static TsStatus_t ts_destroy( TsTransportRef_t transport ) {
 	return TsStatusOk;
 }
 
+#define LEEWAY_FACTOR 20
+
 static TsStatus_t ts_tick( TsTransportRef_t transport, uint32_t budget ) {
 
 	ts_status_debug( "ts_transport_tick\n" );
@@ -180,8 +182,11 @@ static TsStatus_t ts_tick( TsTransportRef_t transport, uint32_t budget ) {
 	ts_connection_tick( mqtt->_transport._connection, budget );
 
 	// provide mqtt tick
+	// MQTTYield is very strict about failing out if we exceed its budget--we are really not
+	// that keen on failing just because our code was slow processing the incoming message;
+	// it's no disaster if we run out of tick time, so put in a factor on the budget
 	if(( mqtt->_client.isconnected ) && ( ts_platform_time() - timestamp < budget )) {
-		int code = MQTTYield( &( mqtt->_client ), budget/TS_TIME_MSEC_TO_USEC );
+		int code = MQTTYield( &( mqtt->_client ), LEEWAY_FACTOR * budget/TS_TIME_MSEC_TO_USEC );
 		if( code != 0 ) {
 			ts_status_alarm( "ts_transport_tick: mqtt yield failed, %d, ignoring,...\n", code );
 		}
