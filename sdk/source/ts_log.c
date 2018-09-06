@@ -29,6 +29,7 @@ TsStatus_t ts_logconfig_create(TsLogConfigRef_t *logconfig, TsStatus_t (*message
 	(*logconfig)->_level = 0;
 	(*logconfig)->_min_interval = 1000;
 	(*logconfig)->_reporting_interval = 15;
+	(*logconfig)->_last_log_time = 0;
 	(*logconfig)->_last_report_time = 0;
 	(*logconfig)->_messageCallback = messageCallback;
 
@@ -102,17 +103,17 @@ static TsStatus_t _ts_handle_get( TsLogConfigRef_t logconfig, TsMessageRef_t fie
 		ts_status_debug("_ts_handle_get: get level\n");
 		ts_message_set_int(fields, "level", logconfig->_level);
 	}
-	if (ts_message_has(fields, "max_entries", &contents) == TsStatusOk) {
+	if (ts_message_has(fields, "maxSize", &contents) == TsStatusOk) {
 		ts_status_debug("_ts_handle_get: get max_entries\n");
-		ts_message_set_int(fields, "max_entries", logconfig->_max_entries);
+		ts_message_set_int(fields, "maxSize", logconfig->_max_entries);
 	}
-	if (ts_message_has(fields, "min_interval", &contents) == TsStatusOk) {
+	if (ts_message_has(fields, "minInterval", &contents) == TsStatusOk) {
 		ts_status_debug("_ts_handle_get: get min_interval\n");
-		ts_message_set_int(fields, "min_interval", logconfig->_min_interval);
+		ts_message_set_int(fields, "minInterval", logconfig->_min_interval);
 	}
-	if (ts_message_has(fields, "reporting_interval", &contents) == TsStatusOk) {
+	if (ts_message_has(fields, "reportingInterval", &contents) == TsStatusOk) {
 		ts_status_debug("_ts_handle_get: get reporting_interval\n");
-		ts_message_set_int(fields, "reporting_interval", logconfig->_reporting_interval);
+		ts_message_set_int(fields, "reportingInterval", logconfig->_reporting_interval);
 	}
 	return TsStatusOk;
 }
@@ -268,15 +269,14 @@ TsStatus_t ts_log(TsLogConfigRef_t log, TsLogLevel_t level, TsLogCategory_t cate
 	uint64_t time = ts_platform_time();
 
 	// Check to see if we're spamming identical messages too frequently
-	if (log->_newest >= log->_start) {
-		uint64_t previous = log->_newest->time;
-		if ((time - previous > 0) && (time - previous < log->_min_interval)) {
-			if (log->_newest->level == level && log->_newest->category == category) {
-				if (strncmp(log->_newest->body, text, LOG_MESSAGE_MAX_LENGTH) == 0) {
-					//ts_status_debug("ts_log: Log messages identical within interval %d\n", log->_min_interval);
-					log->_log_in_progress = false;
-					return TsStatusOk;
-				}
+
+	uint64_t previous = log->_last_log_time;
+	if ((previous > 0) && (time - previous > 0) && (time - previous < log->_min_interval)) {
+		if (log->_newest->level == level && log->_newest->category == category) {
+			if (strncmp(log->_newest->body, text, LOG_MESSAGE_MAX_LENGTH) == 0) {
+				//ts_status_debug("ts_log: Log messages identical within interval %d\n", log->_min_interval);
+				log->_log_in_progress = false;
+				return TsStatusOk;
 			}
 		}
 	}
@@ -293,6 +293,7 @@ TsStatus_t ts_log(TsLogConfigRef_t log, TsLogLevel_t level, TsLogCategory_t cate
 
 	// We're good; record away
 
+	log->_last_log_time = time;
 	snprintf(new_body, length, "%s", text);
 
 	TsLogEntryRef_t new = log->_newest + 1;
