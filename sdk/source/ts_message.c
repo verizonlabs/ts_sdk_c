@@ -225,7 +225,7 @@ TsStatus_t ts_message_create_array( TsMessageRef_t message, TsPathNode_t field, 
 /* ts_message_destroy */
 TsStatus_t ts_message_destroy( TsMessageRef_t message ) {
 	/* check preconditions */
-	if( message == NULL || message->references <= 0 ) {
+	if( NULL == message || message->references <= 0 ) {
 		return TsStatusErrorPreconditionFailed;
 	}
 

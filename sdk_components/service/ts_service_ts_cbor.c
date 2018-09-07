@@ -466,8 +466,9 @@ static TsStatus_t handler( TsTransportRef_t transport, void * state, TsPath_t pa
 				// and must be returned with the correct status
 
 				status = ts_certrewoke_handle( message );
+			}
 #endif
-			} else if( strcmp( kind, "ts.event.version" ) == 0 ) {
+		       	else if( strcmp( kind, "ts.event.version" ) == 0 ) {
 
 				// version request, note that the message will be modified 'in-place'
 				// and must be returned with the correct status
