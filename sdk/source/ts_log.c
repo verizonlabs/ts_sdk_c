@@ -274,12 +274,15 @@ TsStatus_t ts_log(TsLogConfigRef_t log, TsLogLevel_t level, TsLogCategory_t cate
 	// Check to see if we're spamming identical messages too frequently
 
 	uint64_t previous = log->_last_log_time;
-	if ((previous > 0) && (time - previous > 0) && (time - previous < log->_min_interval)) {
+	if ((log->_newest >= log->_start) && (time - previous > 0) && (time - previous < log->_min_interval)) {
 		if (log->_newest->level == level && log->_newest->category == category) {
 			if (strncmp(log->_newest->body, text, LOG_MESSAGE_MAX_LENGTH) == 0) {
-				//ts_status_debug("ts_log: Log messages identical within interval %d\n", log->_min_interval);
+				ts_status_debug("ts_log: Log messages identical within interval %d\n", log->_min_interval);
 				log->_log_in_progress = false;
 				return TsStatusOk;
+			}
+			else {
+				ts_status_debug("ts_log: logging message %s\n", body);
 			}
 		}
 	}
