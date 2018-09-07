@@ -222,7 +222,7 @@ TsStatus_t ts_logconfig_tick(TsLogConfigRef_t logconfig, uint32_t budget) {
 
 	uint64_t time = ts_platform_time();
 	if (!ts_logconfig_suspended(logconfig) && logconfig->_enabled
-			&& (time - logconfig->_last_report_time >= logconfig->_reporting_interval * 1000)) {
+			&& (time - logconfig->_last_report_time >= logconfig->_reporting_interval)) {
 		_ts_log_report(logconfig);
 		logconfig->_last_report_time = ts_platform_time();
 	}
