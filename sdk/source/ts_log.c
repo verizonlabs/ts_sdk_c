@@ -64,6 +64,7 @@ TsStatus_t ts_logconfig_destroy(TsLogConfigRef_t logconfig) {
 
 static TsStatus_t _ts_handle_set( TsLogConfigRef_t logconfig, TsMessageRef_t fields ) {
 	int new_max_entries;
+	int interval_in;
 	if (ts_message_get_bool(fields, "enable", &(logconfig->_enabled))
 			== TsStatusOk) {
 		ts_status_debug("_ts_handle_set: enable = %d\n", logconfig->_enabled);
@@ -82,12 +83,14 @@ static TsStatus_t _ts_handle_set( TsLogConfigRef_t logconfig, TsMessageRef_t fie
 			return TsStatusErrorBadRequest;
 		}
 	}
-	if (ts_message_get_int(fields, "minInterval", &(logconfig->_min_interval))
+	if (ts_message_get_int(fields, "minInterval", &interval_in)
 			== TsStatusOk) {
+		logconfig->min_interval = interval_in * TS_TIME_MSEC_TO_USEC;
 		ts_status_debug("_ts_handle_set: min_interval = %d\n", logconfig->_min_interval);
 	}
-	if (ts_message_get_int(fields, "reportingInterval", &(logconfig->_reporting_interval))
+	if (ts_message_get_int(fields, "reportingInterval", &interval_in)
 			== TsStatusOk) {
+		logconfig->_reporting_interval = interval_in * TS_TIME_SEC_TO_USEC;
 		ts_status_debug("_ts_handle_set: reporting_interval = %d\n", logconfig->_reporting_interval);
 	}
 	return TsStatusOk;
@@ -109,11 +112,11 @@ static TsStatus_t _ts_handle_get( TsLogConfigRef_t logconfig, TsMessageRef_t fie
 	}
 	if (ts_message_has(fields, "minInterval", &contents) == TsStatusOk) {
 		ts_status_debug("_ts_handle_get: get min_interval\n");
-		ts_message_set_int(fields, "minInterval", logconfig->_min_interval);
+		ts_message_set_int(fields, "minInterval", logconfig->_min_interval / TS_TIME_MSEC_TO_USEC);
 	}
 	if (ts_message_has(fields, "reportingInterval", &contents) == TsStatusOk) {
 		ts_status_debug("_ts_handle_get: get reporting_interval\n");
-		ts_message_set_int(fields, "reportingInterval", logconfig->_reporting_interval);
+		ts_message_set_int(fields, "reportingInterval", logconfig->_reporting_interval / TS_TIME_SEC_TO_USEC);
 	}
 	return TsStatusOk;
 }
