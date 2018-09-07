@@ -282,7 +282,7 @@ TsStatus_t ts_log(TsLogConfigRef_t log, TsLogLevel_t level, TsLogCategory_t cate
 				return TsStatusOk;
 			}
 			else {
-				ts_status_debug("ts_log: logging message %s\n", body);
+				ts_status_debug("ts_log: logging message %s\n", text);
 			}
 		}
 	}
