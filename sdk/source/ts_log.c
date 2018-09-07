@@ -85,7 +85,7 @@ static TsStatus_t _ts_handle_set( TsLogConfigRef_t logconfig, TsMessageRef_t fie
 	}
 	if (ts_message_get_int(fields, "minInterval", &interval_in)
 			== TsStatusOk) {
-		logconfig->min_interval = interval_in * TS_TIME_MSEC_TO_USEC;
+		logconfig->_min_interval = interval_in * TS_TIME_MSEC_TO_USEC;
 		ts_status_debug("_ts_handle_set: min_interval = %d\n", logconfig->_min_interval);
 	}
 	if (ts_message_get_int(fields, "reportingInterval", &interval_in)
