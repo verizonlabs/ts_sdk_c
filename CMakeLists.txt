@@ -45,8 +45,8 @@ add_definitions( -DTS_MUTEX_NONE )		# NONE or CUSTOM
 # Raspberry-Pi 3 selection-With ODS
 # add_definitions( -DTS_SERVICE_TS_CBOR )	# TS_JSON or TS_CBOR
 # add_definitions( -DTS_TRANSPORT_MQTT )	# MQTT
-# add_definitions( -DTS_SECURITY_CUSTOM )	# MBED or CUSTOM
-# add_definitions( -DTS_CONTROLLER_CUSTOM)	# MONARCH, NONE or CUSTOM
+# add_definitions( -DTS_SECURITY_MOCANA )	# MBED or CUSTOM
+# add_definitions( -DTS_CONTROLLER_NONE)	# MONARCH, NONE or CUSTOM
 # add_definitions( -DTS_FIREWALL_CUSTOM )	# NONE or CUSTOM 
 # add_definitions( -DTS_MUTEX_CUSTOM )		# NONE or CUSTOM
 # add_definitions( -DTS_ODS_ENABLED )		# DISABLED or ENABLED
