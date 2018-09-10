@@ -5,8 +5,8 @@
  *      Author: LArry Ciummo
  */
 
-#ifndef ts_scep_H
-#define ts_scep_H
+#ifndef TS_SCEP_H
+#define TS_SCEP_H
 /**
  * @file
  * ts_scep.h
@@ -33,11 +33,13 @@
 #include "ts_status.h"
 #include "ts_cert.h"
 
-
+typedef enum pki_operation {op_enroll, op_renew, op_rekey, op_ca, op_cacertchain, op_cacaps,
+	op_revoke, op_crl, op_publishcrl} scepOpType;
+/*
  * The file object reference
  */
 typedef struct TsScep *TsScepRef_t;
-e;
+
 
 /**
  * The file object
@@ -60,9 +62,9 @@ typedef struct TsScepVtable {
 
 
 	/**
-	 * Create a directory on the file system
+	 * Perform a SCEP operation
 	 */
-	TsStatus_t 		(*enroll) (TsScepConfigRef_t config);
+	TsStatus_t 		(*scep_op) (TsScepConfigRef_t config, scepOpType op);
 
 
 
@@ -78,9 +80,7 @@ typedef struct TsScepVtable {
 
 extern const TsScepVtable_t *ts_scep;
 
-#define noerror 			xxx->directory_delete
-
-#define ts_scep_enroll			ts_scep->enroll
+#define ts_scep_enroll			ts_scep->scep_op
 
 #ifdef NDEBUG
 #define ts_scep_assert(EX) (void)0
@@ -88,6 +88,6 @@ extern const TsScepVtable_t *ts_scep;
 #define ts_scep_assert(EX)  (void)((EX) || (ts_scep->assertion(#EX,__FILE__,__LINE__),0))
 #endif
 
-#endif // ts_scep_H
+#endif // TS_SCEP_H
 
 
