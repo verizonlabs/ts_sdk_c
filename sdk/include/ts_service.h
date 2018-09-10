@@ -76,6 +76,7 @@
 #include "ts_transport.h"
 #include "ts_firewall.h"
 #include "ts_log.h"
+#include "ts_cert.h"
 
 #define TS_SERVICE_MAX_HANDLERS 8
 #define TS_SERVICE_MAX_PATH_SIZE 256
@@ -189,6 +190,7 @@ typedef struct TsService {
 	TsTransportRef_t    _transport;
 	TsFirewallRef_t     _firewall;
 	TsLogConfigRef_t	_logconfig;
+	TsScepConfigRef_t	_scepconfig;
 } TsService_t;
 
 /**
