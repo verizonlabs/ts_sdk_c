@@ -33,7 +33,7 @@
 #include "ts_status.h"
 #include "ts_cert.h"
 
-
+ /*
  * The file object reference
  */
 typedef struct TsScep *TsScepRef_t;
