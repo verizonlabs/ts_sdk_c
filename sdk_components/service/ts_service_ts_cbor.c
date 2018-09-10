@@ -48,13 +48,14 @@ static TsStatus_t ts_create( TsServiceRef_t * service ) {
 
 	_messageSendingService = *service;
 
+#ifdef TS_ODS_ENABLED
 	// create logconfig
 	TsStatus_t status = ts_logconfig_create(&((*service)->_logconfig) , _send_message_callback);
 	if ( status != TsStatusOk ) {
 		ts_status_alarm( "ts_service_create: failed to create log config, '%s'\n", ts_status_string(status));
 	}
 
-#ifdef TS_SCEP_CUSTOM
+#ifdef TS_SCEP_ENABLED
 	// create scepconfig
 	status = ts_scepconfig_create(&((*service)->_scepconfig) , _send_message_callback);
 	if ( status != TsStatusOk ) {
@@ -70,6 +71,7 @@ static TsStatus_t ts_create( TsServiceRef_t * service ) {
 		}
 		ts_firewall_set_log((*service)->_logconfig);
 	}
+#endif
 
 	return TsStatusOk;
 }
@@ -141,7 +143,7 @@ static TsStatus_t ts_encode_and_send_message(TsServiceRef_t service, const uint8
 }
 
 static TsStatus_t ts_enqueue_typed( TsServiceRef_t service, char* type, TsMessageRef_t data) {
-
+#ifdef TS_ODS_ENABLED
 	ts_status_trace("ts_service_enqueue_typed\n");
 
 	// get device-id from controller (via connection)
@@ -170,7 +172,7 @@ static TsStatus_t ts_enqueue_typed( TsServiceRef_t service, char* type, TsMessag
 
 	ts_encode_and_send_message(service, id, message);
 	ts_message_destroy( message );
-
+#endif
 	return TsStatusOk;
 }
 
@@ -395,7 +397,9 @@ static TsStatus_t handler( TsTransportRef_t transport, void * state, TsPath_t pa
 				ts_status_debug( "ts_service_handler: diagnostics requested, and ignored,...\n" );
 				status = TsStatusOk;
 
-			} else if( strcmp( kind, "ts.event.firewall" ) == 0 ) {
+			} 
+#ifdef TS_ODS_ENABLED
+			else if( strcmp( kind, "ts.event.firewall" ) == 0 ) {
 
 				// firewall, note that the message will be modified 'in-place'
 				// and must be returned with the correct status
@@ -422,8 +426,9 @@ static TsStatus_t handler( TsTransportRef_t transport, void * state, TsPath_t pa
 					ts_status_alarm( "ts_service_handler: logconfig request on unavailable service,...\n" );
 					status = TsStatusErrorNotImplemented;
 				}
-#ifdef TS_SCEP_CUSTOM
-			} else if( strcmp( kind, "ts.event.credential" ) == 0 ) {
+			}
+#ifdef TS_SCEP_ENABLED		
+			else if( strcmp( kind, "ts.event.credential" ) == 0 ) {
 					ts_status_debug( "ts_service_handler: scepconfig request...\n" );
 
 				// scepconfig, note that the message will be modified 'in-place'
@@ -461,9 +466,9 @@ static TsStatus_t handler( TsTransportRef_t transport, void * state, TsPath_t pa
 				// and must be returned with the correct status
 
 				status = ts_certrewoke_handle( message );
+			}
 #endif
-
-			} else if( strcmp( kind, "ts.event.version" ) == 0 ) {
+		       	else if( strcmp( kind, "ts.event.version" ) == 0 ) {
 
 				// version request, note that the message will be modified 'in-place'
 				// and must be returned with the correct status
@@ -477,6 +482,7 @@ static TsStatus_t handler( TsTransportRef_t transport, void * state, TsPath_t pa
 
 				status = ts_suspend_handle( message );
 			}
+#endif
 			else if( ( strcmp( kind, "ts.device" ) == 0 ) || ( strcmp( kind, "ts.element" ) == 0 ) ) {
 
 				// provisioning, note that the message will be modified 'in-place'

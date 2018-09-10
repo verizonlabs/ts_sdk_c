@@ -182,7 +182,7 @@ TsStatus_t ts_service_dial( TsServiceRef_t service, TsAddress_t address ) {
 	ts_platform_assert( service->_transport != NULL );
 
 	TsStatus_t status = ts_transport_dial( service->_transport, address );
-
+#ifdef TS_ODS_ENABLED
 	// Send an update message representing version information
 	if (status == TsStatusOk) {
 		TsMessageRef_t versionMessage;
@@ -192,6 +192,7 @@ TsStatus_t ts_service_dial( TsServiceRef_t service, TsAddress_t address ) {
 			ts_message_destroy(versionMessage);
 		}
 	}
+#endif
 	return status;
 }
 
