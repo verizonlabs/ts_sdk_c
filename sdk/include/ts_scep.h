@@ -33,7 +33,7 @@
 #include "ts_status.h"
 #include "ts_cert.h"
 
- /*
+
 typedef enum pki_operation {op_enroll, op_renew, op_rekey, op_ca, op_cacertchain, op_cacaps,
 	op_revoke, op_crl, op_publishcrl} scepOpType;
 /*
