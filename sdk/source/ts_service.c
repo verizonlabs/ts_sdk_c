@@ -24,8 +24,9 @@ TsStatus_t ts_service_create( TsServiceRef_t * service ) {
 	*service = (TsServiceRef_t) ( ts_platform_malloc( sizeof( TsService_t )));
 	memset( *service, 0x00, sizeof( TsService_t ) );
 	(*service)->_transport = transport;
+#ifdef TS_ODS_ENABLED
 	(*service)->_firewall = NULL;
-
+#endif
 	// last, complete service initialization via protocol-specific create
 	status = ts_service->create( service );
 	if( status != TsStatusOk ) {
@@ -94,6 +95,7 @@ TsStatus_t ts_service_tick( TsServiceRef_t service, uint32_t budget ) {
 		}
 	}
 
+#ifdef TS_ODS_ENABLED
 	// firewall tick
 	if (service->_firewall != NULL) {
 		status = ts_firewall_tick(service->_firewall, budget - interval);
@@ -106,16 +108,7 @@ TsStatus_t ts_service_tick( TsServiceRef_t service, uint32_t budget ) {
 	}
 
 	ts_status_debug("After calling firewall tick, remaining timer budget is %d\n");
-
-#ifdef TEST_SUSPEND
-	ticks++;
-	if (ticks >= 2) {
-		suspend = !suspend;
-		ts_suspend_test(suspend, suspend);
-		ticks = 0;
-	}
-#endif /* TEST_SUSPEND */
-
+#endif
 	// perform transport tick within remaining budget
 	// TODO - return may require user action, e.g., TsStatusErrorConnectionReset - or add processing here.
 	return ts_transport_tick(service->_transport, budget - interval);
