@@ -140,8 +140,8 @@ TsStatus_t ts_scepconfig_create(TsScepConfigRef_t *, TsStatus_t (*messageCallbac
  * - TsStatusError[Code]
  */
 TsStatus_t ts_scepconfig_destroy(TsScepConfigRef_t);
-#if 0
-// Moving to ts_scep
+#if 1
+// Moving to ts_scep - nah
 /**
  * Save a scep configuration object to a file
  * @param scepconfig
