@@ -82,7 +82,7 @@ typedef struct TsScepVtable {
 extern const TsScepVtable_t *ts_scep;
 
 #define ts_scep_initialize  	ts_scep->initialize
-#define ts_scep_enroll			ts_scep->scep_op
+#define ts_scep_enroll          ts_scep->scep_op
 
 #ifdef NDEBUG
 #define ts_scep_assert(EX) (void)0
