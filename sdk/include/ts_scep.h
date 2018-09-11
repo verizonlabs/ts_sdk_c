@@ -80,6 +80,7 @@ typedef struct TsScepVtable {
 
 
 extern const TsScepVtable_t *ts_scep;
+int SCEP_CLIENT_Verizon(TsScepConfigRef_t , scepOpType );
 
 #define ts_scep_initialize  	ts_scep->initialize
 #define ts_scep_enroll          ts_scep->scep_op
