@@ -7,8 +7,8 @@ add_subdirectory( platforms )
 add_subdirectory( applications )
 
 # determine if this will build tests or not
-#option( BUILD_TESTS "Compile example tests" ON )
-option( BUILD_TESTS "Compile example tests" OFF )
+option( BUILD_TESTS "Compile example tests" ON )
+#option( BUILD_TESTS "Compile example tests" OFF )
 message( STATUS "## Build Tests                  (ON|OFF) : ${BUILD_TESTS}" )
 
 # example tests
