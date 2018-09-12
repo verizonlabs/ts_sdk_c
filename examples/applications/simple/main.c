@@ -67,13 +67,12 @@ int main( int argc, char *argv[] ) {
        
 	config._generateNewPrivateKey = false;
         config._certExpiresAfter=12345;
-        config._
 
 	config._certEnrollmentType = 1;	
 
 	config._numDaysBeforeAutoRenew=999;
 
-	config._encryptionAlgorithm = "rsa";
+	config._encryptionAlgorithm = "RSA";
 
 	config._hashFunction = "sha-1";
 
@@ -82,8 +81,8 @@ int main( int argc, char *argv[] ) {
 	config._retryDelayInSeconds=360;
 
 	config._keySize=2048; 
-        char keys[10][]= { "abd", "def", "ghi"};
-	config._keyUsage=keys;
+        char keys[][10]= { "key1", "key2222222", "ghi"};
+	config._keyUsage=&keys[0][0];
 
 	config._keyAlgorithm="rsa";
 
@@ -95,13 +94,13 @@ int main( int argc, char *argv[] ) {
 
 	config._challengeUsername="frank";
 
-	config.*_challengePassword="verizon1";
+	config._challengePassword="verizon1";
 
-	config.*_caCertFingerprint="thumb";
+	config._caCertFingerprint="thumb";
 
-	config.*_certSubject="who";
+	config._certSubject="who";
 
-	config._getCaCertUrl="www.verizon.com";
+	config._getCaCertUrl="http://iot-scep-poc.verizon.com/scepservice/tsdevop/pkiclient.exe";
 
 	config._getPkcsRequestUrl = 98765; 
 
