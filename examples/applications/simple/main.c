@@ -5,6 +5,12 @@
 #include "ts_platform.h"
 #include "ts_service.h"
 #include "ts_file.h"
+#include "ts_cert.h"
+
+#ifndef OMIT_SCEP
+// SCEP
+#include "ts_scep.h"
+#endif
 
 #ifdef DO_IT_THE_OLD_WAY
 #include "include/cacert.h"
@@ -49,7 +55,62 @@ int main( int argc, char *argv[] ) {
 	ts_security_initialize();
 
 	ts_file_initialize();
+#ifndef OMIT_SCEP
+        {
+          struct TsScepConfig config;
+          TsScepConfigRef_t pConfig = &config;
 
+        // SCEP
+        ts_scep_initialize();
+        // Set up a config - this is what is read from file for scep 
+        config._enabled = false;
+       
+	config._generateNewPrivateKey = false;
+        config._certExpiresAfter=12345;
+        config._
+
+	config._certEnrollmentType = 1;	
+
+	config._numDaysBeforeAutoRenew=999;
+
+	config._encryptionAlgorithm = "rsa";
+
+	config._hashFunction = "sha-1";
+
+	config._retries=456;
+
+	config._retryDelayInSeconds=360;
+
+	config._keySize=2048; 
+        char keys[10][]= { "abd", "def", "ghi"};
+	config._keyUsage=keys;
+
+	config._keyAlgorithm="rsa";
+
+	config._keyAlgorithmStrength="2048";
+
+	config._caInstance=789; 	
+
+	config._challengeType=1111; 	
+
+	config._challengeUsername="frank";
+
+	config.*_challengePassword="verizon1";
+
+	config.*_caCertFingerprint="thumb";
+
+	config.*_certSubject="who";
+
+	config._getCaCertUrl="www.verizon.com";
+
+	config._getPkcsRequestUrl = 98765; 
+
+	config._getCertInitialUrl = 1; 	
+
+        ts_scep_enroll(pConfig, scep_enroll);
+        ts_scep_assert(0);
+        }
+#endif
 	// initialize status reporting level (see ts_status.h)
 	ts_status_set_level( TsStatusLevelDebug );
 	ts_status_debug( "simple: initializing,...\n");

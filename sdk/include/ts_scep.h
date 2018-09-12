@@ -34,7 +34,7 @@
 #include "ts_cert.h"
 
 
-typedef enum scep_ops {scpe_enroll, scep_renew, scep_rekey, scep_ca, scep_cacertchain, scep_cacaps,
+typedef enum scep_ops {scep_enroll, scep_renew, scep_rekey, scep_ca, scep_cacertchain, scep_cacaps,
 	scpe_revoke, scep_crl, scep_publishcrl} scepOpType;
 /*
  * The file object reference

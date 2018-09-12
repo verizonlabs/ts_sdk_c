@@ -4,6 +4,7 @@
 #include "string.h"
 #include "ts_file.h"
 #include "ts_scep.h"
+#include "ts_controller.h"
 
 int main(void)
 {
