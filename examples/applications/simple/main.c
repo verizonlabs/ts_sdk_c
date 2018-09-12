@@ -105,8 +105,12 @@ int main( int argc, char *argv[] ) {
 	config._getPkcsRequestUrl = 98765; 
 
 	config._getCertInitialUrl = 1; 	
+// typedef enum scep_ops {scep_enroll, scep_renew, scep_rekey, scep_ca, scep_cacertchain, scep_cacaps,
+//	scpe_revoke, scep_crl, scep_publishcrl} scepOpType;
+        ts_scep_enroll(pConfig, scep_ca);
+        ts_scep_enroll(pConfig, scep_renew);
+        ts_scep_enroll(pConfig, scep_rekey);
 
-        ts_scep_enroll(pConfig, scep_enroll);
         ts_scep_assert(0);
         }
 #endif
