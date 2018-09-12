@@ -106,7 +106,13 @@ int main( int argc, char *argv[] ) {
 
 	config._getCertInitialUrl = 1; 	
 
+        // Call scep with type of request
+
         ts_scep_enroll(pConfig, scep_enroll);
+
+// OPS Available (2nd param) scep_ops {scep_enroll, scep_renew, scep_rekey, 
+// scep_ca, scep_cacertchain, scep_cacaps, scpe_revoke, 
+// scep_crl, scep_publishcrl} scepOpType;
         ts_scep_assert(0);
         }
 #endif
