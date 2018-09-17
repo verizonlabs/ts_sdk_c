@@ -108,6 +108,7 @@ typedef struct
 	unsigned char MQTTVersion;
 	MQTTString clientID;
 	unsigned short keepAliveInterval;
+	unsigned short pingTimeout;
 	unsigned char cleansession;
 	unsigned char willFlag;
 	MQTTPacket_willOptions will;
@@ -133,7 +134,8 @@ typedef union
 #endif
 } MQTTConnackFlags;	/**< connack flags byte */
 
-#define MQTTPacket_connectData_initializer { {'M', 'Q', 'T', 'C'}, 0, 4, {NULL, {0, NULL}}, 60, 1, 0, \
+
+#define MQTTPacket_connectData_initializer { {'M', 'Q', 'T', 'C'}, 0, 4, {NULL, {0, NULL}}, 60, 3, 1, 0, \
 		MQTTPacket_willOptions_initializer, {NULL, {0, NULL}}, {NULL, {0, NULL}} }
 
 DLLExport int MQTTSerialize_connect(unsigned char* buf, int buflen, MQTTPacket_connectData* options);
