@@ -49,3 +49,8 @@ add_executable( test_files test_files.c $<TARGET_OBJECTS:ts_sdk_platforms> )
 load_link_time_settings( test_files ts_sdk_platforms )
 target_link_libraries( test_files ts_sdk )
 
+add_executable( test_scep test_scep.c $<TARGET_OBJECTS:ts_sdk_platforms> )
+load_link_time_settings( test_scep ts_sdk_platforms )
+target_link_libraries( test_scep ts_sdk )
+
+

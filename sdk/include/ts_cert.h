@@ -140,7 +140,8 @@ TsStatus_t ts_scepconfig_create(TsScepConfigRef_t *, TsStatus_t (*messageCallbac
  * - TsStatusError[Code]
  */
 TsStatus_t ts_scepconfig_destroy(TsScepConfigRef_t);
-
+#if 1
+// Moving to ts_scep - nah
 /**
  * Save a scep configuration object to a file
  * @param scepconfig
@@ -167,6 +168,6 @@ TsStatus_t ts_scepconfig_save(TsScepConfig_t *pConfig, char* path, char* filenam
   * - TsStatusError[Code]
   */
  TsStatus_t ts_scepconfig_restore(TsScepConfig_t* pConfig, char* path, char* filename);
-
+#endif
 
 #endif /* TS_CERT_H_ */
