@@ -56,7 +56,6 @@ int main( int argc, char *argv[] ) {
 
 	ts_file_initialize();
 #ifndef OMIT_SCEP
-        {
           struct TsScepConfig config;
           TsScepConfigRef_t pConfig = &config;
 
@@ -107,17 +106,16 @@ int main( int argc, char *argv[] ) {
 	config._getCertInitialUrl = 1; 	
 // typedef enum scep_ops {scep_enroll, scep_renew, scep_rekey, scep_ca, scep_cacertchain, scep_cacaps,
 //	scpe_revoke, scep_crl, scep_publishcrl} scepOpType;
-        ts_scep_enroll(pConfig, scep_ca);
-        ts_scep_enroll(pConfig, scep_renew);
-        ts_scep_enroll(pConfig, scep_rekey);
+      //  ts_scep_enroll(pConfig, scep_ca);
+      //  ts_scep_enroll(pConfig, scep_renew);
+      //  ts_scep_enroll(pConfig, scep_rekey);
 
 
 // OPS Available (2nd param) scep_ops {scep_enroll, scep_renew, scep_rekey, 
 // scep_ca, scep_cacertchain, scep_cacaps, scpe_revoke, 
 // scep_crl, scep_publishcrl} scepOpType;
 
-        ts_scep_assert(0);
-        }
+//        ts_scep_assert(0);
 #endif
 	// initialize status reporting level (see ts_status.h)
 	ts_status_set_level( TsStatusLevelDebug );
@@ -143,6 +141,10 @@ int main( int argc, char *argv[] ) {
 	TsServiceRef_t service;
 	ts_service_create( &service );
 
+	/*enrol renew and rekey calling example */
+        ts_scep_enroll(pConfig, scep_ca);
+        ts_scep_enroll(pConfig, scep_renew);
+        ts_scep_assert(0);
 	// security initialization
 
 	ts_status_debug( "simple: initializing certificates,...\n");
@@ -163,7 +165,6 @@ int main( int argc, char *argv[] ) {
 		ts_status_debug("simple: failed to Client Private Key %s\n", ts_status_string(status));
 		ts_platform_assert(0);
 	}
-
 
 
 	ts_service_set_server_cert_hostname( service, (const char *)host );
