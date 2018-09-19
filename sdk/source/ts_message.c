@@ -396,6 +396,7 @@ TsStatus_t ts_message_get_size( TsMessageRef_t array, size_t * size ) {
 
 	/* check preconditions */
 	if( array == NULL || ( array->type != TsTypeArray && array->type != TsTypeMessage ) ) {
+		*size = 0;
 		return TsStatusErrorPreconditionFailed;
 	}
 
