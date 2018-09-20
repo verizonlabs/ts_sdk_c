@@ -7,6 +7,7 @@
 #include "ts_file.h"
 #include "ts_cert.h"
 
+#define OMIT_SCEP
 #ifndef OMIT_SCEP
 // SCEP
 #include "ts_scep.h"
@@ -142,10 +143,12 @@ int main( int argc, char *argv[] ) {
 	TsServiceRef_t service;
 	ts_service_create( &service );
 
+#ifndef OMIT_SCEP
 	/*enrol renew and rekey calling example */
         ts_scep_enroll(pConfig, scep_ca);
         ts_scep_enroll(pConfig, scep_renew);
         ts_scep_assert(0);
+#endif
 	// security initialization
 
 	ts_status_debug( "simple: initializing certificates,...\n");
