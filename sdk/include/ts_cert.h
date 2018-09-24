@@ -36,7 +36,7 @@ typedef struct TsScepConfig {
 	bool _enabled;			// Specifies if certificate auto-renewal is enable/disable on the device
 	bool _generateNewPrivateKey;
 	char *_certExpiresAfter;	// Specifies the datetime, in ISO 8601 format, when this certificates expires.
-	int _certEnrollmentType;	// Specifies the protocol used to distribute the device certificate(SCEP/EST)
+	char *_certEnrollmentType;	// Specifies the protocol used to distribute the device certificate(SCEP/EST)
 	int _numDaysBeforeAutoRenew;	// Specifies the number of days before expiration where the certificate should be renewed
 	char *_encryptionAlgorithm;  	// Specifies the encryption algorithm
 	char *_hashFunction; 		// Specifies the hash function to be used

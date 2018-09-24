@@ -59,6 +59,7 @@ static TsStatus_t ts_create( TsServiceRef_t * service ) {
 	if ( status != TsStatusOk ) {
 		ts_status_alarm( "ts_service_create: failed to create scep config, '%s'\n", ts_status_string(status));
 	}
+	ts_scep_set_log((*service)->_logconfig);
 
 	// create firewall if supported
 	if( ts_firewall != NULL ) {
@@ -85,6 +86,11 @@ static TsStatus_t ts_destroy( TsServiceRef_t service ) {
 	// destroy log config, if already created
 	if ( service->_logconfig != NULL ) {
 		ts_logconfig_destroy( service->_logconfig );
+	}
+
+	// destroy scep config, if already created
+	if ( service->_scepconfig != NULL ) {
+		ts_logconfig_destroy( service->_scepconfig );
 	}
 	return TsStatusOk;
 }
