@@ -71,6 +71,10 @@ static TsStatus_t _ts_handle_set( TsLogConfigRef_t logconfig, TsMessageRef_t fie
 	}
 	if (ts_message_get_int(fields, "level", &(logconfig->_level ))
 			== TsStatusOk) {
+		// compensate for weird values coming from platform
+		if (logconfig->_level == 4) {
+			logconfig->_level = TsLogLevelInfo;
+		}
 		ts_status_debug("_ts_handle_set: level = %d\n", logconfig->_level);
 	}
 	if (ts_message_get_int(fields, "maxSize", &(new_max_entries))
