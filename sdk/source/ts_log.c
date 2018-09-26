@@ -408,14 +408,17 @@ void _ts_log_shallow_copy(TsLogEntryRef_t src, TsLogEntryRef_t dest) {
 }
 
 TsStatus_t _ts_log_resize(TsLogConfigRef_t log, int new_max_entries) {
+	log->_log_in_progress = true;
 	ts_platform_assert(new_max_entries > 0);
 	if (new_max_entries == log->_max_entries) {
+		log->_log_in_progress = false;
 		return TsStatusOk;
 	}
 
 	TsLogEntryRef_t new;
 	TsStatus_t result = _ts_log_alloc(&new, new_max_entries);
 	if (result != TsStatusOk) {
+		log->_log_in_progress = false;
 		return result;
 	}
 	// TODO: resize persistent storage?
@@ -483,6 +486,7 @@ TsStatus_t _ts_log_resize(TsLogConfigRef_t log, int new_max_entries) {
 
 		ts_platform_free(old_start, sizeof(TsLogEntry_t));
 	}
+	log->_log_in_progress = false;
 	return TsStatusOk;
 }
 
