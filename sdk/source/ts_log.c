@@ -401,21 +401,24 @@ TsStatus_t _ts_log_destroy(TsLogConfigRef_t log) {
 }
 
 void _ts_log_shallow_copy(TsLogEntryRef_t src, TsLogEntryRef_t dest) {
-	src->time = dest->time;
-	src->level = dest->level;
-	src->category = dest->category;
-	src->body = dest->body;
+	dest->time = src->time;
+	dest->level = src->level;
+	dest->category = src->category;
+	dest->body = src->body;
 }
 
 TsStatus_t _ts_log_resize(TsLogConfigRef_t log, int new_max_entries) {
+	log->_log_in_progress = true;
 	ts_platform_assert(new_max_entries > 0);
 	if (new_max_entries == log->_max_entries) {
+		log->_log_in_progress = false;
 		return TsStatusOk;
 	}
 
 	TsLogEntryRef_t new;
 	TsStatus_t result = _ts_log_alloc(&new, new_max_entries);
 	if (result != TsStatusOk) {
+		log->_log_in_progress = false;
 		return result;
 	}
 	// TODO: resize persistent storage?
@@ -436,10 +439,14 @@ TsStatus_t _ts_log_resize(TsLogConfigRef_t log, int new_max_entries) {
 		}
 		// Free the remaining old message bodies.
 		for (; old_current != log->_newest; old_current--) {
+			int length = 0;
 			if (old_current < log->_start) {
 				old_current = log->_end - 1;
 			}
-			int length = 0;
+			// need to check again since we might have wrapped around
+			if (old_current == log->_newest) {
+				break;
+			}
 #ifdef DEBUG_MEMORY_SIZES
 			length = strnlen(old_current->body, LOG_MESSAGE_MAX_LENGTH - 1) + 1;
 #endif
@@ -479,6 +486,7 @@ TsStatus_t _ts_log_resize(TsLogConfigRef_t log, int new_max_entries) {
 
 		ts_platform_free(old_start, sizeof(TsLogEntry_t));
 	}
+	log->_log_in_progress = false;
 	return TsStatusOk;
 }
 
