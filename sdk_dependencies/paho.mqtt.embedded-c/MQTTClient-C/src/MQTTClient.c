@@ -37,19 +37,22 @@ static int sendPacket(MQTTClient* c, int length, Timer* timer)
     {
         rc = c->ipstack->mqttwrite(c->ipstack, &c->buf[sent], length, TimerLeftMS(timer));
         if (rc < 0)  // there was an error writing the data
+		{
+			printf("PAHO:: Error Writing data\r\n");
             break;
+		}
         sent += rc;
     }
     if (sent == length)
     {
         TimerCountdown(&c->last_sent, c->keepAliveInterval); // record the fact that we have successfully sent the packet
         rc = SUCCESS;
-	//printf("PAHO:: Packet Sent\r\n");
+		printf("PAHO:: Packet Sent\r\n");
     }
     else
     {
-	//printf("PAHO:: Packet Send Failure\r\n");
-	rc = FAILURE;
+		printf("PAHO:: Packet Send Failure\r\n");
+		rc = FAILURE;
     }
     return rc;
 }
@@ -207,6 +210,11 @@ int deliverMessage(MQTTClient* c, MQTTString* topicName, MQTTMessage* message)
         c->defaultMessageHandler(&md);
         rc = SUCCESS;
     }
+	else if(rc == FAILURE && c->defaultMessageHandler == NULL)
+	{
+		//No default message handler - Avoid MQTT Failure here
+		rc = SUCCESS;
+	}
 
     return rc;
 }
@@ -225,7 +233,7 @@ int keepalive(MQTTClient* c)
 	if(c->ping_outstanding && TimerIsExpired(&c->last_ping))
 	{
             rc = FAILURE; /* PINGRESP not received in keepalive interval */
-		//printf("PAHO:: KeepaliveFailure\r\n");
+		printf("PAHO:: KeepaliveFailure\r\n");
 	}
 	else if(!c->ping_outstanding)
 	{
@@ -233,7 +241,7 @@ int keepalive(MQTTClient* c)
 		TimerInit(&timer);
 		TimerCountdownMS(&timer, 1000);
 		int len = MQTTSerialize_pingreq(c->buf, c->buf_size);
-		//printf("PAHO:: KEEPALIVE\r\n");
+		printf("PAHO:: KEEPALIVE\r\n");
 		if (len > 0 && (rc = sendPacket(c, len, &timer)) == SUCCESS) // send the ping packet
 		{
 			c->ping_outstanding = 1;
@@ -287,6 +295,7 @@ int cycle(MQTTClient* c, Timer* timer)
 			break;
 		case PUBLISH:
 			{
+				printf("PAHO:: Got Publish Message\r\n");
 				MQTTString topicName;
 				MQTTMessage msg;
 				int intQoS;
@@ -308,7 +317,8 @@ int cycle(MQTTClient* c, Timer* timer)
 						rc = sendPacket(c, len, timer);
 					if (rc == FAILURE)
 					{
-						//printf("PAHO:: case PUBLISH Fail\r\n");
+						printf("PAHO:: case PUBLISH Fail\r\n");
+						rc=SUCCESS;
 						goto exit; // there was a problem
 					}
 				}
@@ -334,13 +344,14 @@ int cycle(MQTTClient* c, Timer* timer)
 		case PUBCOMP:
 			break;
 		case PINGRESP:
-			//printf("PAHO:: Got Ping Response\r\n");
+			printf("PAHO:: Got Ping Response\r\n");
 			c->ping_outstanding = 0;
 			break;
 	}
 
 	if (keepalive(c) != SUCCESS) {
 		//check only keepalive FAILURE status so that previous FAILURE status can be considered as FAULT
+		printf("PAHO::KeepaliveFailure\r\n");
 		rc = FAILURE;
 	}
 
@@ -348,7 +359,10 @@ exit:
 	if (rc == SUCCESS)
 		rc = packet_type;
 	else if (c->isconnected)
+	{
+		printf("PAHO:: Exiting:: cycle Failure\r\n");
 		MQTTCloseSession(c);
+	}
 	return rc;
 }
 
@@ -357,16 +371,13 @@ int MQTTYield(MQTTClient* c, int timeout_ms)
 {
 	int rc = SUCCESS;
 	Timer timer;
-	Timer timer_cycle;
 
 	TimerInit(&timer);
-	TimerInit(&timer_cycle);
 	TimerCountdownMS(&timer, timeout_ms);
-	TimerCountdownMS(&timer_cycle, timeout_ms/100);
 
 	do
 	{
-		if (cycle(c, &timer_cycle) < 0)
+		if (cycle(c, &timer) < 0)
 		{
 			rc = FAILURE;
 			break;
@@ -413,7 +424,10 @@ int waitfor(MQTTClient* c, int packet_type, Timer* timer)
 	do
 	{
 		if (TimerIsExpired(timer))
+		{
+			printf("PAHO::waitfor Timedout\r\n");
 			break; // we timed out
+		}
 		rc = cycle(c, timer);
 	}
 	while (rc != packet_type && rc >= 0);
@@ -564,11 +578,16 @@ int MQTTSubscribeWithResults(MQTTClient* c, const char* topicFilter, enum QoS qo
 		}
 	}
 	else
+	{
+		printf("PAHO:: SUBACK Failure\r\n");
 		rc = FAILURE;
-
+	}
 exit:
 	if (rc == FAILURE)
+	{
+		printf("PAHO:: Exiting:: subscribe Failure\r\n");
 		MQTTCloseSession(c);
+	}
 #if defined(MQTT_TASK)
 	MutexUnlock(&c->mutex);
 #endif
@@ -664,7 +683,7 @@ int MQTTPublish(MQTTClient* c, const char* topicName, MQTTMessage* message)
 			if (MQTTDeserialize_ack(&type, &dup, &mypacketid, c->readbuf, c->readbuf_size) != 1)
 			{
 				rc = FAILURE;
-				//printf("PAHO:: PUBACK Not rcvd\r\n");
+				printf("PAHO:: QOS1 PUBACK Not rcvd\r\n");
 			}
 		}
 		else
@@ -677,7 +696,10 @@ int MQTTPublish(MQTTClient* c, const char* topicName, MQTTMessage* message)
 			unsigned short mypacketid;
 			unsigned char dup, type;
 			if (MQTTDeserialize_ack(&type, &dup, &mypacketid, c->readbuf, c->readbuf_size) != 1)
+			{
+				printf("PAHO:: QOS2 PUBACK Not rcvd\r\n");
 				rc = FAILURE;
+			}
 		}
 		else
 			rc = FAILURE;
@@ -685,10 +707,13 @@ int MQTTPublish(MQTTClient* c, const char* topicName, MQTTMessage* message)
 
 exit:
 	if (rc == FAILURE)
+	{
+		printf("PAHO:: Exiting:: Publish Failure\r\n");
 		MQTTCloseSession(c);
 #if defined(MQTT_TASK)
 	MutexUnlock(&c->mutex);
 #endif
+	}
 	return rc;
 }
 

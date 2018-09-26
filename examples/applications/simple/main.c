@@ -1,5 +1,8 @@
 // Copyright (C) 2017, 2018 Verizon, Inc. All rights reserved.
 #include <stdio.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <stdlib.h>
 
 #include "ts_status.h"
 #include "ts_platform.h"
@@ -39,12 +42,19 @@ static uint32_t size_client_key;
 #define CA_CERT_FILE "cacert.der"
 #define CLIENT_CERT_FILE "clcert.der"
 #define CLIENT_PRIVATE_KEY "clkey.der"
+#define ODS_FIREWALL	//TO-DO Add to CMAKElistst.txt
 
 static TsStatus_t loadFileIntoRam(char* directory, char* file_name, uint8_t** buffer, uint32_t* loaded_size);
 
 int main( int argc, char *argv[] ) {
 	TsStatus_t status;
 
+#ifdef ODS_FIREWALL	
+	/*Remove and insert kernel module*/
+	system("/home/pi/uninstall-nanowallk.sh");
+
+	system("/home/pi/install-nanowallk.sh");
+#endif
 	// initialize platform (see ts_platform.h)
 	ts_platform_initialize();
 
@@ -56,8 +66,8 @@ int main( int argc, char *argv[] ) {
 	ts_status_debug( "simple: initializing,...\n");
 
 	// initialize hostname
-	char * hostname_and_port = "63.98.10.34:8883";
-	char * host = "63.98.10.34";
+	char * hostname_and_port = "simpm.thingspace.verizon.com:8883";
+	char * host = "simpm.thingspace.verizon.com";
 	char * port = "8883";
 #if defined(TS_PLATFORM_UNIX)
 	if( usage( argc, argv, &hostname_and_port, &host, &port ) != TsStatusOk ) {
