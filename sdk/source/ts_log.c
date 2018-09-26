@@ -436,10 +436,14 @@ TsStatus_t _ts_log_resize(TsLogConfigRef_t log, int new_max_entries) {
 		}
 		// Free the remaining old message bodies.
 		for (; old_current != log->_newest; old_current--) {
+			int length = 0;
 			if (old_current < log->_start) {
 				old_current = log->_end - 1;
 			}
-			int length = 0;
+			// need to check again since we might have wrapped around
+			if (old_current == log->_newest) {
+				break;
+			}
 #ifdef DEBUG_MEMORY_SIZES
 			length = strnlen(old_current->body, LOG_MESSAGE_MAX_LENGTH - 1) + 1;
 #endif
