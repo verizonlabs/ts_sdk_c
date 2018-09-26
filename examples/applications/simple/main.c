@@ -7,12 +7,6 @@
 #include "ts_file.h"
 #include "ts_cert.h"
 
-#define OMIT_SCEP
-#ifndef OMIT_SCEP
-// SCEP
-#include "ts_scep.h"
-#endif
-
 #ifdef DO_IT_THE_OLD_WAY
 #include "include/cacert.h"
 #include "include/client-crt.h"
@@ -57,68 +51,6 @@ int main( int argc, char *argv[] ) {
 	ts_security_initialize();
 
 	ts_file_initialize();
-#ifndef OMIT_SCEP
-          struct TsScepConfig config;
-          TsScepConfigRef_t pConfig = &config;
-
-        // SCEP
-        ts_scep_initialize();
-        // Set up a config - this is what is read from file for scep 
-        config._enabled = false;
-       
-	config._generateNewPrivateKey = false;
-        config._certExpiresAfter=12345;
-
-	config._certEnrollmentType = 1;	
-
-	config._numDaysBeforeAutoRenew=999;
-
-	config._encryptionAlgorithm = "RSA";
-
-	config._hashFunction = "sha-1";
-
-	config._retries=456;
-
-	config._retryDelayInSeconds=360;
-
-	config._keySize=2048; 
-        char keys[][10]= { "key1", "key2222222", "ghi"};
-	config._keyUsage=&keys[0][0];
-
-	config._keyAlgorithm="rsa";
-
-	config._keyAlgorithmStrength="2048";
-
-	config._caInstance=789; 	
-
-	config._challengeType=1111; 	
-
-	config._challengeUsername="frank";
-
-	config._challengePassword="verizon1";
-
-	config._caCertFingerprint="thumb";
-
-	config._certSubject="who";
-
-	config._getCaCertUrl="http://iot-scep-poc.verizon.com/scepservice/tsdevop/pkiclient.exe";
-
-	config._getPkcsRequestUrl = 98765; 
-
-	config._getCertInitialUrl = 1; 	
-// typedef enum scep_ops {scep_enroll, scep_renew, scep_rekey, scep_ca, scep_cacertchain, scep_cacaps,
-//	scpe_revoke, scep_crl, scep_publishcrl} scepOpType;
-      //  ts_scep_enroll(pConfig, scep_ca);
-      //  ts_scep_enroll(pConfig, scep_renew);
-      //  ts_scep_enroll(pConfig, scep_rekey);
-
-
-// OPS Available (2nd param) scep_ops {scep_enroll, scep_renew, scep_rekey, 
-// scep_ca, scep_cacertchain, scep_cacaps, scpe_revoke, 
-// scep_crl, scep_publishcrl} scepOpType;
-
-//        ts_scep_assert(0);
-#endif
 	// initialize status reporting level (see ts_status.h)
 	ts_status_set_level( TsStatusLevelDebug );
 	ts_status_debug( "simple: initializing,...\n");
@@ -143,8 +75,12 @@ int main( int argc, char *argv[] ) {
 	TsServiceRef_t service;
 	ts_service_create( &service );
 
-#ifndef OMIT_SCEP
+#ifdef OMIT_SCEP
+#include "ts_scep.h"
+TsScepConfigRef_t Config;
+TsScepConfigRef_t *pConfig= &Config;
 	/*enrol renew and rekey calling example */
+	ts_scepconfig_restore(pConfig, "/var/lib/thingspace/","scepconfig");
         ts_scep_enroll(pConfig, scep_ca);
         ts_scep_enroll(pConfig, scep_renew);
         ts_scep_assert(0);
