@@ -401,10 +401,10 @@ TsStatus_t _ts_log_destroy(TsLogConfigRef_t log) {
 }
 
 void _ts_log_shallow_copy(TsLogEntryRef_t src, TsLogEntryRef_t dest) {
-	src->time = dest->time;
-	src->level = dest->level;
-	src->category = dest->category;
-	src->body = dest->body;
+	dest->time = src->time;
+	dest->level = src->level;
+	dest->category = src->category;
+	dest->body = src->body;
 }
 
 TsStatus_t _ts_log_resize(TsLogConfigRef_t log, int new_max_entries) {
