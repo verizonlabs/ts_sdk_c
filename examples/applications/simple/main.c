@@ -16,9 +16,16 @@
 #include "include/client-key.h"
 #endif
 
-
-
 #if defined(TS_TRANSPORT_MQTT)
+
+#define MFG_CERT_PATH "/usr/share/thingspace/conf"
+#define OP_CERT_PATH "/var/lib/thingspace/certs/"
+#define CA_CERT_FILE "cacert.der"
+#define CLIENT_CERT_FILE "clcert.der"
+#define CLIENT_PRIVATE_KEY "clkey.der"
+#define CLIENT_OPCERT_FILE "opcert.der"
+#define CLIENT_OPPRIVATE_KEY "opkey.der"
+#define ODS_FIREWALL	//TO-DO Add to CMAKElistst.txt
 
 // application sensor cache
 static TsMessageRef_t sensors;
@@ -38,14 +45,12 @@ static uint32_t size_cacert_buf;
 static uint32_t size_client_cert;
 static uint32_t size_client_key;
 
-#define MFG_CERT_PATH "/usr/share/thingspace/conf"
-#define CA_CERT_FILE "cacert.der"
-#define CLIENT_CERT_FILE "clcert.der"
-#define CLIENT_PRIVATE_KEY "clkey.der"
-#define ODS_FIREWALL	//TO-DO Add to CMAKElistst.txt
+bool g_useOpCert = false;
+bool g_reboot_now = false;
+
+
 
 static TsStatus_t loadFileIntoRam(char* directory, char* file_name, uint8_t** buffer, uint32_t* loaded_size);
-
 int main( int argc, char *argv[] ) {
 	TsStatus_t status;
 
@@ -83,108 +88,141 @@ int main( int argc, char *argv[] ) {
 
 	// initialize client (see ts_service.h)
 	TsServiceRef_t service;
+	bool connected;
+	bool running;
+	char *cert_path = NULL;
+	char *cert_name = NULL;
+	char *key_name = NULL;
 	ts_service_create( &service );
 
 #ifdef OMIT_SCEP
 #include "ts_scep.h"
-TsScepConfigRef_t Config;
-TsScepConfigRef_t *pConfig= &Config;
+	TsScepConfigRef_t Config;
+	TsScepConfigRef_t *pConfig= &Config;
 	/*enrol renew and rekey calling example */
 	ts_scepconfig_restore(pConfig, "/var/lib/thingspace/","scepconfig");
-        ts_scep_enroll(pConfig, scep_ca);
-        ts_scep_enroll(pConfig, scep_renew);
-        ts_scep_assert(0);
+	ts_scep_enroll(pConfig, scep_ca);
+	ts_scep_enroll(pConfig, scep_renew);
+	ts_scep_assert(0);
 #endif
 	// security initialization
 
 	ts_status_debug( "simple: initializing certificates,...\n");
-
-	// Read certs and keys into memory - Fatal is can't read them
-	status = loadFileIntoRam(MFG_CERT_PATH, CA_CERT_FILE, &cacert_buf, &size_cacert_buf);
-	if( status != TsStatusOk ) {
-		ts_status_debug("simple: failed to read CA Cert file %s\n", ts_status_string(status));
-		ts_platform_assert(0);
-	}
-	status = loadFileIntoRam(MFG_CERT_PATH, CLIENT_CERT_FILE, &client_cert, &size_client_cert);
-	if( status != TsStatusOk ) {
-		ts_status_debug("simple: failed to read Client Cert File, %s\n", ts_status_string(status) );
-		ts_platform_assert(0);
-	}
-	status = loadFileIntoRam(MFG_CERT_PATH , CLIENT_PRIVATE_KEY, &client_key, &size_client_key);
-	if( status != TsStatusOk ) {
-		ts_status_debug("simple: failed to Client Private Key %s\n", ts_status_string(status));
-		ts_platform_assert(0);
-	}
-
-
-	ts_service_set_server_cert_hostname( service, (const char *)host );
-	ts_service_set_server_cert( service, cacert_buf, size_cacert_buf );
-	ts_service_set_client_cert( service, client_cert, size_client_cert );
-	ts_service_set_client_key( service, client_key, size_client_key );
-
-	// connect to thingspace server
-	ts_status_debug( "simple: initializing connection,...\n");
-	status = ts_service_dial( service, hostname_and_port );
-	if( status != TsStatusOk ) {
-		ts_status_debug("simple: failed to dial, %s\n", ts_status_string(status));
-		ts_platform_assert(0);
-	}
-
-	//  subscribe to field gets and sets
-	ts_status_debug( "simple: initializing callback,...\n");
-	status = ts_service_dequeue( service, TsServiceActionMaskAll, handler );
-	if( status != TsStatusOk ) {
-		ts_status_debug("simple: failed to dial, %s\n", ts_status_string(status));
-		ts_platform_assert(0);
-	}
-
-	// enter run loop,...
-	ts_status_debug( "simple: entering run-loop,...\n");
-	uint64_t timestamp = ts_platform_time();
-	uint32_t interval = 1 * TS_TIME_SEC_TO_USEC;
-	bool running = true;
+	g_useOpCert = ts_check_opcert_available();
 	do {
+		
+		if(g_useOpCert){
+			ts_status_debug("Connecting with Operational Certificates\r\n");
+			cert_path = OP_CERT_PATH;
+			cert_name = CLIENT_OPCERT_FILE;
+			key_name = CLIENT_OPPRIVATE_KEY;
+		}
+		else {
+			ts_status_debug("Connecting with Manufacturer Certificates\r\n");
+			cert_path = MFG_CERT_PATH;
+			cert_name = CLIENT_CERT_FILE;
+			key_name = CLIENT_PRIVATE_KEY;
+		}
+		// Read certs and keys into memory - Fatal is can't read them
+		status = loadFileIntoRam(cert_path, CA_CERT_FILE, &cacert_buf, &size_cacert_buf);
+		if( status != TsStatusOk ) {
+			ts_status_debug("simple: failed to read CA Cert file %s\n", ts_status_string(status));
+			ts_platform_assert(0);
+		}
+		status = loadFileIntoRam(cert_path, cert_name, &client_cert, &size_client_cert);
+		if( status != TsStatusOk ) {
+			ts_status_debug("simple: failed to read Client Cert File, %s\n", ts_status_string(status) );
+			ts_platform_assert(0);
+		}
+		status = loadFileIntoRam(cert_path , key_name, &client_key, &size_client_key);
+		if( status != TsStatusOk ) {
+			ts_status_debug("simple: failed to Client Private Key %s\n", ts_status_string(status));
+			ts_platform_assert(0);
+		}
 
-		// perform update at particular delta
-		if( ts_platform_time() - timestamp > interval ) {
 
-			timestamp = ts_platform_time();
-			status = ts_service_enqueue( service, sensors );
-			if( status != TsStatusOk ) {
-				ts_status_debug( "simple: ignoring failure to enqueue sensor data, %s\n", ts_status_string(status) );
-				// do nothing
-			}
-			if (cert == true){
-				cert = 0;
+		ts_service_set_server_cert_hostname( service, (const char *)host );
+		ts_service_set_server_cert( service, cacert_buf, size_cacert_buf );
+		ts_service_set_client_cert( service, client_cert, size_client_cert );
+		ts_service_set_client_key( service, client_key, size_client_key );
 
-				// Send an cert event message representing operation cert information
-				if (status == TsStatusOk) {
-					TsMessageRef_t certMessage;
-					if (ts_cert_make_update( &certMessage ) == TsStatusOk) {
-						ts_message_dump(certMessage);
-						ts_service_enqueue_typed(service, "ts.event.cert", certMessage);
-						ts_message_destroy(certMessage);
+	
+	
+	// connect to thingspace server
+	// enter running loop,...
+	
+		ts_status_debug( "simple: initializing connection,...\n");
+		status = ts_service_dial( service, hostname_and_port );
+		if( status != TsStatusOk ) {
+			ts_status_debug("simple: failed to dial, %s\n", ts_status_string(status));
+			continue;
+		}
+		connected = true;
+
+		//  subscribe to field gets and sets
+		ts_status_debug( "simple: initializing callback,...\n");
+		status = ts_service_dequeue( service, TsServiceActionMaskAll, handler );
+		if( status != TsStatusOk ) {
+			ts_status_debug("simple: failed to dial, %s\n", ts_status_string(status));
+			continue;
+		}
+		running = true;
+		// enter connected loop,...
+		ts_status_debug( "simple: entering run-loop,...\n");
+		uint64_t timestamp = ts_platform_time();
+		uint32_t interval = 1 * TS_TIME_SEC_TO_USEC;
+		do {
+
+			// perform update at particular delta
+			if( ts_platform_time() - timestamp > interval ) {
+
+				timestamp = ts_platform_time();
+				status = ts_service_enqueue( service, sensors );
+				if( status != TsStatusOk ) {
+					ts_status_debug( "simple: ignoring failure to enqueue sensor data, %s\n", ts_status_string(status) );
+					// do nothing
+				}
+				
+				if (cert == true){
+					cert = 0;
+
+					// Send an cert event message representing operation cert information
+					if (status == TsStatusOk) {
+						TsMessageRef_t certMessage;
+						if (ts_cert_make_update( &certMessage ) == TsStatusOk) {
+							ts_message_dump(certMessage);
+							ts_service_enqueue_typed(service, "ts.event.cert", certMessage);
+							ts_message_destroy(certMessage);
+						}
 					}
 				}
+
 			}
 
-		}
+			// provide client w/some processing power
+			// note - this will run continuously until the interval is complete
+			//        other options include limiting the interval, and sleeping after
+			status = ts_service_tick( service, interval );
+			if( status != TsStatusOk ) {
+				ts_status_debug( "simple: failed to perform tick, %s, shutting down,...\n", ts_status_string(status) );
+				connected = false;
+			}
+			
+			/*Check if Re-boot of Application is needed*/
+			if(g_reboot_now)
+			{
+				ts_status_debug("Re-starting the Application now\r\n");
+				g_reboot_now = false;
+				break;
+			}
 
-		// provide client w/some processing power
-		// note - this will run continuously until the interval is complete
-		//        other options include limiting the interval, and sleeping after
-		status = ts_service_tick( service, interval );
-		if( status != TsStatusOk ) {
-			ts_status_debug( "simple: failed to perform tick, %s, shutting down,...\n", ts_status_string(status) );
-			running = false;
-		}
+		} while( connected );
+		ts_status_debug( "simple: exited run-loop, cleaning up rebooting...\n");
+
+		// disconnect from thingspace server
+		ts_service_hangup( service );
 
 	} while( running );
-	ts_status_debug( "simple: exited run-loop, cleaning up and exiting...\n");
-
-	// disconnect from thingspace server
-	ts_service_hangup( service );
-
 	// clean-up and exit
 	ts_service_destroy( service );
 	ts_message_destroy( sensors );

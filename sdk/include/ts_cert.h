@@ -170,4 +170,12 @@ TsStatus_t ts_scepconfig_save(TsScepConfig_t *pConfig, char* path, char* filenam
  TsStatus_t ts_scepconfig_restore(TsScepConfig_t* pConfig, char* path, char* filename);
 #endif
 
+/**
+ * Check the availability of operation certificates.
+ * @param NA
+ * @return
+ * The return true/false (bool)) of the function
+ */
+bool ts_check_opcert_available();
+
 #endif /* TS_CERT_H_ */
