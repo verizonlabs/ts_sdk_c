@@ -51,7 +51,6 @@ bool g_reboot_now = false;
 
 
 static TsStatus_t loadFileIntoRam(char* directory, char* file_name, uint8_t** buffer, uint32_t* loaded_size);
-
 int main( int argc, char *argv[] ) {
 	TsStatus_t status;
 
@@ -109,7 +108,7 @@ int main( int argc, char *argv[] ) {
 	// security initialization
 
 	ts_status_debug( "simple: initializing certificates,...\n");
-
+	g_useOpCert = ts_check_opcert_available();
 	do {
 		
 		if(g_useOpCert){
