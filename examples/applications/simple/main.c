@@ -57,7 +57,9 @@ static TsStatus_t ts_scep_function(){
 	TsScepConfigRef_t *pConfig= &Config;
 	/*enrol renew and rekey calling example */
 	ts_scepconfig_restore(pConfig, "/var/lib/thingspace/","scepconfig");
-	ts_scep_enroll(pConfig, scep_ca);
+	ts_scepconfig_save(pConfig, "/var/lib/thingspace/","scepconfig");
+    ts_platform_assert(0);
+	//ts_scep_enroll(pConfig, scep_ca);
 	//ts_scep_enroll(pConfig, scep_renew);
 	g_scep_complete = true;
 	ts_status_debug("Exiting Thread now\r\n");
@@ -112,7 +114,8 @@ int main( int argc, char *argv[] ) {
 	ts_service_create( &service );
 
 	
-	
+	// TEST TEST TEST
+	ts_scep_function();
 	
 	ts_status_debug( "simple: initializing certificates,...\n");
 	g_useOpCert = ts_check_opcert_available();
