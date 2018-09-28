@@ -30,7 +30,7 @@ typedef struct TsScepConfig * TsScepConfigRef_t;
 /*
  * REMEMBER - If you edit the structure (add/remove fields) change this string below
  */
-#define SCEP_CONFIG_REV "083018-1"
+#define SCEP_CONFIG_REV "092818-1"
 
 typedef struct TsScepConfig {
 	bool _enabled;			// Specifies if certificate auto-renewal is enable/disable on the device
