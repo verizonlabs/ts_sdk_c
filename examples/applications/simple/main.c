@@ -10,6 +10,7 @@
 #include "ts_service.h"
 #include "ts_file.h"
 #include "ts_cert.h"
+#include "ts_scep.h"
 
 #ifdef DO_IT_THE_OLD_WAY
 #include "include/cacert.h"
@@ -50,20 +51,18 @@ bool g_useOpCert = false;
 bool g_reboot_now = false;
 bool g_scep_complete = false;
 
-#ifndef OMIT_SCEP
 static TsStatus_t ts_scep_function(){
-#include "ts_scep.h"
 	TsScepConfig_t Config;
 	TsScepConfigRef_t *pConfig= &Config;
 	/*enrol renew and rekey calling example */
 	ts_scepconfig_restore(pConfig, "/var/lib/thingspace/","scepconfig");
 	ts_scep_enroll(pConfig, scep_ca);
-	//ts_scep_enroll(pConfig, scep_renew);
+	ts_scep_enroll(pConfig, scep_renew);
 	g_scep_complete = true;
 	ts_status_debug("Exiting Thread now\r\n");
-	// security initialization
+	system("openssl x509 -inform der -in /var/lib/thingspace/scep/requester_cert.der -out /var/lib/thingspace/certs/opcert.pem");
+	system("cp /var/lib/thingspace/scep/requester_cert.der /var/lib/thingspace/certs/opcert.der");
 }
-#endif
 
 static TsStatus_t loadFileIntoRam(char* directory, char* file_name, uint8_t** buffer, uint32_t* loaded_size);
 int main( int argc, char *argv[] ) {
@@ -86,8 +85,8 @@ int main( int argc, char *argv[] ) {
 	ts_status_debug( "simple: initializing,...\n");
 
 	// initialize hostname
-	char * hostname_and_port = "63.98.10.34:8883";
-	char * host = "63.98.10.34";
+	char * hostname_and_port = "simpm.thingspace.verizon.com:8883";
+	char * host = "simpm.thingspace.verizon.com";
 	char * port = "8883";
 #if defined(TS_PLATFORM_UNIX)
 	if( usage( argc, argv, &hostname_and_port, &host, &port ) != TsStatusOk ) {
@@ -110,9 +109,6 @@ int main( int argc, char *argv[] ) {
 	char *cert_name = NULL;
 	char *key_name = NULL;
 	ts_service_create( &service );
-
-	
-	
 	
 	ts_status_debug( "simple: initializing certificates,...\n");
 	g_useOpCert = ts_check_opcert_available();
@@ -131,7 +127,7 @@ int main( int argc, char *argv[] ) {
 			key_name = CLIENT_PRIVATE_KEY;
 		}
 		// Read certs and keys into memory - Fatal is can't read them
-		status = loadFileIntoRam(cert_path, CA_CERT_FILE, &cacert_buf, &size_cacert_buf);
+		status = loadFileIntoRam(MFG_CERT_PATH, CA_CERT_FILE, &cacert_buf, &size_cacert_buf);
 		if( status != TsStatusOk ) {
 			ts_status_debug("simple: failed to read CA Cert file %s\n", ts_status_string(status));
 			ts_platform_assert(0);
@@ -187,7 +183,7 @@ int main( int argc, char *argv[] ) {
 				status = ts_service_enqueue( service, sensors );
 				if( status != TsStatusOk ) {
 					ts_status_debug( "simple: ignoring failure to enqueue sensor data, %s\n", ts_status_string(status) );
-					// do nothing
+					break;
 				}
 				
 				

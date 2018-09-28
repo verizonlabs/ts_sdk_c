@@ -1,0 +1,15 @@
+#Subject
+countryName=US
+commonName=Verizon TSDEV_6c7538a9-f745-415d-a1d7-003b888f75b0
+stateOrProvinceName=New Jersey
+localityName=
+organizationName=Verizon
+organizationalUnitName=Development
+#Attributes
+#Requested Extensions
+hasBasicContraints=true
+isCA=false
+certPathLen=-1
+keyUsage=Client Authentication
+#subjectAltNames numSANS; value, type; value, type
+subjectAltNames=
