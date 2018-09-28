@@ -3,6 +3,7 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <stdlib.h>
+#include <pthread.h>
 
 #include "ts_status.h"
 #include "ts_platform.h"
@@ -47,8 +48,22 @@ static uint32_t size_client_key;
 
 bool g_useOpCert = false;
 bool g_reboot_now = false;
+bool g_scep_complete = false;
 
-
+#ifndef OMIT_SCEP
+static TsStatus_t ts_scep_function(){
+#include "ts_scep.h"
+	TsScepConfig_t Config;
+	TsScepConfigRef_t *pConfig= &Config;
+	/*enrol renew and rekey calling example */
+	ts_scepconfig_restore(pConfig, "/var/lib/thingspace/","scepconfig");
+	ts_scep_enroll(pConfig, scep_ca);
+	//ts_scep_enroll(pConfig, scep_renew);
+	g_scep_complete = true;
+	ts_status_debug("Exiting Thread now\r\n");
+	// security initialization
+}
+#endif
 
 static TsStatus_t loadFileIntoRam(char* directory, char* file_name, uint8_t** buffer, uint32_t* loaded_size);
 int main( int argc, char *argv[] ) {
@@ -71,8 +86,8 @@ int main( int argc, char *argv[] ) {
 	ts_status_debug( "simple: initializing,...\n");
 
 	// initialize hostname
-	char * hostname_and_port = "simpm.thingspace.verizon.com:8883";
-	char * host = "simpm.thingspace.verizon.com";
+	char * hostname_and_port = "63.98.10.34:8883";
+	char * host = "63.98.10.34";
 	char * port = "8883";
 #if defined(TS_PLATFORM_UNIX)
 	if( usage( argc, argv, &hostname_and_port, &host, &port ) != TsStatusOk ) {
@@ -80,6 +95,7 @@ int main( int argc, char *argv[] ) {
 		ts_platform_assert(0);
 	}
 #endif
+
 	ts_status_debug( "simple: hostname(%s), host(%s), port(%s)\n", hostname_and_port, host, port );
 
 	// initialize sensor cache (usually set from hardware)
@@ -95,18 +111,9 @@ int main( int argc, char *argv[] ) {
 	char *key_name = NULL;
 	ts_service_create( &service );
 
-#ifdef OMIT_SCEP
-#include "ts_scep.h"
-	TsScepConfig_t Config;
-	TsScepConfigRef_t *pConfig= &Config;
-	/*enrol renew and rekey calling example */
-	ts_scepconfig_restore(pConfig, "/var/lib/thingspace/","scepconfig");
-	ts_scep_enroll(pConfig, scep_ca);
-	ts_scep_enroll(pConfig, scep_renew);
-	ts_scep_assert(0);
-#endif
-	// security initialization
-
+	
+	
+	
 	ts_status_debug( "simple: initializing certificates,...\n");
 	g_useOpCert = ts_check_opcert_available();
 	do {
@@ -122,7 +129,7 @@ int main( int argc, char *argv[] ) {
 			cert_path = MFG_CERT_PATH;
 			cert_name = CLIENT_CERT_FILE;
 			key_name = CLIENT_PRIVATE_KEY;
-//		}
+		}
 		// Read certs and keys into memory - Fatal is can't read them
 		status = loadFileIntoRam(cert_path, CA_CERT_FILE, &cacert_buf, &size_cacert_buf);
 		if( status != TsStatusOk ) {
@@ -183,26 +190,31 @@ int main( int argc, char *argv[] ) {
 					// do nothing
 				}
 				
+				
 				if (cert == true){
-					cert = 0;
-
-#ifdef OMIT_SCEP
-#include "ts_scep.h"
-	TsScepConfig_t Config;
-	TsScepConfigRef_t *pConfig= &Config;
-	ts_scepconfig_restore(pConfig, "/var/lib/thingspace/","scepconfig");
-	ts_scep_enroll(pConfig, scep_ca);
-	ts_scep_enroll(pConfig, scep_renew);
-#endif
-					// Send an cert event message representing operation cert information
-					if (status == TsStatusOk) {
-						TsMessageRef_t certMessage;
-						if (ts_cert_make_update( &certMessage ) == TsStatusOk) {
-							ts_message_dump(certMessage);
-							ts_service_enqueue_typed(service, "ts.event.cert", certMessage);
-							ts_message_destroy(certMessage);
-						}
+					cert = false;
+					/*Creating SCEP Thread here for testing*/
+					pthread_t tid;
+					int err;
+					err = pthread_create(&tid, NULL, &ts_scep_function, NULL);
+					if(0 != err){
+						ts_status_alarm("Cannot create Thread!!\r\n");
 					}
+					else{
+						ts_status_debug("Thread Created Successfully\r\n");
+					}
+				}
+				if(g_scep_complete)
+				{
+					g_scep_complete = false;
+					// Send an cert event message representing operation cert information	
+					TsMessageRef_t certMessage;
+					if (ts_cert_make_update( &certMessage ) == TsStatusOk) {
+						ts_message_dump(certMessage);
+						ts_service_enqueue_typed(service, "ts.event.cert", certMessage);
+						ts_message_destroy(certMessage);
+					}
+					ts_status_debug("DONE::Thread Indicated Exit!\r\n");
 				}
 
 			}
@@ -223,6 +235,9 @@ int main( int argc, char *argv[] ) {
 				g_reboot_now = false;
 				break;
 			}
+			
+			
+			
 
 		} while( connected );
 		ts_status_debug( "simple: exited run-loop, cleaning up rebooting...\n");
@@ -385,6 +400,8 @@ static TsStatus_t loadFileIntoRam(char* directory, char* file_name, uint8_t** bu
 	return iret;
 
 }
+
+
 
 int freeCryptoMemory ()
 {
