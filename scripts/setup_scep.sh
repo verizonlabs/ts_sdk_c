@@ -64,9 +64,9 @@ if [ ! -d "${op_cert_dir}" ]; then
 	mkdir -p  ${op_cert_dir}
 else
 	rm -rf ${op_cert_dir}
-#create the opcert, firewll config and scep config folders
-	mkdir -p /var/lib/thingspace/{certs,firewall,scep}
 fi
+#create the opcert, firewll config and scep config folders
+mkdir -p /var/lib/thingspace/{certs,firewall,scep}
 #parse ca cert pem formated file
 openssl x509 -C -in $1 > ${mf_cert_dir}cacert.der
 echo "openssl x509 -C -in $1 > ${mf_cert_dir}cacert.der"
