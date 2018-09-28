@@ -97,7 +97,7 @@ int main( int argc, char *argv[] ) {
 
 #ifdef OMIT_SCEP
 #include "ts_scep.h"
-	TsScepConfigRef_t Config;
+	TsScepConfig_t Config;
 	TsScepConfigRef_t *pConfig= &Config;
 	/*enrol renew and rekey calling example */
 	ts_scepconfig_restore(pConfig, "/var/lib/thingspace/","scepconfig");
@@ -122,7 +122,7 @@ int main( int argc, char *argv[] ) {
 			cert_path = MFG_CERT_PATH;
 			cert_name = CLIENT_CERT_FILE;
 			key_name = CLIENT_PRIVATE_KEY;
-		}
+//		}
 		// Read certs and keys into memory - Fatal is can't read them
 		status = loadFileIntoRam(cert_path, CA_CERT_FILE, &cacert_buf, &size_cacert_buf);
 		if( status != TsStatusOk ) {
@@ -186,6 +186,14 @@ int main( int argc, char *argv[] ) {
 				if (cert == true){
 					cert = 0;
 
+#ifdef OMIT_SCEP
+#include "ts_scep.h"
+	TsScepConfig_t Config;
+	TsScepConfigRef_t *pConfig= &Config;
+	ts_scepconfig_restore(pConfig, "/var/lib/thingspace/","scepconfig");
+	ts_scep_enroll(pConfig, scep_ca);
+	ts_scep_enroll(pConfig, scep_renew);
+#endif
 					// Send an cert event message representing operation cert information
 					if (status == TsStatusOk) {
 						TsMessageRef_t certMessage;
