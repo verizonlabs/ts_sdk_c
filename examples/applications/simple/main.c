@@ -53,11 +53,18 @@ bool g_scep_complete = false;
 
 static TsStatus_t ts_scep_function(){
 	TsScepConfig_t Config;
-	TsScepConfigRef_t *pConfig= &Config;
+	TsScepConfigRef_t pConfig= &Config;
 	/*enrol renew and rekey calling example */
 	ts_scepconfig_restore(pConfig, "/var/lib/thingspace/","scepconfig");
 	ts_scep_enroll(pConfig, scep_ca);
-	ts_scep_enroll(pConfig, scep_renew);
+	if(pConfig->_generateNewPrivateKey == true){
+		ts_scep_enroll(pConfig, scep_rekey);
+		system("cp /var/lib/thingspace/renewalDerKey.der /var/lib/thingspace/certs/opkey.der");
+	}
+	else{
+		ts_scep_enroll(pConfig, scep_renew);
+		system("cp /usr/share/thingspace/conf/clkey.der /var/lib/thingspace/certs/opkey.der");
+	}
 	g_scep_complete = true;
 	ts_status_debug("Exiting Thread now\r\n");
 	system("openssl x509 -inform der -in /var/lib/thingspace/scep/requester_cert.der -out /var/lib/thingspace/certs/opcert.pem");
