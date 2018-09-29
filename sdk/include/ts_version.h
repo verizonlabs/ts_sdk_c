@@ -20,7 +20,7 @@
 #include "ts_message.h"
 
 #define TS_SDK_VERSION "2.0.0"
-#define TS_ODS_VERSION "1.0.0"
+#define TS_ODS_VERSION "ODS_v2.1.0-RPI"
 #define TS_HARDWARE_VERSION "1.0"
 
 /**
