@@ -19,8 +19,7 @@ endif()
 # project definition
 project( ts_sdk_c C CXX ASM )
 set( CMAKE_C_STANDARD 99 )
-
-# (optional) toolchain
+set(CMAKE_EXE_LINKER_FLAGS "-Wl,-Map,out.map")
 if( CMAKE_TOOLCHAIN_FILE )
 	message( STATUS "## Toolchain file chosen		          : ${CMAKE_TOOLCHAIN_FILE}" )
 	message( STATUS "## Target triplet			              : ${TARGET_TRIPLET}" )
