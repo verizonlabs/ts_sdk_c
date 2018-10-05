@@ -183,7 +183,7 @@ int main( int argc, char *argv[] ) {
 		uint64_t timestamp = ts_platform_time();
 		uint32_t interval = 1 * TS_TIME_SEC_TO_USEC;
 
-		TsLogConfigRef_t logconfig = ts_service_get_logconfig();
+		TsLogConfigRef_t logconfig = ts_service_get_logconfig( service );
 
 		do {
 
