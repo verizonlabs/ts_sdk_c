@@ -183,7 +183,9 @@ int main( int argc, char *argv[] ) {
 		uint64_t timestamp = ts_platform_time();
 		uint32_t interval = 1 * TS_TIME_SEC_TO_USEC;
 
+#ifdef TEST_OEM_LOGGING
 		TsLogConfigRef_t logconfig = ts_service_get_logconfig( service );
+#endif /* TEST_OEM_LOGGING */
 
 		do {
 
@@ -226,7 +228,9 @@ int main( int argc, char *argv[] ) {
 
 			}
 
+#ifdef TEST_OEM_LOGGING
 			ts_log(logconfig, TsLogLevelInfo, TsCategoryDiagnostic, "Testing the OEM-accessible logging capability\n");
+#endif /* TEST_OEM_LOGGING */
 
 			// provide client w/some processing power
 			// note - this will run continuously until the interval is complete
