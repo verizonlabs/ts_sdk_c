@@ -61,7 +61,7 @@ TsStatus_t ts_service_destroy( TsServiceRef_t service ) {
 
 // Get the LogConfigRef_t object associated with this service, if it exists.
 // Return null if there is none.
-TsLogConfigRef_t ts_service_get_logconfig() {
+TsLogConfigRef_t ts_service_get_logconfig( TsServiceRef_t service ) {
 	return service->_logconfig;
 }
 
