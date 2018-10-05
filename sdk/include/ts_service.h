@@ -312,6 +312,8 @@ TsStatus_t ts_service_hangup( TsServiceRef_t );
 TsStatus_t ts_service_enqueue( TsServiceRef_t, TsMessageRef_t );
 TsStatus_t ts_service_dequeue( TsServiceRef_t, TsServiceAction_t, TsServiceHandler_t );
 TsStatus_t ts_service_enqueue_typed( TsServiceRef_t, char*, TsMessageRef_t );
+
+TsLogConfigRef_t ts_service_get_logconfig();
 #ifdef __cplusplus
 }
 #endif

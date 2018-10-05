@@ -59,6 +59,12 @@ TsStatus_t ts_service_destroy( TsServiceRef_t service ) {
 	bool suspend = false;
 #endif
 
+// Get the LogConfigRef_t object associated with this service, if it exists.
+// Return null if there is none.
+TsLogConfigRef_t ts_service_get_logconfig() {
+	return service->_logconfig;
+}
+
 TsStatus_t ts_service_tick( TsServiceRef_t service, uint32_t budget ) {
 
 	ts_status_trace( "ts_service_tick\n" );

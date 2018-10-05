@@ -11,6 +11,7 @@
 #include "ts_file.h"
 #include "ts_cert.h"
 #include "ts_scep.h"
+#include "ts_log.h"
 
 #ifdef DO_IT_THE_OLD_WAY
 #include "include/cacert.h"
@@ -181,6 +182,9 @@ int main( int argc, char *argv[] ) {
 		ts_status_debug( "simple: entering run-loop,...\n");
 		uint64_t timestamp = ts_platform_time();
 		uint32_t interval = 1 * TS_TIME_SEC_TO_USEC;
+
+		TsLogConfigRef_t logconfig = ts_service_get_logconfig();
+
 		do {
 
 			// perform update at particular delta
@@ -221,6 +225,8 @@ int main( int argc, char *argv[] ) {
 				}
 
 			}
+
+			ts_log(logconfig, TsLogLevelInfo, TsCategoryDiagnostic, "Testing the OEM-accessible logging capability\n");
 
 			// provide client w/some processing power
 			// note - this will run continuously until the interval is complete
