@@ -111,7 +111,7 @@ TsStatus_t ts_service_tick( TsServiceRef_t service, uint32_t budget ) {
 		}
 	}
 
-	ts_status_debug("After calling firewall tick, remaining timer budget is %d, interval is %d\n", budget, interval);
+	ts_status_trace("After calling firewall tick, remaining timer budget is %d, interval is %d\n", budget, interval);
 
 #ifdef TEST_SUSPEND
 	ticks++;
