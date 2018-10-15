@@ -169,7 +169,7 @@ static TsStatus_t ts_destroy( TsTransportRef_t transport ) {
 
 static TsStatus_t ts_tick( TsTransportRef_t transport, uint32_t budget ) {
 
-	ts_status_debug( "ts_transport_tick\n" );
+	ts_status_trace( "ts_transport_tick\n" );
 	ts_platform_assert( transport != NULL );
 	ts_platform_assert( budget > 0 );
 
@@ -192,8 +192,8 @@ static TsStatus_t ts_tick( TsTransportRef_t transport, uint32_t budget ) {
 
 	// report budget status and return
 	timestamp = ts_platform_time() - timestamp;
-	if( timestamp > budget + TS_TIME_MSEC_TO_USEC ) {
-		ts_status_alarm( "ts_transport_tick: exceeded time budget, %llu msec\n", timestamp/TS_TIME_MSEC_TO_USEC );
+	if( timestamp > (budget) ) {
+		ts_status_trace( "ts_transport_tick: exceeded time budget, %llu msec\n", timestamp/TS_TIME_MSEC_TO_USEC );
 	}
 
 	return TsStatusOk;

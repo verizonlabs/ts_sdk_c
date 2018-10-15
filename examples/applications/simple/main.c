@@ -37,6 +37,7 @@ static TsMessageRef_t sensors;
 //static TsStatus_t initialize( TsServiceRef_t* );
 static TsStatus_t handler( TsServiceRef_t, TsServiceAction_t, TsMessageRef_t );
 static TsStatus_t usage(int argc, char *argv[], char ** hostname_and_port, char ** host, char ** port );
+static double get_cpu_temperature();
 bool cert = false;
 
 // Buffers for crypto object allocated dynamically from corresponding files
@@ -182,6 +183,7 @@ int main( int argc, char *argv[] ) {
 		ts_status_debug( "simple: entering run-loop,...\n");
 		uint64_t timestamp = ts_platform_time();
 		uint32_t interval = 1 * TS_TIME_SEC_TO_USEC;
+		uint32_t sensor_interval = 5 * TS_TIME_SEC_TO_USEC;
 
 #ifdef TEST_OEM_LOGGING
 		TsLogConfigRef_t logconfig = ts_service_get_logconfig( service );
@@ -190,9 +192,12 @@ int main( int argc, char *argv[] ) {
 		do {
 
 			// perform update at particular delta
-			if( ts_platform_time() - timestamp > interval ) {
+			if( ts_platform_time() - timestamp > sensor_interval ) {
 
 				timestamp = ts_platform_time();
+				double temperature_core = get_cpu_temperature();
+				ts_status_debug("Temperature Reported as: %f\r\n", temperature_core);
+				ts_message_set_float( sensors, "temperature", (float)temperature_core );
 				status = ts_service_enqueue( service, sensors );
 				if( status != TsStatusOk ) {
 					ts_status_debug( "simple: ignoring failure to enqueue sensor data, %s\n", ts_status_string(status) );
@@ -414,7 +419,17 @@ static TsStatus_t loadFileIntoRam(char* directory, char* file_name, uint8_t** bu
 
 }
 
-
+double get_cpu_temperature()
+{
+	FILE *temperatureFile;
+	double T;
+	temperatureFile = fopen ("/sys/class/thermal/thermal_zone0/temp", "r");
+	if (temperatureFile == NULL)
+	  T = 52.3;
+	fscanf (temperatureFile, "%lf", &T);
+	T /= 1000;
+	fclose (temperatureFile);
+}
 
 int freeCryptoMemory ()
 {
