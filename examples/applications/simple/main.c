@@ -425,10 +425,15 @@ double get_cpu_temperature()
 	double T;
 	temperatureFile = fopen ("/sys/class/thermal/thermal_zone0/temp", "r");
 	if (temperatureFile == NULL)
-	  T = 52.3;
-	fscanf (temperatureFile, "%lf", &T);
-	T /= 1000;
-	fclose (temperatureFile);
+	{
+		T = 52.3;
+	}
+	else
+	{
+		fscanf (temperatureFile, "%lf", &T);
+		T /= 1000;
+		fclose (temperatureFile);
+	}
 }
 
 int freeCryptoMemory ()
